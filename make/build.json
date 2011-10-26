@@ -1,0 +1,8 @@
+{
+  "JAVASCRIPT": {
+    "DIST_DIR": "./",
+    "vis": [
+      "./js/imagediff.js"
+    ]
+  }
+}
