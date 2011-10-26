@@ -2,20 +2,23 @@
   var
     CONTAINER = $('#demo'),
     TYPES = [
-      {
+      {   
         title : 'Normal',
-        a : 'http://github.com/cameronmcefee/Image-Diff-View-Modes/blob/8bf009f5e2aaf3c363d64d4e013527589c810b7e/1_normal.jpg?raw=true',
-        b : 'http://github.com/cameronmcefee/Image-Diff-View-Modes/blob/8e95f70c9c47168305970e91021072673d7cdad8/1_normal.jpg?raw=true'
-      },
-      {
+        key : 'normal',
+        a : '1_normal_a.jpg',
+        b : '1_normal_b.jpg'
+      },  
+      {   
         title : 'Transparency',
-        a : 'http://github.com/cameronmcefee/Image-Diff-View-Modes/blob/8bf009f5e2aaf3c363d64d4e013527589c810b7e/2_transparentPixels.png?raw=true',
-        b : 'http://github.com/cameronmcefee/Image-Diff-View-Modes/blob/8e95f70c9c47168305970e91021072673d7cdad8/2_transparentPixels.png?raw=true'
-      },
-      {
+        key : 'transparency',
+        a : '2_transparentPixels_a.png',
+        b : '2_transparentPixels_b.png'
+      },  
+      {   
         title : 'Size',
-        a : 'http://github.com/cameronmcefee/Image-Diff-View-Modes/blob/8bf009f5e2aaf3c363d64d4e013527589c810b7e/4_differentSize.jpg?raw=true',
-        b : 'http://github.com/cameronmcefee/Image-Diff-View-Modes/blob/8e95f70c9c47168305970e91021072673d7cdad8/4_differentSize.jpg?raw=true'
+        key : 'size',
+        a : '4_differentSize_a.jpg',
+        b : '4_differentSize_b.jpg'
       }
     ];
 
