@@ -38,7 +38,7 @@
     canvas.width = width;
     canvas.height = height;
     context.clearRect(0, 0, width, height);
-    return context.createImageData(w, h);
+    return context.createImageData(width, height);
   }
 
 
