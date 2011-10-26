@@ -1,8 +1,19 @@
+/*! imagediff.js 1.0.0
+  * (c) 2011 Carl Sutherland, Humble Software Development
+  * imagediff.js is freely distributable under the MIT license.
+  * Thanks to Jacob Thornton for the node/amd integration bits.
+  * For details and documentation:
+  * https://github.com/HumbleSoftware/js-imagediff
+  */
 (function (name, definition) {
   var root = this;
-  if (typeof module != 'undefined') module.exports = definition();
-  else if (typeof define == 'function' && typeof define.amd == 'object') define(definition);
-  else root[name] = definition(root, name);
+  if (typeof module != 'undefined') {
+    module.exports = definition();
+  } else if (typeof define == 'function' && typeof define.amd == 'object') {
+    define(definition);
+  } else {
+    root[name] = definition(root, name);
+  }
 })('imagediff', function (root, name) {
 
   var
