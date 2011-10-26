@@ -4,18 +4,18 @@
     TYPES = [
       {
         title : 'Normal',
-        a : 'https://github.com/cameronmcefee/Image-Diff-View-Modes/blob/8bf009f5e2aaf3c363d64d4e013527589c810b7e/1_normal.jpg?raw=true',
-        b : 'https://github.com/cameronmcefee/Image-Diff-View-Modes/blob/8e95f70c9c47168305970e91021072673d7cdad8/1_normal.jpg?raw=true'
+        a : 'http://github.com/cameronmcefee/Image-Diff-View-Modes/blob/8bf009f5e2aaf3c363d64d4e013527589c810b7e/1_normal.jpg?raw=true',
+        b : 'http://github.com/cameronmcefee/Image-Diff-View-Modes/blob/8e95f70c9c47168305970e91021072673d7cdad8/1_normal.jpg?raw=true'
       },
       {
         title : 'Transparency',
-        a : 'https://github.com/cameronmcefee/Image-Diff-View-Modes/blob/8bf009f5e2aaf3c363d64d4e013527589c810b7e/2_transparentPixels.png?raw=true',
-        b : 'https://github.com/cameronmcefee/Image-Diff-View-Modes/blob/8e95f70c9c47168305970e91021072673d7cdad8/2_transparentPixels.png?raw=true'
+        a : 'http://github.com/cameronmcefee/Image-Diff-View-Modes/blob/8bf009f5e2aaf3c363d64d4e013527589c810b7e/2_transparentPixels.png?raw=true',
+        b : 'http://github.com/cameronmcefee/Image-Diff-View-Modes/blob/8e95f70c9c47168305970e91021072673d7cdad8/2_transparentPixels.png?raw=true'
       },
       {
         title : 'Size',
-        a : 'https://github.com/cameronmcefee/Image-Diff-View-Modes/blob/8bf009f5e2aaf3c363d64d4e013527589c810b7e/4_differentSize.jpg?raw=true',
-        b : 'https://github.com/cameronmcefee/Image-Diff-View-Modes/blob/8e95f70c9c47168305970e91021072673d7cdad8/4_differentSize.jpg?raw=true'
+        a : 'http://github.com/cameronmcefee/Image-Diff-View-Modes/blob/8bf009f5e2aaf3c363d64d4e013527589c810b7e/4_differentSize.jpg?raw=true',
+        b : 'http://github.com/cameronmcefee/Image-Diff-View-Modes/blob/8e95f70c9c47168305970e91021072673d7cdad8/4_differentSize.jpg?raw=true'
       }
     ];
 
