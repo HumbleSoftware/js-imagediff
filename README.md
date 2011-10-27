@@ -17,3 +17,8 @@ API
 * `equal(a, b)` tests image type objects for equality.
 * `diff(a, b)` performs an image diff on a and b, returning a - b.
 * `noConflict()` removes imagediff from the global space for compatibility, returning imagediff.
+
+Demo
+----
+
+A demo is available at http://humblesoftware.github.com/js-imagediff/
