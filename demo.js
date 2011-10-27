@@ -5,20 +5,20 @@
       {   
         title : 'Normal',
         key : 'normal',
-        a : '1_normal_a.jpg',
-        b : '1_normal_b.jpg'
+        a : 'images/1_normal_a.jpg',
+        b : 'images/1_normal_b.jpg'
       },  
       {   
         title : 'Transparency',
         key : 'transparency',
-        a : '2_transparentPixels_a.png',
-        b : '2_transparentPixels_b.png'
+        a : 'images/2_transparentPixels_a.png',
+        b : 'images/2_transparentPixels_b.png'
       },  
       {   
         title : 'Size',
         key : 'size',
-        a : '4_differentSize_a.jpg',
-        b : '4_differentSize_b.jpg'
+        a : 'images/4_differentSize_a.jpg',
+        b : 'images/4_differentSize_b.jpg'
       }
     ];
 

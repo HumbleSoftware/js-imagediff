@@ -55,7 +55,7 @@ div.image {
 }
 div.example.transparency div.image-b,
 div.example.transparency div.image-c {
-  background: url('hash.gif') 6px 0px;
+  background: url('images/hash.gif') 6px 0px;
 }
 div.example.size div.image-b {
   width: 200px;
