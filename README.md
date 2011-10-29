@@ -22,3 +22,11 @@ Demo
 ----
 
 A demo is available at http://humblesoftware.github.com/js-imagediff/
+
+Changelog
+---------
+
+<h3>1.0.1</h3>
+* Moved library to imagediff.js
+* Added Jasmine matchers
+* Minor bug fixes, lint fixes.

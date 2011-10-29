@@ -1,4 +1,4 @@
-/*! imagediff.js 1.0.0
+/*! imagediff.js 1.0.1
   * (c) 2011 Carl Sutherland, Humble Software Development
   * imagediff.js is freely distributable under the MIT license.
   * Thanks to Jacob Thornton for the node/amd integration bits.
