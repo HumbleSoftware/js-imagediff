@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>JS-ImageDiff Jasmine Demo</title>
+
+  <link rel="shortcut icon" type="image/png" href="js/jasmine/jasmine_favicon.png">
+  <link rel="stylesheet" type="text/css" href="js/jasmine/jasmine.css">
+  <link rel="stylesheet" href="css/styles.css" type="text/css" />
+  <link rel="stylesheet" href="js/google-code-prettify/prettify.css" type="text/css" />
+
+  <script type="text/javascript" src="js/jasmine/jasmine.js"></script>
+  <script type="text/javascript" src="js/jasmine/jasmine-html.js"></script>
+  <script type="text/javascript" src="js/imagediff.js"></script>
+  <script type="text/javascript" src="js/test.js"></script>
+  <script type="text/javascript" src="js/google-code-prettify/prettify.js"></script>
+
+
+</head>
+
+<body>
+  <div id="content">
+  <div id="navigation">
+      <a href="index.html">ImageDiff Demo</a>
+  </div>
+    <h1>JS-ImageDiff Jasmine Demo:</h1>
+    <p style="padding: 0px 100px;">Using the Jasmine matchers, it is possible to test Canvas.  Sample images from the <a href="https://github.com/cameronmcefee/Image-Diff-View-Modes/commit/8e95f70c9c47168305970e91021072673d7cdad8">github imagediff demo</a>.  Example by <a href="http://www.humblesoftware.com">humble software development</a>.</p>
+  </div>
+  <h3>Example:</h3>
+  <pre class="prettyprint">
+  // Matchers
+  beforeEach(function () {
+    this.addMatchers(imagediff.jasmine);
+  });
+
+  // Test
+  it('should convert be the same image', function () {
+
+    var
+      a = new Image(),
+      b = new Image();
+    a.src = 'images/1_normal_a.jpg';
+    b.src = 'images/1_normal_a.jpg';
+
+    waitsFor(function () {
+      return a.complete &amp; b.complete;
+    }, 'image not loaded.', 2000);
+
+    runs(function () {
+      expect(a).toImageDiffEqual(b); // imagediff expects Image, Canvas, CanvasRenderingContext2D or ImageData
+    });
+  });
+  </pre>
+  <div id="github-ribbon">
+    <a href="http://github.com/HumbleSoftware/js-imagediff"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://d3nwyuy0nl342s.cloudfront.net/img/71eeaab9d563c2b3c590319b398dd35683265e85/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub"/></a>
+  </div>
+
+  <script type="text/javascript">
+  (function() {
+   prettyPrint();
+    var jasmineEnv = jasmine.getEnv();
+    jasmineEnv.updateInterval = 1000;
+
+    var trivialReporter = new jasmine.TrivialReporter();
+
+    jasmineEnv.addReporter(trivialReporter);
+
+    jasmineEnv.specFilter = function(spec) {
+      return trivialReporter.specFilter(spec);
+    };
+
+    var currentWindowOnload = window.onload;
+
+    window.onload = function() {
+      if (currentWindowOnload) {
+        currentWindowOnload();
+      }
+      execJasmine();
+    };
+
+    function execJasmine() {
+      jasmineEnv.execute();
+    }
+
+  })();
+  </script>
+</body>
+</html>
