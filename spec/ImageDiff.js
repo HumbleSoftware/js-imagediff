@@ -3,7 +3,8 @@ describe('ImageUtils', function() {
   var
     OBJECT            = 'object',
     TYPE_CANVAS       = '[object HTMLCanvasElement]',
-    TYPE_IMAGE_DATA   = '[object ImageData]';
+    TYPE_IMAGE_DATA   = '[object ImageData]',
+    E_TYPE            = { name : 'ImageTypeError', message : 'Submitted object was not an image.' };
 
   function getContext () {
     var
@@ -140,12 +141,9 @@ describe('ImageUtils', function() {
       });
 
       it('should fail on non-ImageType', function () {
-        var
-          e = { name : 'ImageTypeError', message : 'Submitted object was not an image.' };
-
-        expect(function () { imagediff.toImageData() }).toThrow(e);
-        expect(function () { imagediff.toImageData('') }).toThrow(e);
-        expect(function () { imagediff.toImageData({}) }).toThrow(e);
+        expect(function () { imagediff.toImageData() }).toThrow(E_TYPE);
+        expect(function () { imagediff.toImageData('') }).toThrow(E_TYPE);
+        expect(function () { imagediff.toImageData({}) }).toThrow(E_TYPE);
       });
     });
   });
