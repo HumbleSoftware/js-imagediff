@@ -1,7 +1,7 @@
 {
   "JAVASCRIPT": {
     "DIST_DIR": "./",
-    "vis": [
+    "imagediff": [
       "./js/imagediff.js"
     ]
   }
