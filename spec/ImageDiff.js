@@ -273,6 +273,70 @@ describe('ImageUtils', function() {
   });
 
 
+  // Jasmine Matcher Testing
+  describe("jasmine.Matchers", function() {
+    var env, spec;
+
+    beforeEach(function() {
+      env = new jasmine.Env();
+      env.updateInterval = 0;
+
+      var suite = env.describe("suite", function() {
+        spec = env.it("spec", function() {
+        });
+      });
+      spyOn(spec, 'addMatcherResult');
+
+      spec.addMatchers(imagediff.jasmine);
+      this.addMatchers({
+        toPass: function() {
+          return lastResult().passed();
+        },
+        toFail: function() {
+          return !lastResult().passed();
+        }
+      });
+    });
+
+    function match(value) {
+      return spec.expect(value);
+    }
+
+    function lastResult() {
+      return spec.addMatcherResult.mostRecentCall.args[0];
+    }
+
+    it('toBeImageData', function () {
+      var a = imagediff.createImageData(1, 1),
+          b = {};
+      expect(match(a).toBeImageData()).toPass();
+      expect(match(b).toBeImageData()).toFail();
+    });
+
+    it('toImageDiffEqual', function () {
+      var
+        a = new Image(),
+        b = new Image(),
+        c = new Image();
+      a.src = 'images/xmark.png';
+      b.src = 'images/xmark.png';
+      c.src = 'images/checkmark.png';
+
+      waitsFor(function () {
+        return a.complete && b.complete && c.complete;
+      }, 'image not loaded.', 2000);
+
+      runs(function () {
+        expect(match(a).toImageDiffEqual(b)).toPass();
+        expect(match(a).toImageDiffEqual(c)).toFail();
+        expect(function () {
+          match(a).toImageDiffEqual({});
+        }).toThrow(E_TYPE);
+      });
+    });
+  });
+
+
   // Compatibility Testing
   describe('Compatibility', function () {
 
