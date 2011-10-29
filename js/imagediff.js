@@ -207,8 +207,8 @@
 
     // Helpers
     function offsets (imageData) {
-      rowOffset = Math.floor((height - imageData.height) / 2)
-      columnOffset = Math.floor((width - imageData.width) / 2)
+      rowOffset = Math.floor((height - imageData.height) / 2);
+      columnOffset = Math.floor((width - imageData.width) / 2);
     }
 
     return c;
@@ -274,7 +274,7 @@
           div,
           "Expected not to be equal."
         ];
-      }
+      };
 
       return imagediff.equal(this.actual, expected);
     }
