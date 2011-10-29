@@ -231,7 +231,7 @@
 
   // Jasmine Matchers
   function get (element, content) {
-    var element = document.createElement(element);
+    element = document.createElement(element);
     if (element && content) {
       element.innerHTML = content;
     }
