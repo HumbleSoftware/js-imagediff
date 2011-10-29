@@ -1,4 +1,4 @@
-/*! imagediff.js 1.0.0
+/*! imagediff.js 1.0.1
   * (c) 2011 Carl Sutherland, Humble Software Development
   * imagediff.js is freely distributable under the MIT license.
   * Thanks to Jacob Thornton for the node/amd integration bits.
@@ -26,7 +26,7 @@
     canvas            = getCanvas(),
     context           = canvas.getContext('2d'),
     previous          = root[name],
-    imagediff;
+    imagediff, jasmine;
 
   // Creation
   function getCanvas () {
@@ -207,8 +207,8 @@
 
     // Helpers
     function offsets (imageData) {
-      rowOffset = Math.floor((height - imageData.height) / 2)
-      columnOffset = Math.floor((width - imageData.width) / 2)
+      rowOffset = Math.floor((height - imageData.height) / 2);
+      columnOffset = Math.floor((width - imageData.width) / 2);
     }
 
     return c;
@@ -228,6 +228,57 @@
     }
   }
 
+
+  // Jasmine Matchers
+  function get (element, content) {
+    element = document.createElement(element);
+    if (element && content) {
+      element.innerHTML = content;
+    }
+    return element;
+  }
+  jasmine = {
+
+    toBeImageData : function () {
+      return imagediff.isImageData(this.actual);
+    },
+
+    toImageDiffEqual : function (expected) {
+
+      this.message = function() {
+
+        var
+          div     = get('div'),
+          a       = get('div', '<div>Actual:</div>'),
+          b       = get('div', '<div>Expected:</div>'),
+          c       = get('div', '<div>Diff:</div>'),
+          diff    = imagediff.diff(this.actual, expected),
+          canvas  = getCanvas(),
+          context;
+
+        canvas.height = diff.height;
+        canvas.width  = diff.width;
+
+        context = canvas.getContext('2d');
+        context.putImageData(diff, 0, 0);
+
+        a.appendChild(this.actual);
+        b.appendChild(expected);
+        c.appendChild(canvas);
+
+        div.appendChild(a);
+        div.appendChild(b);
+        div.appendChild(c);
+
+        return [
+          div,
+          "Expected not to be equal."
+        ];
+      };
+
+      return imagediff.equal(this.actual, expected);
+    }
+  };
 
   // Definition
   imagediff = {
@@ -259,6 +310,8 @@
       b = toImageData(b);
       return diff(a, b);
     },
+
+    jasmine : jasmine,
 
     // Compatibility
     noConflict : function () {
