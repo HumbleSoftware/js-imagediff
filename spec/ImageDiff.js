@@ -284,7 +284,16 @@ describe('ImageUtils', function() {
 
   // Jasmine Matcher Testing
   describe("jasmine.Matchers", function() {
-    var env, spec;
+
+    var
+      imageA = new Image(),
+      imageB = new Image(),
+      imageC = new Image(),
+      env, spec;
+
+    imageA.src = 'images/xmark.png';
+    imageB.src = 'images/xmark.png';
+    imageC.src = 'images/checkmark.png';
 
     beforeEach(function() {
       env = new jasmine.Env();
@@ -322,24 +331,17 @@ describe('ImageUtils', function() {
       expect(match(b).toBeImageData()).toFail();
     });
 
-    it('toImageDiffEqual', function () {
-      var
-        a = new Image(),
-        b = new Image(),
-        c = new Image();
-      a.src = 'images/xmark.png';
-      b.src = 'images/xmark.png';
-      c.src = 'images/checkmark.png';
+    it('toImageDiffEqual with images', function () {
 
       waitsFor(function () {
-        return a.complete && b.complete && c.complete;
+        return imageA.complete && imageB.complete && imageC.complete;
       }, 'image not loaded.', 2000);
 
       runs(function () {
-        expect(match(a).toImageDiffEqual(b)).toPass();
-        expect(match(a).toImageDiffEqual(c)).toFail();
+        expect(match(imageA).toImageDiffEqual(imageB)).toPass();
+        expect(match(imageA).toImageDiffEqual(imageC)).toFail();
         expect(function () {
-          match(a).toImageDiffEqual({});
+          match(imageA).toImageDiffEqual({});
         }).toThrow(E_TYPE);
       });
     });
