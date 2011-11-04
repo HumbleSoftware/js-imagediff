@@ -24,6 +24,15 @@ describe('ImageUtils', function() {
       expect(Object.prototype.toString.apply(canvas)).toEqual(TYPE_CANVAS);
     });
 
+    it('should create a canvas with dimensions', function () {
+      var
+        canvas = imagediff.createCanvas(10, 20);
+      expect(typeof canvas).toEqual(OBJECT);
+      expect(Object.prototype.toString.apply(canvas)).toEqual(TYPE_CANVAS);
+      expect(canvas.width).toEqual(10);
+      expect(canvas.height).toEqual(20);
+    });
+
     it('should create an imagedata object', function () {
       var
         imageData = imagediff.createImageData(10, 10);
