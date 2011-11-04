@@ -110,6 +110,15 @@
       width = canvas.width;
     return context.getImageData(0, 0, width, height);
   }
+  function toCanvas (object) {
+    var
+      data = toImageData(object),
+      canvas = getCanvas(data.width, data.height),
+      context = canvas.getContext('2d');
+
+    context.putImageData(data, 0, 0);
+    return canvas;
+  }
 
 
   // ImageData Equality Operators
@@ -264,8 +273,8 @@
         context = canvas.getContext('2d');
         context.putImageData(diff, 0, 0);
 
-        a.appendChild(this.actual);
-        b.appendChild(expected);
+        a.appendChild(toCanvas(this.actual));
+        b.appendChild(toCanvas(expected));
         c.appendChild(canvas);
 
         div.appendChild(a);
