@@ -29,9 +29,11 @@
     imagediff, jasmine;
 
   // Creation
-  function getCanvas () {
+  function getCanvas (width, height) {
     var
       canvas = document.createElement('canvas');
+    if (width) canvas.width = width;
+    if (height) canvas.height = height;
     return canvas;
   }
   function getImageData (width, height) {
