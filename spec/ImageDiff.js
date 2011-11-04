@@ -345,6 +345,23 @@ describe('ImageUtils', function() {
         }).toThrow(E_TYPE);
       });
     });
+
+    it('toImageDiffEqual with contexts (not a DOM element)', function () {
+      var
+        a = imagediff.createCanvas(imageA.width, imageA.height).getContext('2d'),
+        b = imagediff.createCanvas(imageB.width, imageB.height).getContext('2d'),
+        c = imagediff.createCanvas(imageC.width, imageC.height).getContext('2d');
+
+      a.drawImage(imageA, 0, 0);
+      b.drawImage(imageB, 0, 0);
+      c.drawImage(imageC, 0, 0);
+
+      expect(match(a).toImageDiffEqual(b)).toPass();
+      expect(match(a).toImageDiffEqual(c)).toFail();
+      expect(function () {
+        match(a).toImageDiffEqual({});
+      }).toThrow(E_TYPE);
+    });
   });
 
 
