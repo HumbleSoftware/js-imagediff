@@ -1,4 +1,4 @@
-/*! imagediff.js 1.0.1
+/*! imagediff.js 1.0.2
   * (c) 2011 Carl Sutherland, Humble Software Development
   * imagediff.js is freely distributable under the MIT license.
   * Thanks to Jacob Thornton for the node/amd integration bits.
@@ -29,9 +29,11 @@
     imagediff, jasmine;
 
   // Creation
-  function getCanvas () {
+  function getCanvas (width, height) {
     var
       canvas = document.createElement('canvas');
+    if (width) canvas.width = width;
+    if (height) canvas.height = height;
     return canvas;
   }
   function getImageData (width, height) {
@@ -107,6 +109,15 @@
       height = canvas.height,
       width = canvas.width;
     return context.getImageData(0, 0, width, height);
+  }
+  function toCanvas (object) {
+    var
+      data = toImageData(object),
+      canvas = getCanvas(data.width, data.height),
+      context = canvas.getContext('2d');
+
+    context.putImageData(data, 0, 0);
+    return canvas;
   }
 
 
@@ -262,8 +273,8 @@
         context = canvas.getContext('2d');
         context.putImageData(diff, 0, 0);
 
-        a.appendChild(this.actual);
-        b.appendChild(expected);
+        a.appendChild(toCanvas(this.actual));
+        b.appendChild(toCanvas(expected));
         c.appendChild(canvas);
 
         div.appendChild(a);
