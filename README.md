@@ -45,6 +45,10 @@ A Jasmine test demo is available at A demo is available at http://humblesoftware
 Changelog
 ---------
 
+<h3>1.0.2</h3>
+* Added optional width / height parameters to `createCanvas` for symmetry with `createImageData`.
+* Fixed issue with `toImageDiffEqual()` matcher and non Node types - will no convert ImageData and contexts to Canvas elements for display.
+
 <h3>1.0.1</h3>
 * Moved library to imagediff.js
 * Added Jasmine matchers
