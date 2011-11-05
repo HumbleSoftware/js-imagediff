@@ -49,3 +49,8 @@ Changelog
 * Moved library to imagediff.js
 * Added Jasmine matchers
 * Minor bug fixes, lint fixes.
+
+Author
+------
+Carl Sutherland carl@humblesoftware.com
+http://www.humblesoftware.com
