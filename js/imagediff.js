@@ -6,13 +6,12 @@
   * https://github.com/HumbleSoftware/js-imagediff
   */
 (function (name, definition) {
-  var root = this;
   if (typeof module != 'undefined') {
     module.exports = definition();
   } else if (typeof define == 'function' && typeof define.amd == 'object') {
     define(definition);
   } else {
-    root[name] = definition(root, name);
+    root[name] = definition(this, name);
   }
 })('imagediff', function (root, name) {
 
@@ -25,15 +24,21 @@
 
     canvas            = getCanvas(),
     context           = canvas.getContext('2d'),
-    previous          = root[name],
+    previous          = (root ? root[name] : undefined),
     imagediff, jasmine;
 
   // Creation
   function getCanvas (width, height) {
     var
+      canvas;
+    if (typeof document != 'undefined' && document.createElement) {
       canvas = document.createElement('canvas');
-    if (width) canvas.width = width;
-    if (height) canvas.height = height;
+      if (width) canvas.width = width;
+      if (height) canvas.height = height;
+    } else {
+      var Canvas = require('canvas');
+      canvas = new Canvas(width || 300, height || 150);
+    }
     return canvas;
   }
   function getImageData (width, height) {
