@@ -3,7 +3,6 @@ describe('ImageUtils', function() {
   var
     OBJECT            = 'object',
     TYPE_CANVAS       = '[object HTMLCanvasElement]',
-    TYPE_IMAGE_DATA   = '[object ImageData]',
     E_TYPE            = { name : 'ImageTypeError', message : 'Submitted object was not an image.' };
 
   function getContext () {
@@ -37,7 +36,9 @@ describe('ImageUtils', function() {
       var
         imageData = imagediff.createImageData(10, 10);
       expect(typeof imageData).toEqual(OBJECT);
-      expect(Object.prototype.toString.apply(imageData)).toEqual(TYPE_IMAGE_DATA);
+      expect(imageData.width).toBeDefined();
+      expect(imageData.height).toBeDefined();
+      expect(imageData.data).toBeDefined();
     });
   });
 
