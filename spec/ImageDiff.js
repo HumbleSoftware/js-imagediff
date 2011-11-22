@@ -24,6 +24,15 @@ describe('ImageUtils', function() {
       expect(Object.prototype.toString.apply(canvas)).toEqual(TYPE_CANVAS);
     });
 
+    it('should create a canvas with dimensions', function () {
+      var
+        canvas = imagediff.createCanvas(10, 20);
+      expect(typeof canvas).toEqual(OBJECT);
+      expect(Object.prototype.toString.apply(canvas)).toEqual(TYPE_CANVAS);
+      expect(canvas.width).toEqual(10);
+      expect(canvas.height).toEqual(20);
+    });
+
     it('should create an imagedata object', function () {
       var
         imageData = imagediff.createImageData(10, 10);
@@ -275,7 +284,16 @@ describe('ImageUtils', function() {
 
   // Jasmine Matcher Testing
   describe("jasmine.Matchers", function() {
-    var env, spec;
+
+    var
+      imageA = new Image(),
+      imageB = new Image(),
+      imageC = new Image(),
+      env, spec;
+
+    imageA.src = 'images/xmark.png';
+    imageB.src = 'images/xmark.png';
+    imageC.src = 'images/checkmark.png';
 
     beforeEach(function() {
       env = new jasmine.Env();
@@ -313,26 +331,36 @@ describe('ImageUtils', function() {
       expect(match(b).toBeImageData()).toFail();
     });
 
-    it('toImageDiffEqual', function () {
-      var
-        a = new Image(),
-        b = new Image(),
-        c = new Image();
-      a.src = 'images/xmark.png';
-      b.src = 'images/xmark.png';
-      c.src = 'images/checkmark.png';
+    it('toImageDiffEqual with images', function () {
 
       waitsFor(function () {
-        return a.complete && b.complete && c.complete;
+        return imageA.complete && imageB.complete && imageC.complete;
       }, 'image not loaded.', 2000);
 
       runs(function () {
-        expect(match(a).toImageDiffEqual(b)).toPass();
-        expect(match(a).toImageDiffEqual(c)).toFail();
+        expect(match(imageA).toImageDiffEqual(imageB)).toPass();
+        expect(match(imageA).toImageDiffEqual(imageC)).toFail();
         expect(function () {
-          match(a).toImageDiffEqual({});
+          match(imageA).toImageDiffEqual({});
         }).toThrow(E_TYPE);
       });
+    });
+
+    it('toImageDiffEqual with contexts (not a DOM element)', function () {
+      var
+        a = imagediff.createCanvas(imageA.width, imageA.height).getContext('2d'),
+        b = imagediff.createCanvas(imageB.width, imageB.height).getContext('2d'),
+        c = imagediff.createCanvas(imageC.width, imageC.height).getContext('2d');
+
+      a.drawImage(imageA, 0, 0);
+      b.drawImage(imageB, 0, 0);
+      c.drawImage(imageC, 0, 0);
+
+      expect(match(a).toImageDiffEqual(b)).toPass();
+      expect(match(a).toImageDiffEqual(c)).toFail();
+      expect(function () {
+        match(a).toImageDiffEqual({});
+      }).toThrow(E_TYPE);
     });
   });
 
