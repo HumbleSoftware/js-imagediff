@@ -21,7 +21,9 @@
     TYPE_CANVAS       = '[object HTMLCanvasElement]',
     TYPE_CONTEXT      = '[object CanvasRenderingContext2D]',
     TYPE_IMAGE        = '[object HTMLImageElement]',
-    TYPE_IMAGE_DATA   = '[object ImageData]',
+
+    OBJECT            = 'object',
+    UNDEFINED         = 'undefined',
 
     canvas            = getCanvas(),
     context           = canvas.getContext('2d'),
@@ -55,7 +57,11 @@
     return isType(object, TYPE_CONTEXT);
   }
   function isImageData (object) {
-    return isType(object, TYPE_IMAGE_DATA);
+    return (object
+      && typeof(object) === OBJECT
+      && typeof(object.width) !== UNDEFINED
+      && typeof(object.height) !== UNDEFINED
+      && typeof(object.data) !== UNDEFINED ? true : false);
   }
   function isImageType (object) {
     return (
