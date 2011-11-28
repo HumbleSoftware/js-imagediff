@@ -261,7 +261,7 @@
       return imagediff.isImageData(this.actual);
     },
 
-    toImageDiffEqual : function (expected) {
+    toImageDiffEqual : function (expected, tolerance) {
 
       this.message = function() {
 
@@ -294,7 +294,7 @@
         ];
       };
 
-      return imagediff.equal(this.actual, expected);
+      return imagediff.equal(this.actual, expected, tolerance);
     }
   };
 
