@@ -137,16 +137,17 @@
   function equalDimensions (a, b) {
     return equalHeight(a, b) && equalWidth(a, b);
   }
-  function equal (a, b) {
+  function equal (a, b, tolerance) {
 
     var
-      aData   = a.data,
-      bData   = b.data,
-      length  = aData.length,
+      aData     = a.data,
+      bData     = b.data,
+      length    = aData.length,
+      tolerance = tolerance || 0,
       i;
 
     if (!equalDimensions(a, b)) return false;
-    for (i = length; i--;) if (aData[i] !== bData[i]) return false;
+    for (i = length; i--;) if (aData[i] !== bData[i] && Math.abs(aData[i] - bData[i]) > tolerance) return false;
 
     return true;
   }
@@ -315,11 +316,11 @@
       return toImageData(object);
     },
 
-    equal : function (a, b) {
+    equal : function (a, b, tolerance) {
       checkType(a, b);
       a = toImageData(a);
       b = toImageData(b);
-      return equal(a, b);
+      return equal(a, b, tolerance);
     },
     diff : function (a, b) {
       checkType(a, b);
