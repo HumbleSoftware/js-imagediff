@@ -408,8 +408,11 @@ describe('ImageUtils', function() {
 
     it('should remove imagediff from global space', function () {
       imagediff.noConflict();
-      expect(imagediff === that).toEqual(false);
-      expect(global.imagediff === that).toEqual(false);
+      if (!require) {
+        // TODO Is there a better way to do this?
+        expect(imagediff === that).toEqual(false);
+        expect(global.imagediff === that).toEqual(false);
+      }
     });
 
     it('should return imagediff', function () {
