@@ -6,41 +6,39 @@
   * https://github.com/HumbleSoftware/js-imagediff
   */
 (function (name, definition) {
+  var root = this;
   if (typeof module != 'undefined') {
-    module.exports = definition();
+    var Canvas = require('canvas');
+    module.exports = definition(root, name, Canvas);
   } else if (typeof define == 'function' && typeof define.amd == 'object') {
     define(definition);
   } else {
-    root[name] = definition(this, name);
+    root[name] = definition(root, name);
   }
-})('imagediff', function (root, name) {
+})('imagediff', function (root, name, Canvas) {
 
   var
-    TYPE_ARRAY        = '[object Array]',
-    TYPE_CANVAS       = '[object HTMLCanvasElement]',
-    TYPE_CONTEXT      = '[object CanvasRenderingContext2D]',
-    TYPE_IMAGE        = '[object HTMLImageElement]',
+    TYPE_ARRAY        = /\[object Array\]/i,
+    TYPE_CANVAS       = /\[object (Canvas|HTMLCanvasElement)\]/i,
+    TYPE_CONTEXT      = /\[object CanvasRenderingContext2D\]/i,
+    TYPE_IMAGE        = /\[object (Image|HTMLImageElement)\]/i,
+    TYPE_IMAGE_DATA   = /\[object ImageData\]/i, 
 
-    OBJECT            = 'object',
     UNDEFINED         = 'undefined',
 
     canvas            = getCanvas(),
     context           = canvas.getContext('2d'),
-    previous          = (root ? root[name] : undefined),
+    previous          = root[name],
     imagediff, jasmine;
 
   // Creation
   function getCanvas (width, height) {
     var
-      canvas;
-    if (typeof document != 'undefined' && document.createElement) {
-      canvas = document.createElement('canvas');
-      if (width) canvas.width = width;
-      if (height) canvas.height = height;
-    } else {
-      var Canvas = require('canvas');
-      canvas = new Canvas(width || 300, height || 150);
-    }
+      canvas = Canvas ?
+        new Canvas() :
+        document.createElement('canvas');
+    if (width) canvas.width = width;
+    if (height) canvas.height = height;
     return canvas;
   }
   function getImageData (width, height) {
@@ -62,11 +60,11 @@
     return isType(object, TYPE_CONTEXT);
   }
   function isImageData (object) {
-    return (object
-      && typeof(object) === OBJECT
+    return !!(object
+      && isType(object, TYPE_IMAGE_DATA)
       && typeof(object.width) !== UNDEFINED
       && typeof(object.height) !== UNDEFINED
-      && typeof(object.data) !== UNDEFINED ? true : false);
+      && typeof(object.data) !== UNDEFINED);
   }
   function isImageType (object) {
     return (
@@ -77,7 +75,7 @@
     );
   }
   function isType (object, type) {
-    return typeof (object) === 'object' && Object.prototype.toString.apply(object) === type;
+    return typeof (object) === 'object' && !!Object.prototype.toString.apply(object).match(type);
   }
 
 
