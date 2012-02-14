@@ -18,10 +18,10 @@
 })('imagediff', function (root, name, Canvas) {
 
   var
-    TYPE_ARRAY        = /\[object Array\]/,
-    TYPE_CANVAS       = /\[object (Canvas|HTMLCanvasElement)\]/,
-    TYPE_CONTEXT      = /\[object CanvasRenderingContext2(d|D)\]/,
-    TYPE_IMAGE        = /\[object HTMLImageElement\]/,
+    TYPE_ARRAY        = /\[object Array\]/i,
+    TYPE_CANVAS       = /\[object (Canvas|HTMLCanvasElement)\]/i,
+    TYPE_CONTEXT      = /\[object CanvasRenderingContext2D\]/i,
+    TYPE_IMAGE        = /\[object (Image|HTMLImageElement)\]/i,
 
     OBJECT            = /^object$/,
     UNDEFINED         = /^undefined$/,
