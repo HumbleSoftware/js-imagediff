@@ -278,6 +278,7 @@
 
       if (typeof (document) !== UNDEFINED) {
         this.message = function () {
+          var
             div     = get('div'),
             a       = get('div', '<div>Actual:</div>'),
             b       = get('div', '<div>Expected:</div>'),
