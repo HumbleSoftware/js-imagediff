@@ -8,20 +8,23 @@
 (function (name, definition) {
   var root = this;
   if (typeof module != 'undefined') {
-    module.exports = definition();
+    var Canvas = require('canvas');
+    module.exports = definition(root, name, Canvas);
   } else if (typeof define == 'function' && typeof define.amd == 'object') {
     define(definition);
   } else {
     root[name] = definition(root, name);
   }
-})('imagediff', function (root, name) {
+})('imagediff', function (root, name, Canvas) {
 
   var
-    TYPE_ARRAY        = '[object Array]',
-    TYPE_CANVAS       = '[object HTMLCanvasElement]',
-    TYPE_CONTEXT      = '[object CanvasRenderingContext2D]',
-    TYPE_IMAGE        = '[object HTMLImageElement]',
-    TYPE_IMAGE_DATA   = '[object ImageData]',
+    TYPE_ARRAY        = /\[object Array\]/,
+    TYPE_CANVAS       = /\[object (Canvas|HTMLCanvasElement)\]/,
+    TYPE_CONTEXT      = /\[object CanvasRenderingContext2(d|D)\]/,
+    TYPE_IMAGE        = /\[object HTMLImageElement\]/,
+
+    OBJECT            = /^object$/,
+    UNDEFINED         = /^undefined$/,
 
     canvas            = getCanvas(),
     context           = canvas.getContext('2d'),
@@ -31,7 +34,9 @@
   // Creation
   function getCanvas (width, height) {
     var
-      canvas = document.createElement('canvas');
+      canvas = Canvas ?
+        new Canvas() :
+        document.createElement('canvas');
     if (width) canvas.width = width;
     if (height) canvas.height = height;
     return canvas;
@@ -55,7 +60,11 @@
     return isType(object, TYPE_CONTEXT);
   }
   function isImageData (object) {
-    return isType(object, TYPE_IMAGE_DATA);
+    return (object
+      && typeof(object) === OBJECT
+      && typeof(object.width) !== UNDEFINED
+      && typeof(object.height) !== UNDEFINED
+      && typeof(object.data) !== UNDEFINED ? true : false);
   }
   function isImageType (object) {
     return (
@@ -66,7 +75,7 @@
     );
   }
   function isType (object, type) {
-    return typeof (object) === 'object' && Object.prototype.toString.apply(object) === type;
+    return typeof (object) === 'object' && !!Object.prototype.toString.apply(object).match(type);
   }
 
 
@@ -74,11 +83,20 @@
   function copyImageData (imageData) {
     var
       height = imageData.height,
-      width = imageData.width;
+      width = imageData.width,
+      data = imageData.data,
+      newImageData, newData, i;
+
     canvas.width = width;
     canvas.height = height;
-    context.putImageData(imageData, 0, 0);
-    return context.getImageData(0, 0, width, height);
+    newImageData = context.getImageData(0, 0, width, height);
+    newData = newImageData.data;
+
+    for (i = imageData.data.length; i--;) {
+        newData[i] = data[i];
+    }
+
+    return newImageData;
   }
   function toImageData (object) {
     if (isImage(object)) { return toImageDataFromImage(object); }
@@ -131,16 +149,17 @@
   function equalDimensions (a, b) {
     return equalHeight(a, b) && equalWidth(a, b);
   }
-  function equal (a, b) {
+  function equal (a, b, tolerance) {
 
     var
-      aData   = a.data,
-      bData   = b.data,
-      length  = aData.length,
+      aData     = a.data,
+      bData     = b.data,
+      length    = aData.length,
+      tolerance = tolerance || 0,
       i;
 
     if (!equalDimensions(a, b)) return false;
-    for (i = length; i--;) if (aData[i] !== bData[i]) return false;
+    for (i = length; i--;) if (aData[i] !== bData[i] && Math.abs(aData[i] - bData[i]) > tolerance) return false;
 
     return true;
   }
@@ -254,7 +273,7 @@
       return imagediff.isImageData(this.actual);
     },
 
-    toImageDiffEqual : function (expected) {
+    toImageDiffEqual : function (expected, tolerance) {
 
       this.message = function() {
 
@@ -287,7 +306,7 @@
         ];
       };
 
-      return imagediff.equal(this.actual, expected);
+      return imagediff.equal(this.actual, expected, tolerance);
     }
   };
 
@@ -309,11 +328,11 @@
       return toImageData(object);
     },
 
-    equal : function (a, b) {
+    equal : function (a, b, tolerance) {
       checkType(a, b);
       a = toImageData(a);
       b = toImageData(b);
-      return equal(a, b);
+      return equal(a, b, tolerance);
     },
     diff : function (a, b) {
       checkType(a, b);
