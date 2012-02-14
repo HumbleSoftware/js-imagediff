@@ -1,7 +1,7 @@
 var
   require   = require || null,
   Canvas    = require && require('canvas'),
-  imagediff = imagediff || require('../imagediff.js'),
+  imagediff = imagediff || require('../js/imagediff.js'),
   window    = window || null;
 
 describe('ImageUtils', function() {
