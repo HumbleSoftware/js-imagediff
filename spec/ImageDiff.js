@@ -3,7 +3,6 @@ describe('ImageUtils', function() {
   var
     OBJECT            = 'object',
     TYPE_CANVAS       = '[object HTMLCanvasElement]',
-    TYPE_IMAGE_DATA   = '[object ImageData]',
     E_TYPE            = { name : 'ImageTypeError', message : 'Submitted object was not an image.' };
 
   function getContext () {
@@ -37,7 +36,9 @@ describe('ImageUtils', function() {
       var
         imageData = imagediff.createImageData(10, 10);
       expect(typeof imageData).toEqual(OBJECT);
-      expect(Object.prototype.toString.apply(imageData)).toEqual(TYPE_IMAGE_DATA);
+      expect(imageData.width).toBeDefined();
+      expect(imageData.height).toBeDefined();
+      expect(imageData.data).toBeDefined();
     });
   });
 
@@ -189,6 +190,24 @@ describe('ImageUtils', function() {
       b = context.createImageData(2, 2);
       b.data[0] = 100;
       expect(imagediff.equal(a, b)).toEqual(false);
+    });
+
+    it('should be equal within optional tolerance', function () {
+      b = context.createImageData(2, 2);
+      b.data[0] = 100;
+      expect(imagediff.equal(a, b, 101)).toEqual(true);
+    });
+
+    it('should be equal optional tolerance', function () {
+      b = context.createImageData(2, 2);
+      b.data[0] = 100;
+      expect(imagediff.equal(a, b, 100)).toEqual(true);
+    });
+
+    it('should not be equal outside tolerance', function () {
+      b = context.createImageData(2, 2);
+      b.data[0] = 100;
+      expect(imagediff.equal(a, b, 5)).toEqual(false);
     });
   });
 
