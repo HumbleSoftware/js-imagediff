@@ -22,9 +22,9 @@
     TYPE_CANVAS       = /\[object (Canvas|HTMLCanvasElement)\]/i,
     TYPE_CONTEXT      = /\[object CanvasRenderingContext2D\]/i,
     TYPE_IMAGE        = /\[object (Image|HTMLImageElement)\]/i,
+    TYPE_IMAGE_DATA   = /\[object ImageData\]/i, 
 
-    OBJECT            = /^object$/,
-    UNDEFINED         = /^undefined$/,
+    UNDEFINED         = 'undefined',
 
     canvas            = getCanvas(),
     context           = canvas.getContext('2d'),
@@ -60,11 +60,11 @@
     return isType(object, TYPE_CONTEXT);
   }
   function isImageData (object) {
-    return (object
-      && typeof(object) === OBJECT
+    return !!(object
+      && isType(object, TYPE_IMAGE_DATA)
       && typeof(object.width) !== UNDEFINED
       && typeof(object.height) !== UNDEFINED
-      && typeof(object.data) !== UNDEFINED ? true : false);
+      && typeof(object.data) !== UNDEFINED);
   }
   function isImageType (object) {
     return (
