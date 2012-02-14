@@ -80,11 +80,20 @@
   function copyImageData (imageData) {
     var
       height = imageData.height,
-      width = imageData.width;
+      width = imageData.width,
+      data = imageData.data,
+      newImageData, newData, i;
+
     canvas.width = width;
     canvas.height = height;
-    context.putImageData(imageData, 0, 0);
-    return context.getImageData(0, 0, width, height);
+    newImageData = context.getImageData(0, 0, width, height);
+    newData = newImageData.data;
+
+    for (i = imageData.data.length; i--;) {
+        newData[i] = data[i];
+    }
+
+    return newImageData;
   }
   function toImageData (object) {
     if (isImage(object)) { return toImageDataFromImage(object); }
