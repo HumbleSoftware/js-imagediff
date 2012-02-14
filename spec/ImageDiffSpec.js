@@ -22,6 +22,34 @@ describe('ImageUtils', function() {
     return window ? new Image() : new Canvas.Image(); 
   }
 
+  function toImageDiffEqual (expected) {
+
+    var
+      expectedData = expected.data,
+      actualData = this.actual.data;
+
+    this.message = function () {
+      var
+        length = Math.min(expectedData.length, actualData.length),
+        examples = '',
+        count = 0,
+        i;
+
+      for (i = 0; i < length; i++) {
+        if (expectedData[i] !== actualData[i]) {
+          count++;
+          if (count < 10) {
+            examples += (examples ? ', ' : '') + 'Expected '+expectedData[i]+' to equal '+actualData[i]+' at '+i;
+          }
+        }
+      }
+
+      return 'Differed in ' + count + ' places. ' + examples;
+    }
+
+    return imagediff.equal(this.actual, expected);
+  }
+
   // Creation Testing
   describe('Creation', function () {
 
@@ -99,9 +127,7 @@ describe('ImageUtils', function() {
           toBeImageData : function () {
             return imagediff.isImageData(this.actual);
           },
-          toImageDiffEqual : function (expected) {
-            return imagediff.equal(this.actual, expected);
-          }
+          toImageDiffEqual : toImageDiffEqual
         });
       });
 
@@ -228,9 +254,7 @@ describe('ImageUtils', function() {
 
     beforeEach(function () {
       this.addMatchers({
-        toImageDiffEqual : function (expected) {
-          return imagediff.equal(this.actual, expected);
-        }
+        toImageDiffEqual : toImageDiffEqual
       });
     });
 
