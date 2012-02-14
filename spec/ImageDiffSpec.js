@@ -1,8 +1,13 @@
+var
+  imagediff = imagediff || require('../imagediff.js'),
+  Canvas    = require && require('canvas'),
+  window    = window || null;
+
 describe('ImageUtils', function() {
 
   var
     OBJECT            = 'object',
-    TYPE_CANVAS       = '[object HTMLCanvasElement]',
+    TYPE_CANVAS       = window ? '[object HTMLCanvasElement]' : '[object Canvas]',
     E_TYPE            = { name : 'ImageTypeError', message : 'Submitted object was not an image.' };
 
   function getContext () {
@@ -12,6 +17,9 @@ describe('ImageUtils', function() {
     return context;
   }
 
+  function newImage () {
+    return window ? new Image() : new Canvas.Image(); 
+  }
 
   // Creation Testing
   describe('Creation', function () {
@@ -49,7 +57,7 @@ describe('ImageUtils', function() {
     // Checking
     describe('Checking', function () {
       var
-        image = new Image(),
+        image = newImage(),
         canvas = imagediff.createCanvas(),
         context = canvas.getContext('2d'),
         imageData = context.createImageData(30, 30);
@@ -82,7 +90,7 @@ describe('ImageUtils', function() {
     describe('Conversion', function () {
 
       var
-        image = new Image(),
+        image = newImage(),
         imageData;
 
       beforeEach(function () {
@@ -126,7 +134,7 @@ describe('ImageUtils', function() {
           result;
 
         canvas.height = image.height;
-        canvas.width = image.width; 
+        canvas.width = image.width;
         context.drawImage(image, 0, 0);
 
         result = imagediff.toImageData(canvas);
@@ -305,9 +313,9 @@ describe('ImageUtils', function() {
   describe("jasmine.Matchers", function() {
 
     var
-      imageA = new Image(),
-      imageB = new Image(),
-      imageC = new Image(),
+      imageA = newImage(),
+      imageB = newImage(),
+      imageC = newImage(),
       env, spec;
 
     imageA.src = 'images/xmark.png';
