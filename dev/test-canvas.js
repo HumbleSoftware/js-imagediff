@@ -17,7 +17,7 @@ var Canvas = require('canvas')
 
 var img = new Canvas.Image();
 
-
+console.log(ctx.createImageData(30,20));
 tester = img
 console.log('Type of canvas: ', Object.prototype.toString.apply(tester));
 console.log('isContext: ', imageDiff.isContext(tester));
