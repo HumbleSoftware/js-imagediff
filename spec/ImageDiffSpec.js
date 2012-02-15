@@ -1,14 +1,14 @@
 var
-  require   = require || null,
-  Canvas    = require && require('canvas'),
-  imagediff = imagediff || require('../js/imagediff.js'),
-  window    = window || null;
+  //TODO can roll isNode up into a function if checks get longer
+  isNode    = typeof module !== 'undefined',
+  Canvas    = isNode && require('canvas'),
+  imagediff = imagediff || require('../js/imagediff.js');
 
 describe('ImageUtils', function() {
 
   var
     OBJECT            = 'object',
-    TYPE_CANVAS       = window ? '[object HTMLCanvasElement]' : '[object Canvas]',
+    TYPE_CANVAS       = isNode ? '[object Canvas]' : '[object HTMLCanvasElement]',
     E_TYPE            = { name : 'ImageTypeError', message : 'Submitted object was not an image.' };
 
   function getContext () {
@@ -19,7 +19,7 @@ describe('ImageUtils', function() {
   }
 
   function newImage () {
-    return window ? new Image() : new Canvas.Image(); 
+    return isNode ? new Canvas.Image() : new Image();
   }
 
   function toImageDiffEqual (expected) {
@@ -432,7 +432,7 @@ describe('ImageUtils', function() {
 
     it('should remove imagediff from global space', function () {
       imagediff.noConflict();
-      if (!require) {
+      if (!isNode) {
         // TODO Is there a better way to do this?
         expect(imagediff === that).toEqual(false);
         expect(global.imagediff === that).toEqual(false);
