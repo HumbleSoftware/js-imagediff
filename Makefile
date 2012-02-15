@@ -1,4 +1,4 @@
-default: test imagediff
+default: test test-node imagediff
 
 imagediff:
 	smoosh make/build.json
