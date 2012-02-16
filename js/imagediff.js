@@ -313,68 +313,6 @@
   };
 
 
-  // CLI Parsing/Output
-  function commandLine (args) {
-
-    if (args.length < 3) {
-      console.log("Invalid parameters:");
-      console.log("imagediff [-e|equal] [-t|tolerance TOLERANCE] FILE_A FILE_B")
-      console.log("imagediff [-d|diff] FILE_A FILE_B OUTPUT_FILE")
-    }
-
-    var
-      a = new Canvas.Image(),
-      b = new Canvas.Image(),
-      t = 0,
-      i, fn, result, output;
-
-    for (i = args.length - 2; i--;) {
-      switch (args[i]) {
-        case '-d':
-        case 'diff':
-          fn = diff;
-          break;
-        case '-e':
-        case 'equal':
-          fn = equal;
-          break;
-        case '-t':
-        case 'tolerance':
-          t = args[i + 1];
-          break;
-      }
-    }
-
-    if (fn === diff) {
-      output = args.pop();
-    }
-    b.src = args.pop();
-    a.src = args.pop();
-    checkType(a, b);
-    a = toImageData(a);
-    b = toImageData(b);
-
-    result = fn(a, b, t);
-
-    if (fn === equal) {
-      process.stdout.write(result ? 'equal' : 'not equal');
-    } else if (fn === diff) {
-      imageDataToPNG(result, output);
-    }
-  };
-  function imageDataToPNG (imageData, outputFile) {
-
-    var
-      canvas = toCanvas(imageData),
-      base64Data,
-      decodedImage;
-
-    base64Data = canvas.toDataURL().replace(/^data:image\/\w+;base64,/,"");
-    decodedImage = new Buffer(base64Data, 'base64');
-    require('fs').writeFile(outputFile, decodedImage, function(E) {
-      console.log(E);
-    });
-  }
 
 
   // Definition
@@ -409,8 +347,6 @@
     },
 
     jasmine : jasmine,
-
-    commandLine : commandLine,
 
     // Compatibility
     noConflict : function () {
