@@ -25,5 +25,8 @@
   "devDependencies": {},
   "engines": {
     "node": "*"
+  },
+  "bin" : {
+    "imagediff" : "./bin/imagediff"
   }
 }
