@@ -7,10 +7,10 @@
   */
 (function (name, definition) {
   var root = this;
-  if (typeof module != 'undefined') {
+  if (typeof module !== 'undefined') {
     var Canvas = require('canvas');
     module.exports = definition(root, name, Canvas);
-  } else if (typeof define == 'function' && typeof define.amd == 'object') {
+  } else if (typeof define === 'function' && typeof define.amd === 'object') {
     define(definition);
   } else {
     root[name] = definition(root, name);
@@ -22,7 +22,7 @@
     TYPE_CANVAS       = /\[object (Canvas|HTMLCanvasElement)\]/i,
     TYPE_CONTEXT      = /\[object CanvasRenderingContext2D\]/i,
     TYPE_IMAGE        = /\[object (Image|HTMLImageElement)\]/i,
-    TYPE_IMAGE_DATA   = /\[object ImageData\]/i, 
+    TYPE_IMAGE_DATA   = /\[object ImageData\]/i,
 
     UNDEFINED         = 'undefined',
 
@@ -267,6 +267,7 @@
     }
     return element;
   }
+
   jasmine = {
 
     toBeImageData : function () {
@@ -275,40 +276,106 @@
 
     toImageDiffEqual : function (expected, tolerance) {
 
-      this.message = function() {
+      if (typeof (document) !== UNDEFINED) {
+        this.message = function () {
+          var
+            div     = get('div'),
+            a       = get('div', '<div>Actual:</div>'),
+            b       = get('div', '<div>Expected:</div>'),
+            c       = get('div', '<div>Diff:</div>'),
+            diff    = imagediff.diff(this.actual, expected),
+            canvas  = getCanvas(),
+            context;
 
-        var
-          div     = get('div'),
-          a       = get('div', '<div>Actual:</div>'),
-          b       = get('div', '<div>Expected:</div>'),
-          c       = get('div', '<div>Diff:</div>'),
-          diff    = imagediff.diff(this.actual, expected),
-          canvas  = getCanvas(),
-          context;
+          canvas.height = diff.height;
+          canvas.width  = diff.width;
 
-        canvas.height = diff.height;
-        canvas.width  = diff.width;
+          context = canvas.getContext('2d');
+          context.putImageData(diff, 0, 0);
 
-        context = canvas.getContext('2d');
-        context.putImageData(diff, 0, 0);
+          a.appendChild(toCanvas(this.actual));
+          b.appendChild(toCanvas(expected));
+          c.appendChild(canvas);
 
-        a.appendChild(toCanvas(this.actual));
-        b.appendChild(toCanvas(expected));
-        c.appendChild(canvas);
+          div.appendChild(a);
+          div.appendChild(b);
+          div.appendChild(c);
 
-        div.appendChild(a);
-        div.appendChild(b);
-        div.appendChild(c);
-
-        return [
-          div,
-          "Expected not to be equal."
-        ];
-      };
+          return [
+            div,
+            "Expected not to be equal."
+          ];
+        };
+      }
 
       return imagediff.equal(this.actual, expected, tolerance);
     }
   };
+
+
+  // CLI Parsing/Output
+  function commandLine (args) {
+
+    if (args.length < 3) {
+      console.log("Invalid parameters:");
+      console.log("imagediff [-e|equal] [-t|tolerance TOLERANCE] FILE_A FILE_B")
+      console.log("imagediff [-d|diff] FILE_A FILE_B OUTPUT_FILE")
+    }
+
+    var
+      a = new Canvas.Image(),
+      b = new Canvas.Image(),
+      t = 0,
+      i, fn, result, output;
+
+    for (i = args.length - 2; i--;) {
+      switch (args[i]) {
+        case '-d':
+        case 'diff':
+          fn = diff;
+          break;
+        case '-e':
+        case 'equal':
+          fn = equal;
+          break;
+        case '-t':
+        case 'tolerance':
+          t = args[i + 1];
+          break;
+      }
+    }
+
+    if (fn === diff) {
+      output = args.pop();
+    }
+    b.src = args.pop();
+    a.src = args.pop();
+    checkType(a, b);
+    a = toImageData(a);
+    b = toImageData(b);
+
+    result = fn(a, b, t);
+
+    if (fn === equal) {
+      process.stdout.write(result ? 'equal' : 'not equal');
+    } else if (fn === diff) {
+      imageDataToPNG(result, output);
+    }
+  };
+  function imageDataToPNG (imageData, outputFile) {
+
+    var
+      canvas = toCanvas(imageData),
+      base64Data,
+      decodedImage;
+
+    base64Data = canvas.toDataURL().replace(/^data:image\/\w+;base64,/,"");
+    decodedImage = new Buffer(base64Data, 'base64');
+    require('fs').writeFile(outputFile, decodedImage, function(E) {
+      console.log(E);
+    });
+  }
+
 
   // Definition
   imagediff = {
@@ -342,6 +409,8 @@
     },
 
     jasmine : jasmine,
+
+    commandLine : commandLine,
 
     // Compatibility
     noConflict : function () {
