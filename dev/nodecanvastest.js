@@ -15,6 +15,12 @@ img.src = 'spec/images/checkmark.png';
 
 // getImageData() test
 // still results in all 0s
+
+console.log('width: ', c.width, 'height: ', c.height);
+c.width = 30;
+c.height = 30;
+
+//ctx.strokeStyle = "rgba(30, 30, 30, 0.3);";
 ctx.lineWidth = 3;
 ctx.beginPath();
 ctx.moveTo(0,0);
