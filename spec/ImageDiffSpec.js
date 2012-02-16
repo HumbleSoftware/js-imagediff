@@ -143,8 +143,9 @@ describe('ImageUtils', function() {
 
         runs(function () {
           var
-            canvas = imagediff.createCanvas(),
+            canvas = imagediff.createCanvas(image.width, image.height),
             context = canvas.getContext('2d');
+
           context.drawImage(image, 0, 0);
           imageData = context.getImageData(0, 0, image.width, image.height);
 
