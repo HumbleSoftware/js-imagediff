@@ -7,10 +7,10 @@
   */
 (function (name, definition) {
   var root = this;
-  if (typeof module != 'undefined') {
+  if (typeof module !== 'undefined') {
     var Canvas = require('canvas');
     module.exports = definition(root, name, Canvas);
-  } else if (typeof define == 'function' && typeof define.amd == 'object') {
+  } else if (typeof define === 'function' && typeof define.amd === 'object') {
     define(definition);
   } else {
     root[name] = definition(root, name);
@@ -22,7 +22,7 @@
     TYPE_CANVAS       = /\[object (Canvas|HTMLCanvasElement)\]/i,
     TYPE_CONTEXT      = /\[object CanvasRenderingContext2D\]/i,
     TYPE_IMAGE        = /\[object (Image|HTMLImageElement)\]/i,
-    TYPE_IMAGE_DATA   = /\[object ImageData\]/i, 
+    TYPE_IMAGE_DATA   = /\[object ImageData\]/i,
 
     UNDEFINED         = 'undefined',
 
@@ -312,6 +312,71 @@
     }
   };
 
+
+  // CLI Parsing/Output
+  function commandLine (args) {
+
+    if (args.length < 3) {
+      console.log("Invalid parameters:");
+      console.log("imagediff [-e|equal] [-t|tolerance TOLERANCE] FILE_A FILE_B")
+      console.log("imagediff [-d|diff] FILE_A FILE_B OUTPUT_FILE")
+    }
+
+    var
+      a = new Canvas.Image(),
+      b = new Canvas.Image(),
+      t = 0,
+      i, fn, result, output;
+
+    for (i = args.length - 2; i--;) {
+      switch (args[i]) {
+        case '-d':
+        case 'diff':
+          fn = diff;
+          break;
+        case '-e':
+        case 'equal':
+          fn = equal;
+          break;
+        case '-t':
+        case 'tolerance':
+          t = args[i + 1];
+          break;
+      }
+    }
+
+    if (fn === diff) {
+      output = args.pop();
+    }
+    b.src = args.pop();
+    a.src = args.pop();
+    checkType(a, b);
+    a = toImageData(a);
+    b = toImageData(b);
+
+    result = fn(a, b, t);
+
+    if (fn === equal) {
+      process.stdout.write(result ? 'equal' : 'not equal');
+    } else if (fn === diff) {
+      imageDataToPNG(result, output);
+    }
+  };
+  function imageDataToPNG (imageData, outputFile) {
+
+    var
+      canvas = toCanvas(imageData),
+      base64Data,
+      decodedImage;
+
+    base64Data = canvas.toDataURL().replace(/^data:image\/\w+;base64,/,"");
+    decodedImage = new Buffer(base64Data, 'base64');
+    require('fs').writeFile(outputFile, decodedImage, function(E) {
+      console.log(E);
+    });
+  }
+
+
   // Definition
   imagediff = {
 
@@ -344,6 +409,8 @@
     },
 
     jasmine : jasmine,
+
+    commandLine : commandLine,
 
     // Compatibility
     noConflict : function () {
