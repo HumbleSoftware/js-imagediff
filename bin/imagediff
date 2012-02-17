@@ -48,7 +48,7 @@ function commandLine (args) {
   result = imagediff[fn](a, b, t);
 
   if (fn === 'equal') {
-    process.stdout.write(result ? 'equal' : 'not equal');
+    process.stdout.write(result ? 'true' : 'false');
   } else if (fn === 'diff') {
     imagediff.imageDataToPNG(result, output);
     process.stdout.write('Diff of ' + aName + ' and ' + bName + ' rendered to ' + output);
