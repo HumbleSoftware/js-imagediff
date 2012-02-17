@@ -1,6 +1,6 @@
 {
   "name": "imagediff",
-  "main": "./js/imagediff.js",
+  "main": "./imagediff.js",
   "description": "JavaScript Canvas based imagediff utility.",
   "homepage": "http://HumbleSoftware.github.com/js-imagediff/",
   "keywords": [
