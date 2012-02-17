@@ -17,6 +17,12 @@ API
 * `equal(a, b)` tests image type objects for equality.
 * `diff(a, b)` performs an image diff on a and b, returning a - b.
 * `noConflict()` removes imagediff from the global space for compatibility, returning imagediff.
+* `imageDataToPNG(imageData, outputFile)` renders the imageData to png in outputFile. (Node only)
+
+Command Line
+---
+`imagediff [-e|equal] [-t|tolerance VALUE] FILE_A FILE_B` tests equality of two image files with an optional tolerance, printing 'true' or 'false'.
+`imagediff [-d|diff] FILE_A FILE_B OUTPUT_FILE` renders an imagediff between two files, saving as the output file.
 
 Unit Testing Canvas
 -------------------
