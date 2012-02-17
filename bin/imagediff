@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-//TODO SHOULD BE A MODULE LINK, NOT RELATIVE
-var imagediff = require('../imagediff.js'),
+var imagediff = require('imagediff'),
     Canvas = require('canvas');
 
 commandLine(process.argv.slice(2));
@@ -10,7 +9,7 @@ function commandLine (args) {
 
   if (args.length < 3) {
     console.log("Invalid parameters:");
-    console.log("imagediff [-e|equal] [-t|tolerance TOLERANCE] FILE_A FILE_B");
+    console.log("imagediff [-e|equal] [-t|tolerance VALUE] FILE_A FILE_B");
     console.log("imagediff [-d|diff] FILE_A FILE_B OUTPUT_FILE");
     return;
   }
