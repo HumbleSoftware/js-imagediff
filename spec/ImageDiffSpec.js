@@ -1,8 +1,14 @@
+var
+  //TODO can roll isNode up into a function if checks get longer
+  isNode    = typeof module !== 'undefined',
+  Canvas    = isNode && require('canvas'),
+  imagediff = imagediff || require('../js/imagediff.js');
+
 describe('ImageUtils', function() {
 
   var
     OBJECT            = 'object',
-    TYPE_CANVAS       = '[object HTMLCanvasElement]',
+    TYPE_CANVAS       = isNode ? '[object Canvas]' : '[object HTMLCanvasElement]',
     E_TYPE            = { name : 'ImageTypeError', message : 'Submitted object was not an image.' };
 
   function getContext () {
@@ -12,6 +18,37 @@ describe('ImageUtils', function() {
     return context;
   }
 
+  function newImage () {
+    return isNode ? new Canvas.Image() : new Image();
+  }
+
+  function toImageDiffEqual (expected) {
+
+    var
+      expectedData = expected.data,
+      actualData = this.actual.data;
+
+    this.message = function () {
+      var
+        length = Math.min(expectedData.length, actualData.length),
+        examples = '',
+        count = 0,
+        i;
+
+      for (i = 0; i < length; i++) {
+        if (expectedData[i] !== actualData[i]) {
+          count++;
+          if (count < 10) {
+            examples += (examples ? ', ' : '') + 'Expected '+expectedData[i]+' to equal '+actualData[i]+' at '+i;
+          }
+        }
+      }
+
+      return 'Differed in ' + count + ' places. ' + examples;
+    }
+
+    return imagediff.equal(this.actual, expected);
+  }
 
   // Creation Testing
   describe('Creation', function () {
@@ -49,7 +86,7 @@ describe('ImageUtils', function() {
     // Checking
     describe('Checking', function () {
       var
-        image = new Image(),
+        image = newImage(),
         canvas = imagediff.createCanvas(),
         context = canvas.getContext('2d'),
         imageData = context.createImageData(30, 30);
@@ -82,7 +119,7 @@ describe('ImageUtils', function() {
     describe('Conversion', function () {
 
       var
-        image = new Image(),
+        image = newImage(),
         imageData;
 
       beforeEach(function () {
@@ -90,9 +127,7 @@ describe('ImageUtils', function() {
           toBeImageData : function () {
             return imagediff.isImageData(this.actual);
           },
-          toImageDiffEqual : function (expected) {
-            return imagediff.equal(this.actual, expected);
-          }
+          toImageDiffEqual : toImageDiffEqual
         });
       });
 
@@ -108,8 +143,9 @@ describe('ImageUtils', function() {
 
         runs(function () {
           var
-            canvas = imagediff.createCanvas(),
+            canvas = imagediff.createCanvas(image.width, image.height),
             context = canvas.getContext('2d');
+
           context.drawImage(image, 0, 0);
           imageData = context.getImageData(0, 0, image.width, image.height);
 
@@ -126,7 +162,7 @@ describe('ImageUtils', function() {
           result;
 
         canvas.height = image.height;
-        canvas.width = image.width; 
+        canvas.width = image.width;
         context.drawImage(image, 0, 0);
 
         result = imagediff.toImageData(canvas);
@@ -219,9 +255,7 @@ describe('ImageUtils', function() {
 
     beforeEach(function () {
       this.addMatchers({
-        toImageDiffEqual : function (expected) {
-          return imagediff.equal(this.actual, expected);
-        }
+        toImageDiffEqual : toImageDiffEqual
       });
     });
 
@@ -305,9 +339,9 @@ describe('ImageUtils', function() {
   describe("jasmine.Matchers", function() {
 
     var
-      imageA = new Image(),
-      imageB = new Image(),
-      imageC = new Image(),
+      imageA = newImage(),
+      imageB = newImage(),
+      imageC = newImage(),
       env, spec;
 
     imageA.src = 'images/xmark.png';
@@ -384,6 +418,59 @@ describe('ImageUtils', function() {
   });
 
 
+  // Image Output
+  describe('Image Output', function () {
+
+    if (!isNode) { return; }
+    var
+      image  = newImage(),
+      oImage = newImage(),
+      output = 'images/spec_output.png',
+      imageData, oImageData;
+
+    beforeEach(function () {
+      this.addMatchers({
+        toBeImageData : function () {
+          return imagediff.isImageData(this.actual);
+        },
+        toImageDiffEqual : toImageDiffEqual
+      });
+    });
+
+    it('imageDataToPNG', function () {
+
+      image.src = 'images/checkmark.png';
+      waitsFor(function () {
+        return image.complete;
+      }, 'image not loaded.', 1000);
+
+      runs(function () {
+        var
+          canvas = imagediff.createCanvas(image.width, image.height),
+          context = canvas.getContext('2d');
+
+        context.drawImage(image, 0, 0);
+        imageData = context.getImageData(0, 0, image.width, image.height);
+
+        imagediff.imageDataToPNG(imageData, output);
+      });
+
+      oImage.src = output;
+      waitsFor(function () {
+        return oImage.complete;
+      }, 'image not loaded.', 5000);
+
+      runs(function () {
+        oImageData = imagediff.toImageData(oImage);
+        require('fs').unlink(output);
+
+        expect(oImageData).toBeImageData();
+        expect(oImageData).toImageDiffEqual(imageData);
+      });
+    });
+  });
+
+
   // Compatibility Testing
   describe('Compatibility', function () {
 
@@ -399,8 +486,10 @@ describe('ImageUtils', function() {
 
     it('should remove imagediff from global space', function () {
       imagediff.noConflict();
-      expect(imagediff === that).toEqual(false);
-      expect(global.imagediff === that).toEqual(false);
+      if (!isNode) {
+        expect(imagediff === that).toEqual(false);
+        expect(global.imagediff === that).toEqual(false);
+      }
     });
 
     it('should return imagediff', function () {

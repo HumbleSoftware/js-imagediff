@@ -7,22 +7,23 @@
   */
 (function (name, definition) {
   var root = this;
-  if (typeof module != 'undefined') {
-    module.exports = definition();
-  } else if (typeof define == 'function' && typeof define.amd == 'object') {
+  if (typeof module !== 'undefined') {
+    var Canvas = require('canvas');
+    module.exports = definition(root, name, Canvas);
+  } else if (typeof define === 'function' && typeof define.amd === 'object') {
     define(definition);
   } else {
     root[name] = definition(root, name);
   }
-})('imagediff', function (root, name) {
+})('imagediff', function (root, name, Canvas) {
 
   var
-    TYPE_ARRAY        = '[object Array]',
-    TYPE_CANVAS       = '[object HTMLCanvasElement]',
-    TYPE_CONTEXT      = '[object CanvasRenderingContext2D]',
-    TYPE_IMAGE        = '[object HTMLImageElement]',
+    TYPE_ARRAY        = /\[object Array\]/i,
+    TYPE_CANVAS       = /\[object (Canvas|HTMLCanvasElement)\]/i,
+    TYPE_CONTEXT      = /\[object CanvasRenderingContext2D\]/i,
+    TYPE_IMAGE        = /\[object (Image|HTMLImageElement)\]/i,
+    TYPE_IMAGE_DATA   = /\[object ImageData\]/i,
 
-    OBJECT            = 'object',
     UNDEFINED         = 'undefined',
 
     canvas            = getCanvas(),
@@ -33,7 +34,9 @@
   // Creation
   function getCanvas (width, height) {
     var
-      canvas = document.createElement('canvas');
+      canvas = Canvas ?
+        new Canvas() :
+        document.createElement('canvas');
     if (width) canvas.width = width;
     if (height) canvas.height = height;
     return canvas;
@@ -57,11 +60,11 @@
     return isType(object, TYPE_CONTEXT);
   }
   function isImageData (object) {
-    return (object
-      && typeof(object) === OBJECT
+    return !!(object
+      && isType(object, TYPE_IMAGE_DATA)
       && typeof(object.width) !== UNDEFINED
       && typeof(object.height) !== UNDEFINED
-      && typeof(object.data) !== UNDEFINED ? true : false);
+      && typeof(object.data) !== UNDEFINED);
   }
   function isImageType (object) {
     return (
@@ -72,7 +75,7 @@
     );
   }
   function isType (object, type) {
-    return typeof (object) === 'object' && Object.prototype.toString.apply(object) === type;
+    return typeof (object) === 'object' && !!Object.prototype.toString.apply(object).match(type);
   }
 
 
@@ -264,6 +267,7 @@
     }
     return element;
   }
+
   jasmine = {
 
     toBeImageData : function () {
@@ -272,40 +276,59 @@
 
     toImageDiffEqual : function (expected, tolerance) {
 
-      this.message = function() {
+      if (typeof (document) !== UNDEFINED) {
+        this.message = function () {
+          var
+            div     = get('div'),
+            a       = get('div', '<div>Actual:</div>'),
+            b       = get('div', '<div>Expected:</div>'),
+            c       = get('div', '<div>Diff:</div>'),
+            diff    = imagediff.diff(this.actual, expected),
+            canvas  = getCanvas(),
+            context;
 
-        var
-          div     = get('div'),
-          a       = get('div', '<div>Actual:</div>'),
-          b       = get('div', '<div>Expected:</div>'),
-          c       = get('div', '<div>Diff:</div>'),
-          diff    = imagediff.diff(this.actual, expected),
-          canvas  = getCanvas(),
-          context;
+          canvas.height = diff.height;
+          canvas.width  = diff.width;
 
-        canvas.height = diff.height;
-        canvas.width  = diff.width;
+          context = canvas.getContext('2d');
+          context.putImageData(diff, 0, 0);
 
-        context = canvas.getContext('2d');
-        context.putImageData(diff, 0, 0);
+          a.appendChild(toCanvas(this.actual));
+          b.appendChild(toCanvas(expected));
+          c.appendChild(canvas);
 
-        a.appendChild(toCanvas(this.actual));
-        b.appendChild(toCanvas(expected));
-        c.appendChild(canvas);
+          div.appendChild(a);
+          div.appendChild(b);
+          div.appendChild(c);
 
-        div.appendChild(a);
-        div.appendChild(b);
-        div.appendChild(c);
-
-        return [
-          div,
-          "Expected not to be equal."
-        ];
-      };
+          return [
+            div,
+            "Expected not to be equal."
+          ];
+        };
+      }
 
       return imagediff.equal(this.actual, expected, tolerance);
     }
   };
+
+
+  // Image Output
+  function imageDataToPNG (imageData, outputFile) {
+
+    var
+      canvas = toCanvas(imageData),
+      base64Data,
+      decodedImage;
+
+    base64Data = canvas.toDataURL().replace(/^data:image\/\w+;base64,/,"");
+    decodedImage = new Buffer(base64Data, 'base64');
+    require('fs').writeFile(outputFile, decodedImage, function(E) {
+      //TODO throws 'png' regardless of success?
+      if (E) throw E;
+    });
+  }
+
 
   // Definition
   imagediff = {
@@ -346,6 +369,10 @@
       return imagediff;
     }
   };
+
+  if (typeof module !== 'undefined') {
+    imagediff.imageDataToPNG = imageDataToPNG;
+  }
 
   return imagediff;
 });

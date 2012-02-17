@@ -5,4 +5,4 @@ spec_dir: "../spec/"
 src_files:
   - "imagediff.js"
 spec_files:
-  - "ImageDiff.js"
+  - "ImageDiffSpec.js"
