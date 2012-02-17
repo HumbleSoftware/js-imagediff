@@ -4,7 +4,6 @@ var imagediff = require('imagediff'),
 
 commandLine(process.argv.slice(2));
 
-
 function commandLine (args) {
 
   if (args.length < 3) {
