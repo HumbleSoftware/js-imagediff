@@ -418,6 +418,59 @@ describe('ImageUtils', function() {
   });
 
 
+  // Image Output
+  describe('Image Output', function () {
+
+    if (!isNode) { return; }
+    var
+      image  = newImage(),
+      oImage = newImage(),
+      output = 'images/spec_output.png',
+      imageData, oImageData;
+
+    beforeEach(function () {
+      this.addMatchers({
+        toBeImageData : function () {
+          return imagediff.isImageData(this.actual);
+        },
+        toImageDiffEqual : toImageDiffEqual
+      });
+    });
+
+    it('imageDataToPNG', function () {
+
+      image.src = 'images/checkmark.png';
+      waitsFor(function () {
+        return image.complete;
+      }, 'image not loaded.', 1000);
+
+      runs(function () {
+        var
+          canvas = imagediff.createCanvas(image.width, image.height),
+          context = canvas.getContext('2d');
+
+        context.drawImage(image, 0, 0);
+        imageData = context.getImageData(0, 0, image.width, image.height);
+
+        imagediff.imageDataToPNG(imageData, output);
+      });
+
+      oImage.src = output;
+      waitsFor(function () {
+        return oImage.complete;
+      }, 'image not loaded.', 5000);
+
+      runs(function () {
+        oImageData = imagediff.toImageData(oImage);
+        require('fs').unlink(output);
+
+        expect(oImageData).toBeImageData();
+        expect(oImageData).toImageDiffEqual(imageData);
+      });
+    });
+  });
+
+
   // Compatibility Testing
   describe('Compatibility', function () {
 
@@ -434,7 +487,6 @@ describe('ImageUtils', function() {
     it('should remove imagediff from global space', function () {
       imagediff.noConflict();
       if (!isNode) {
-        // TODO Is there a better way to do this?
         expect(imagediff === that).toEqual(false);
         expect(global.imagediff === that).toEqual(false);
       }
