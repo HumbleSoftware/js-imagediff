@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-var imagediff = require('imagediff'),
-    Canvas = require('canvas');
+var
+  imagediff = require('../imagediff.js'),
+  Canvas = require('canvas');
 
 commandLine(process.argv.slice(2));
 
@@ -47,9 +48,9 @@ function commandLine (args) {
   result = imagediff[fn](a, b, t);
 
   if (fn === 'equal') {
-    process.stdout.write(result ? 'true' : 'false');
+    process.stdout.write(result ? 'true\n' : 'false\n');
   } else if (fn === 'diff') {
     imagediff.imageDataToPNG(result, output);
-    process.stdout.write('Diff of ' + aName + ' and ' + bName + ' rendered to ' + output);
+    process.stdout.write('Diff of ' + aName + ' and ' + bName + ' rendered to ' + output + '\n');
   }
 };
