@@ -314,19 +314,18 @@
 
 
   // Image Output
-  function imageDataToPNG (imageData, outputFile) {
+  function imageDataToPNG (imageData, outputFile, callback) {
 
     var
       canvas = toCanvas(imageData),
       base64Data,
       decodedImage;
 
+    callback = callback || Function;
+
     base64Data = canvas.toDataURL().replace(/^data:image\/\w+;base64,/,"");
     decodedImage = new Buffer(base64Data, 'base64');
-    require('fs').writeFile(outputFile, decodedImage, function(E) {
-      //TODO throws 'png' regardless of success?
-      if (E) throw E;
-    });
+    require('fs').writeFile(outputFile, decodedImage, callback);
   }
 
 
