@@ -452,13 +452,14 @@ describe('ImageUtils', function() {
         context.drawImage(image, 0, 0);
         imageData = context.getImageData(0, 0, image.width, image.height);
 
-        imagediff.imageDataToPNG(imageData, output);
+        imagediff.imageDataToPNG(imageData, output, function() {
+          oImage.src = output;
+        });
       });
 
-      oImage.src = output;
       waitsFor(function () {
         return oImage.complete;
-      }, 'image not loaded.', 5000);
+      }, 'image not loaded.', 2000);
 
       runs(function () {
         oImageData = imagediff.toImageData(oImage);
