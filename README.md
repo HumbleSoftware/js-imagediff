@@ -17,7 +17,7 @@ API
 * `equal(a, b)` tests image type objects for equality.
 * `diff(a, b)` performs an image diff on a and b, returning a - b.
 * `noConflict()` removes imagediff from the global space for compatibility, returning imagediff.
-* `imageDataToPNG(imageData, outputFile)` renders the imageData to png in outputFile. (Node only)
+* `imageDataToPNG(imageData, outputFile, (callback))` renders the imageData to png in outputFile, firing an optional callback upon save. (Node only)
 
 Command Line
 ---
