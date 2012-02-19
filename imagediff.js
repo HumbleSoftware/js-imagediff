@@ -155,8 +155,9 @@
       aData     = a.data,
       bData     = b.data,
       length    = aData.length,
-      tolerance = tolerance || 0,
       i;
+
+    tolerance = tolerance || 0;
 
     if (!equalDimensions(a, b)) return false;
     for (i = length; i--;) if (aData[i] !== bData[i] && Math.abs(aData[i] - bData[i]) > tolerance) return false;
