@@ -423,8 +423,6 @@ describe('ImageUtils', function() {
 
     if (!isNode) { return; }
     var
-      image  = newImage(),
-      oImage = newImage(),
       output = 'images/spec_output.png',
       imageData, oImageData;
 
@@ -437,9 +435,54 @@ describe('ImageUtils', function() {
       });
     });
 
-    it('imageDataToPNG', function () {
+    /* FAILS
+     * From W3C - "Due to the lossy nature of converting to and from premultiplied alpha color values, pixels that have just been set using putImageData() might be returned to an equivalent getImageData() as different values."
+     * TODO need a better way to test or create PNGs
+     */
+    it('imageDataToPNG, transparency (CURRENTLY FAILS)', function () {
+
+      var
+        image  = newImage(),
+        oImage = newImage();
 
       image.src = 'images/checkmark.png';
+      waitsFor(function () {
+        return image.complete;
+      }, 'image not loaded.', 1000);
+
+      runs(function () {
+        var
+          canvas = imagediff.createCanvas(image.width, image.height),
+          context = canvas.getContext('2d');
+
+        context.drawImage(image, 0, 0);
+        imageData = context.getImageData(0, 0, image.width, image.height);
+
+        imagediff.imageDataToPNG(imageData, output, function() {
+          oImage.src = output;
+        });
+      });
+
+      waitsFor(function () {
+        return oImage.complete;
+      }, 'image not loaded.', 2000);
+
+      runs(function () {
+        oImageData = imagediff.toImageData(oImage);
+        require('fs').unlink(output);
+
+        expect(oImageData).toBeImageData();
+        expect(oImageData).toImageDiffEqual(imageData);
+      });
+    });
+
+    it('imageDataToPNG, non-transparent', function () {
+
+      var
+        image  = newImage(),
+        oImage = newImage();
+
+      image.src = 'images/checkmark_bg.png';
       waitsFor(function () {
         return image.complete;
       }, 'image not loaded.', 1000);
