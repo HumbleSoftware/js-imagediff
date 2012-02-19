@@ -159,7 +159,14 @@
       i;
 
     if (!equalDimensions(a, b)) return false;
-    for (i = length; i--;) if (aData[i] !== bData[i] && Math.abs(aData[i] - bData[i]) > tolerance) return false;
+    for (i = length; i--;) {
+      if (aData[i] !== bData[i] && Math.abs(aData[i] - bData[i]) > tolerance) {
+          if (typeof module !== 'undefined') {
+              require('fs').writeFile('outputdiff'+i, aData[i] +' '+bData[i]);
+          }
+          return false;
+      }
+    }
 
     return true;
   }

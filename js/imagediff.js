@@ -61,7 +61,7 @@
   }
   function isImageData (object) {
     return !!(object
-      && isType(object, TYPE_IMAGE_DATA)
+      isType(object, TYPE_IMAGE_DATA)
       && typeof(object.width) !== UNDEFINED
       && typeof(object.height) !== UNDEFINED
       && typeof(object.data) !== UNDEFINED);
@@ -155,11 +155,18 @@
       aData     = a.data,
       bData     = b.data,
       length    = aData.length,
-      tolerance = tolerance || 0,
       i;
 
+    tolerance = tolerance || 0;
     if (!equalDimensions(a, b)) return false;
-    for (i = length; i--;) if (aData[i] !== bData[i] && Math.abs(aData[i] - bData[i]) > tolerance) return false;
+    for (i = length; i--;) {
+      if (aData[i] !== bData[i] && Math.abs(aData[i] - bData[i]) > tolerance) {
+          if (typeof module !== 'undefined') {
+              require('fs').writeFile('outputdiff'+i, aData[i] +' '+bData[i]);
+          }
+          return false;
+      }
+    }
 
     return true;
   }
