@@ -50,6 +50,10 @@ A Jasmine test demo is available at A demo is available at http://humblesoftware
 
 Changelog
 ---------
+<h3>1.0.3</h3>
+* Added NPM/node.js support.
+* Added command line interface for `equal` and `diff` methods.
+* Added `imageDataToPNG` method for node environments.
 
 <h3>1.0.2</h3>
 * Added optional width / height parameters to `createCanvas` for symmetry with `createImageData`.
