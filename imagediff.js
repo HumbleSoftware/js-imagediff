@@ -1,10 +1,9 @@
-/*! imagediff.js 1.0.2
-  * (c) 2011 Carl Sutherland, Humble Software Development
-  * imagediff.js is freely distributable under the MIT license.
-  * Thanks to Jacob Thornton for the node/amd integration bits.
-  * For details and documentation:
-  * https://github.com/HumbleSoftware/js-imagediff
-  */
+// js-imagediff 1.0.3
+// (c) 2011-2012 Carl Sutherland, Humble Software
+// Distributed under the MIT License
+// For original source and documentation visit:
+// http://www.github.com/HumbleSoftware/js-imagediff
+
 (function (name, definition) {
   var root = this;
   if (typeof module !== 'undefined') {
@@ -60,11 +59,11 @@
     return isType(object, TYPE_CONTEXT);
   }
   function isImageData (object) {
-    return !!(object
-      && isType(object, TYPE_IMAGE_DATA)
-      && typeof(object.width) !== UNDEFINED
-      && typeof(object.height) !== UNDEFINED
-      && typeof(object.data) !== UNDEFINED);
+    return !!(object &&
+      isType(object, TYPE_IMAGE_DATA) &&
+      typeof(object.width) !== UNDEFINED &&
+      typeof(object.height) !== UNDEFINED &&
+      typeof(object.data) !== UNDEFINED);
   }
   function isImageType (object) {
     return (
