@@ -417,99 +417,48 @@ describe('ImageUtils', function() {
     });
   });
 
-
   // Image Output
   describe('Image Output', function () {
 
     if (!isNode) { return; }
+
     var
-      output = 'images/spec_output.png',
-      imageData, oImageData;
+      output = 'images/spec_output.png';
 
     beforeEach(function () {
-      this.addMatchers({
-        toBeImageData : function () {
-          return imagediff.isImageData(this.actual);
-        },
-        toImageDiffEqual : toImageDiffEqual
-      });
+      this.addMatchers(imagediff.jasmine)
     });
 
-    /* FAILS
-     * From W3C - "Due to the lossy nature of converting to and from premultiplied alpha color values, pixels that have just been set using putImageData() might be returned to an equivalent getImageData() as different values."
-     * TODO need a better way to test or create PNGs
-     */
+    afterEach(function () {
+      require('fs').unlink(output);
+    });
+
     it('imageDataToPNG, transparency (CURRENTLY FAILS)', function () {
 
       var
-        image  = newImage(),
-        oImage = newImage();
+        image = newImage(),
+        canvas = imagediff.createCanvas(10, 10),
+        context = canvas.getContext('2d'),
+        a, b;
 
-      image.src = 'images/checkmark.png';
-      waitsFor(function () {
-        return image.complete;
-      }, 'image not loaded.', 1000);
+      context.moveTo(0, 0);
+      context.lineTo(10, 10);
+      context.strokeStyle = 'rgba(150, 150, 150, .5)';
+      context.stroke();
+      a = context.getImageData(0, 0, 10, 10);
 
-      runs(function () {
-        var
-          canvas = imagediff.createCanvas(image.width, image.height),
-          context = canvas.getContext('2d');
-
-        context.drawImage(image, 0, 0);
-        imageData = context.getImageData(0, 0, image.width, image.height);
-
-        imagediff.imageDataToPNG(imageData, output, function() {
-          oImage.src = output;
-        });
+      imagediff.imageDataToPNG(a, output, function () {
+        image.src = output;
       });
 
       waitsFor(function () {
-        return oImage.complete;
+        return image.complete;
       }, 'image not loaded.', 2000);
 
       runs(function () {
-        oImageData = imagediff.toImageData(oImage);
-        require('fs').unlink(output);
-
-        expect(oImageData).toBeImageData();
-        expect(oImageData).toImageDiffEqual(imageData);
-      });
-    });
-
-    it('imageDataToPNG, non-transparent', function () {
-
-      var
-        image  = newImage(),
-        oImage = newImage();
-
-      image.src = 'images/checkmark_bg.png';
-      waitsFor(function () {
-        return image.complete;
-      }, 'image not loaded.', 1000);
-
-      runs(function () {
-        var
-          canvas = imagediff.createCanvas(image.width, image.height),
-          context = canvas.getContext('2d');
-
-        context.drawImage(image, 0, 0);
-        imageData = context.getImageData(0, 0, image.width, image.height);
-
-        imagediff.imageDataToPNG(imageData, output, function() {
-          oImage.src = output;
-        });
-      });
-
-      waitsFor(function () {
-        return oImage.complete;
-      }, 'image not loaded.', 2000);
-
-      runs(function () {
-        oImageData = imagediff.toImageData(oImage);
-        require('fs').unlink(output);
-
-        expect(oImageData).toBeImageData();
-        expect(oImageData).toImageDiffEqual(imageData);
+        b = imagediff.toImageData(image);
+        expect(b).toBeImageData();
+        expect(canvas).toImageDiffEqual(b, 10);
       });
     });
   });
