@@ -14,7 +14,7 @@ API
 * `isImageData(object)` tests for ImageData object.
 * `isImageType(object)` tests for any of the above.
 * `toImageData(object)` converts image type object to a new ImageData object.
-* `equal(a, b)` tests image type objects for equality.
+* `equal(a, b, tolerance)` tests image type objects for equality; accepts tolerance in pixels.
 * `diff(a, b)` performs an image diff on a and b, returning a - b.
 * `noConflict()` removes imagediff from the global space for compatibility, returning imagediff.
 * `imageDataToPNG(imageData, outputFile, (callback))` renders the imageData to png in outputFile, firing an optional callback upon save. (Node only)
@@ -29,7 +29,7 @@ Unit Testing Canvas
 
 JS ImageDiff opens up the easy testing of Canvas and other image-like objects in JavaScript.  js-imagediff supplies two Jasmine matchers to make this easier.
 
-* `toImageDiffEqual()` expect a result to equal another image type.
+* `toImageDiffEqual(expected, tolerance)` expect a result to equal another image type.
 * `toBeImageData()` expect a result to be ImageData.
 
 On failed tests, `toImageDiffEqual()` will display the expected image, the actual image and the imagediff of the two letting you easily spot mistakes.
@@ -54,6 +54,7 @@ Changelog
 * Added NPM/node.js support.
 * Added command line interface for `equal` and `diff` methods.
 * Added `imageDataToPNG` method for node environments.
+* Added tolerance to handle lossy formats and provide option for acceptable difference.
 
 <h3>1.0.2</h3>
 * Added optional width / height parameters to `createCanvas` for symmetry with `createImageData`.
