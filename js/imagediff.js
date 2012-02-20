@@ -53,11 +53,11 @@
     return isType(object, TYPE_CONTEXT);
   }
   function isImageData (object) {
-    return !!(object
-      && isType(object, TYPE_IMAGE_DATA)
-      && typeof(object.width) !== UNDEFINED
-      && typeof(object.height) !== UNDEFINED
-      && typeof(object.data) !== UNDEFINED);
+    return !!(object &&
+      isType(object, TYPE_IMAGE_DATA) &&
+      typeof(object.width) !== UNDEFINED &&
+      typeof(object.height) !== UNDEFINED &&
+      typeof(object.data) !== UNDEFINED);
   }
   function isImageType (object) {
     return (
