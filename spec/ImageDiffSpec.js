@@ -433,7 +433,7 @@ describe('ImageUtils', function() {
       require('fs').unlink(output);
     });
 
-    it('imageDataToPNG, transparency (CURRENTLY FAILS)', function () {
+    it('saves an image as a PNG', function () {
 
       var
         image = newImage(),
