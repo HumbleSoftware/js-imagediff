@@ -51,8 +51,16 @@ To use matchers:
 Demo
 ----
 
-A demo is available at http://humblesoftware.github.com/js-imagediff/
-A Jasmine test demo is available at A demo is available at http://humblesoftware.github.com/js-imagediff/test.html
+* A demo is available at http://humblesoftware.github.com/js-imagediff/
+* A Jasmine test demo is available at http://humblesoftware.github.com/js-imagediff/test.html
+
+Users
+-----
+
+* [Flotr2](http://humblesoftware.com/flotr2/) - unit testing
+* [Envision.js](https://github.com/HumbleSoftware/envisionjs) - unit testing
+
+If you are using js-imagediff pelase drop us a line and let us know what you are doing with it.
 
 Changelog
 ---------
