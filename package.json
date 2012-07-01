@@ -1,0 +1,37 @@
+{
+  "name": "imagediff",
+  "main": "./imagediff.js",
+  "description": "JavaScript Canvas based imagediff utility.",
+  "homepage": "http://HumbleSoftware.github.com/js-imagediff/",
+  "keywords": [
+    "util",
+    "server",
+    "client",
+    "browser",
+    "canvas",
+    "diff",
+    "imagediff"
+  ],
+  "author": "Carl Sutherland <carl@humblesoftware.com> (http://www.humblesoftware.com/)",
+  "contributors": [
+    "Jordan Santell <@jsantell>"
+  ],
+  "dependencies": {
+    "canvas": ">= 0.7.3 && < 0.11.0"
+  },
+  "devDependencies": {
+    "jasmine-node": ">=1.0.20",
+    "smoosh": ">=0.3.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/HumbleSoftware/js-imagediff.git"
+  },
+  "version": "1.0.3",
+  "engines": {
+    "node": "*"
+  },
+  "bin" : {
+    "imagediff" : "./bin/imagediff"
+  }
+}

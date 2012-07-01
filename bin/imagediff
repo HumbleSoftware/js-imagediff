@@ -1,0 +1,56 @@
+#!/usr/bin/env node
+var
+  imagediff = require('../imagediff.js'),
+  Canvas = require('canvas');
+
+commandLine(process.argv.slice(2));
+
+function commandLine (args) {
+
+  if (args.length < 3) {
+    console.log("Invalid parameters:");
+    console.log("imagediff [-e|equal] [-t|tolerance VALUE] FILE_A FILE_B");
+    console.log("imagediff [-d|diff] FILE_A FILE_B OUTPUT_FILE");
+    return;
+  }
+
+  var
+    a = new Canvas.Image(),
+    b = new Canvas.Image(),
+    t = 0,
+    aName, bName, i, fn, result, output;
+
+  for (i = args.length - 2; i--;) {
+    switch (args[i]) {
+      case '-d':
+      case 'diff':
+        fn = 'diff';
+        break;
+      case '-e':
+      case 'equal':
+        fn = 'equal'
+        break;
+      case '-t':
+      case 'tolerance':
+        t = args[i + 1];
+        break;
+    }
+  }
+
+  if (fn === 'diff') {
+    output = args.pop();
+  }
+  b.src = bName = args.pop();
+  a.src = aName = args.pop();
+  a = imagediff.toImageData(a);
+  b = imagediff.toImageData(b);
+
+  result = imagediff[fn](a, b, t);
+
+  if (fn === 'equal') {
+    process.stdout.write(result ? 'true\n' : 'false\n');
+  } else if (fn === 'diff') {
+    imagediff.imageDataToPNG(result, output);
+    process.stdout.write('Diff of ' + aName + ' and ' + bName + ' rendered to ' + output + '\n');
+  }
+};

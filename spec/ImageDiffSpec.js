@@ -1,9 +1,14 @@
+var
+  //TODO can roll isNode up into a function if checks get longer
+  isNode    = typeof module !== 'undefined',
+  Canvas    = isNode && require('canvas'),
+  imagediff = imagediff || require('../js/imagediff.js');
+
 describe('ImageUtils', function() {
 
   var
     OBJECT            = 'object',
-    TYPE_CANVAS       = '[object HTMLCanvasElement]',
-    TYPE_IMAGE_DATA   = '[object ImageData]',
+    TYPE_CANVAS       = isNode ? '[object Canvas]' : '[object HTMLCanvasElement]',
     E_TYPE            = { name : 'ImageTypeError', message : 'Submitted object was not an image.' };
 
   function getContext () {
@@ -13,6 +18,37 @@ describe('ImageUtils', function() {
     return context;
   }
 
+  function newImage () {
+    return isNode ? new Canvas.Image() : new Image();
+  }
+
+  function toImageDiffEqual (expected) {
+
+    var
+      expectedData = expected.data,
+      actualData = this.actual.data;
+
+    this.message = function () {
+      var
+        length = Math.min(expectedData.length, actualData.length),
+        examples = '',
+        count = 0,
+        i;
+
+      for (i = 0; i < length; i++) {
+        if (expectedData[i] !== actualData[i]) {
+          count++;
+          if (count < 10) {
+            examples += (examples ? ', ' : '') + 'Expected '+expectedData[i]+' to equal '+actualData[i]+' at '+i;
+          }
+        }
+      }
+
+      return 'Differed in ' + count + ' places. ' + examples;
+    }
+
+    return imagediff.equal(this.actual, expected);
+  }
 
   // Creation Testing
   describe('Creation', function () {
@@ -37,7 +73,9 @@ describe('ImageUtils', function() {
       var
         imageData = imagediff.createImageData(10, 10);
       expect(typeof imageData).toEqual(OBJECT);
-      expect(Object.prototype.toString.apply(imageData)).toEqual(TYPE_IMAGE_DATA);
+      expect(imageData.width).toBeDefined();
+      expect(imageData.height).toBeDefined();
+      expect(imageData.data).toBeDefined();
     });
   });
 
@@ -48,7 +86,7 @@ describe('ImageUtils', function() {
     // Checking
     describe('Checking', function () {
       var
-        image = new Image(),
+        image = newImage(),
         canvas = imagediff.createCanvas(),
         context = canvas.getContext('2d'),
         imageData = context.createImageData(30, 30);
@@ -81,7 +119,7 @@ describe('ImageUtils', function() {
     describe('Conversion', function () {
 
       var
-        image = new Image(),
+        image = newImage(),
         imageData;
 
       beforeEach(function () {
@@ -89,9 +127,7 @@ describe('ImageUtils', function() {
           toBeImageData : function () {
             return imagediff.isImageData(this.actual);
           },
-          toImageDiffEqual : function (expected) {
-            return imagediff.equal(this.actual, expected);
-          }
+          toImageDiffEqual : toImageDiffEqual
         });
       });
 
@@ -107,8 +143,9 @@ describe('ImageUtils', function() {
 
         runs(function () {
           var
-            canvas = imagediff.createCanvas(),
+            canvas = imagediff.createCanvas(image.width, image.height),
             context = canvas.getContext('2d');
+
           context.drawImage(image, 0, 0);
           imageData = context.getImageData(0, 0, image.width, image.height);
 
@@ -125,7 +162,7 @@ describe('ImageUtils', function() {
           result;
 
         canvas.height = image.height;
-        canvas.width = image.width; 
+        canvas.width = image.width;
         context.drawImage(image, 0, 0);
 
         result = imagediff.toImageData(canvas);
@@ -190,6 +227,24 @@ describe('ImageUtils', function() {
       b.data[0] = 100;
       expect(imagediff.equal(a, b)).toEqual(false);
     });
+
+    it('should be equal within optional tolerance', function () {
+      b = context.createImageData(2, 2);
+      b.data[0] = 100;
+      expect(imagediff.equal(a, b, 101)).toEqual(true);
+    });
+
+    it('should be equal optional tolerance', function () {
+      b = context.createImageData(2, 2);
+      b.data[0] = 100;
+      expect(imagediff.equal(a, b, 100)).toEqual(true);
+    });
+
+    it('should not be equal outside tolerance', function () {
+      b = context.createImageData(2, 2);
+      b.data[0] = 100;
+      expect(imagediff.equal(a, b, 5)).toEqual(false);
+    });
   });
 
 
@@ -200,9 +255,7 @@ describe('ImageUtils', function() {
 
     beforeEach(function () {
       this.addMatchers({
-        toImageDiffEqual : function (expected) {
-          return imagediff.equal(this.actual, expected);
-        }
+        toImageDiffEqual : toImageDiffEqual
       });
     });
 
@@ -286,9 +339,9 @@ describe('ImageUtils', function() {
   describe("jasmine.Matchers", function() {
 
     var
-      imageA = new Image(),
-      imageB = new Image(),
-      imageC = new Image(),
+      imageA = newImage(),
+      imageB = newImage(),
+      imageC = newImage(),
       env, spec;
 
     imageA.src = 'images/xmark.png';
@@ -364,6 +417,52 @@ describe('ImageUtils', function() {
     });
   });
 
+  // Image Output
+  describe('Image Output', function () {
+
+    if (!isNode) { return; }
+
+    var
+      output = 'images/spec_output.png';
+
+    beforeEach(function () {
+      this.addMatchers(imagediff.jasmine)
+    });
+
+    afterEach(function () {
+      require('fs').unlink(output);
+    });
+
+    it('saves an image as a PNG', function () {
+
+      var
+        image = newImage(),
+        canvas = imagediff.createCanvas(10, 10),
+        context = canvas.getContext('2d'),
+        a, b;
+
+      context.moveTo(0, 0);
+      context.lineTo(10, 10);
+      context.strokeStyle = 'rgba(150, 150, 150, .5)';
+      context.stroke();
+      a = context.getImageData(0, 0, 10, 10);
+
+      imagediff.imageDataToPNG(a, output, function () {
+        image.src = output;
+      });
+
+      waitsFor(function () {
+        return image.complete;
+      }, 'image not loaded.', 2000);
+
+      runs(function () {
+        b = imagediff.toImageData(image);
+        expect(b).toBeImageData();
+        expect(canvas).toImageDiffEqual(b, 10);
+      });
+    });
+  });
+
 
   // Compatibility Testing
   describe('Compatibility', function () {
@@ -380,8 +479,10 @@ describe('ImageUtils', function() {
 
     it('should remove imagediff from global space', function () {
       imagediff.noConflict();
-      expect(imagediff === that).toEqual(false);
-      expect(global.imagediff === that).toEqual(false);
+      if (!isNode) {
+        expect(imagediff === that).toEqual(false);
+        expect(global.imagediff === that).toEqual(false);
+      }
     });
 
     it('should return imagediff', function () {
