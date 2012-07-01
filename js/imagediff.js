@@ -284,6 +284,11 @@
           canvas.height = diff.height;
           canvas.width  = diff.width;
 
+          div.style.overflow = 'hidden';
+          a.style.float = 'left';
+          b.style.float = 'left';
+          c.style.float = 'left';
+
           context = canvas.getContext('2d');
           context.putImageData(diff, 0, 0);
 
