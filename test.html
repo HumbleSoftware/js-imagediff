@@ -6,12 +6,12 @@
   <meta name="description" content="Unit testing Canvas with js-imagediff JavaScript image diff utility and Jasmine." />
 
   <link rel="shortcut icon" type="image/png" href="js/jasmine/jasmine_favicon.png">
-  <link rel="stylesheet" type="text/css" href="js/jasmine/jasmine.css">
+  <link rel="stylesheet" type="text/css" href="lib/jasmine/jasmine.css">
   <link rel="stylesheet" href="css/styles.css" type="text/css" />
   <link rel="stylesheet" href="js/google-code-prettify/prettify.css" type="text/css" />
 
-  <script type="text/javascript" src="js/jasmine/jasmine.js"></script>
-  <script type="text/javascript" src="js/jasmine/jasmine-html.js"></script>
+  <script type="text/javascript" src="lib/jasmine/jasmine.js"></script>
+  <script type="text/javascript" src="lib/jasmine/jasmine-html.js"></script>
   <script type="text/javascript" src="js/imagediff.js"></script>
   <script type="text/javascript" src="js/test.js"></script>
   <script type="text/javascript" src="js/google-code-prettify/prettify.js"></script>
@@ -53,7 +53,7 @@
   });
   </pre>
   <div id="github-ribbon">
-    <a href="http://github.com/HumbleSoftware/js-imagediff"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://humblesoftware.com/static/images/github-ribbon.png" alt="Fork me on GitHub"/></a>
+    <a href="http://github.com/HumbleSoftware/js-imagediff"><img width="149" height="149" style="position: absolute; top: 0; right: 0; border: 0;" src="http://humblesoftware.com/static/images/github-ribbon.png" alt="Fork me on GitHub"/></a>
   </div>
 
   <script type="text/javascript">
@@ -62,12 +62,12 @@
     var jasmineEnv = jasmine.getEnv();
     jasmineEnv.updateInterval = 1000;
 
-    var trivialReporter = new jasmine.TrivialReporter();
+    var reporter = new jasmine.HtmlReporter();
 
-    jasmineEnv.addReporter(trivialReporter);
+    jasmineEnv.addReporter(reporter);
 
     jasmineEnv.specFilter = function(spec) {
-      return trivialReporter.specFilter(spec);
+      return reporter.specFilter(spec);
     };
 
     var currentWindowOnload = window.onload;
