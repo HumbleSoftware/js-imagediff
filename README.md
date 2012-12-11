@@ -61,6 +61,7 @@ Users
 * [Envision.js](https://github.com/HumbleSoftware/envisionjs) - unit testing
 * [CSS Critic](https://github.com/cburgmer/csscritic) - A CSS regrestion testing framework
 * [HUSL - Human-friendly HSL](http://boronine.com/husl/) - used for regression testing before release.
+* [PhantomCSS](https://github.com/Huddle/PhantomCSS) - CSS regression testing.
 
 If you are using js-imagediff pelase drop us a line and let us know what you are doing with it.
 
