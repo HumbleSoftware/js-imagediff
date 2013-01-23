@@ -67,6 +67,10 @@ If you are using js-imagediff pelase drop us a line and let us know what you are
 
 Changelog
 ---------
+<h3>1.0.4</h3>
+* Updated canvas dependency.
+* Add check for arguments count in diff mode.
+
 <h3>1.0.3</h3>
 * Added NPM/node.js support.
 * Added command line interface for `equal` and `diff` methods.
