@@ -38,6 +38,7 @@ function commandLine (args) {
   }
 
   if (fn === 'diff') {
+    if (args.length < 4) throw '-d option expects an output';
     output = args.pop();
   }
   b.src = bName = args.pop();
