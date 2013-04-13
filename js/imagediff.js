@@ -43,6 +43,16 @@
 
 
   // Type Checking
+  function isBase64Image (string) {
+    var base64Regex = /^([A-Za-z0-9+\/]{4})*([A-Za-z0-9+\/]{4}|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}==)$/,
+        imageRegex = /^data:image\/(png|jpg);base64,/,
+        imageType = string.match(imageRegex);
+
+    if (imageType == null) {
+      return false;
+    }
+    return base64Regex.test(string.replace(imageRegex, ""));
+  }
   function isImage (object) {
     return isType(object, TYPE_IMAGE);
   }
@@ -61,6 +71,7 @@
   }
   function isImageType (object) {
     return (
+      isBase64Image(object) ||
       isImage(object) ||
       isCanvas(object) ||
       isContext(object) ||
@@ -92,10 +103,25 @@
     return newImageData;
   }
   function toImageData (object) {
+    if (isBase64Image(object)) { return toImageDataFromBase64(object); }
     if (isImage(object)) { return toImageDataFromImage(object); }
     if (isCanvas(object)) { return toImageDataFromCanvas(object); }
     if (isContext(object)) { return toImageDataFromContext(object); }
     if (isImageData(object)) { return object; }
+  }
+
+  function toImageDataFromBase64 (string) {
+    var image = new Canvas.Image;
+    image.src = string;
+
+    var height = image.height,
+        width = image.width;
+
+    canvas.width = width;
+    canvas.height = height;
+    context.clearRect(0, 0, width, height);
+    context.drawImage(image, 0, 0);
+    return context.getImageData(0, 0, width, height);
   }
   function toImageDataFromImage (image) {
     var
@@ -334,6 +360,7 @@
     createCanvas : getCanvas,
     createImageData : getImageData,
 
+    isBase64Image : isBase64Image,
     isImage : isImage,
     isCanvas : isCanvas,
     isContext : isContext,
