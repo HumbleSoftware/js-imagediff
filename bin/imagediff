@@ -5,6 +5,10 @@ var
 
 commandLine(process.argv.slice(2));
 
+function do_exit (is_equal) {
+  process.exit(is_equal ? 0 : 1);
+}
+
 function commandLine (args) {
 
   if (args.length < 3) {
@@ -18,7 +22,7 @@ function commandLine (args) {
     a = new Canvas.Image(),
     b = new Canvas.Image(),
     t = 0,
-    aName, bName, i, fn, result, output;
+    aName, bName, i, fn, equal, result, output;
 
   for (i = args.length - 2; i--;) {
     switch (args[i]) {
@@ -46,12 +50,16 @@ function commandLine (args) {
   a = imagediff.toImageData(a);
   b = imagediff.toImageData(b);
 
-  result = imagediff[fn](a, b, t);
+  equal = imagediff.equal(a, b, t);
 
   if (fn === 'equal') {
-    process.stdout.write(result ? 'true\n' : 'false\n');
+    process.stdout.write(equal ? 'true\n' : 'false\n');
+    do_exit(equal);
   } else if (fn === 'diff') {
-    imagediff.imageDataToPNG(result, output);
-    process.stdout.write('Diff of ' + aName + ' and ' + bName + ' rendered to ' + output + '\n');
+    result = imagediff.diff(a, b, t);
+    imagediff.imageDataToPNG(result, output, function () {
+      do_exit(equal);
+      process.stdout.write('Diff of ' + aName + ' and ' + bName + ' rendered to ' + output + '\n');
+    });
   }
 };
