@@ -104,6 +104,7 @@ describe('ImageUtils', function() {
       it('should check Canvas type',    testType('isCanvas', canvas));
       it('should check 2DContext type', testType('isContext', context));
       it('should check ImageData type', testType('isImageData', imageData));
+      it('should check Base 64 type',   testType('isBase64Image', canvas.toDataURL()));
       it('should check for any of the image types', function () {
         expect(imagediff.isImageType(null)).toEqual(false);
         expect(imagediff.isImageType('')).toEqual(false);
@@ -112,6 +113,7 @@ describe('ImageUtils', function() {
         expect(imagediff.isImageType(canvas)).toEqual(true);
         expect(imagediff.isImageType(context)).toEqual(true);
         expect(imagediff.isImageType(imageData)).toEqual(true);
+        expect(imagediff.isImageType(canvas.toDataURL())).toEqual(true);
       });
     });
 
@@ -177,6 +179,29 @@ describe('ImageUtils', function() {
           context = canvas.getContext('2d'),
           result = imagediff.toImageData(context);
         expect(result).toBeImageData();
+      });
+
+      it('should convert Base64 to ImageData', function () {
+        var
+          canvas = imagediff.createCanvas(),
+          context = canvas.getContext('2d'),
+          result;
+
+        canvas.height = image.height;
+        canvas.width = image.width;
+        context.drawImage(image, 0, 0);
+
+        imagediff.toImageData(canvas.toDataURL(), function (image) {
+          result = image;
+        });
+
+        waitsFor(function () {
+          return !!result;
+        }, 'async image data not set', 100);
+
+        runs(function () {
+          expect(result).toBeImageData();
+        });
       });
 
       it('should copy ImageData to new ImageData', function () {

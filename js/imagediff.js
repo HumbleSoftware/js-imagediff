@@ -44,14 +44,14 @@
 
   // Type Checking
   function isBase64Image (string) {
-    var base64Regex = /^([A-Za-z0-9+\/]{4})*([A-Za-z0-9+\/]{4}|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}==)$/,
-        imageRegex = /^data:image\/(png|jpg);base64,/,
-        imageType = string.match(imageRegex);
-
-    if (imageType == null) {
-      return false;
-    }
-    return base64Regex.test(string.replace(imageRegex, ""));
+    var
+      base64Regex = /^([A-Za-z0-9+\/]{4})*([A-Za-z0-9+\/]{4}|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}==)$/,
+      imageRegex = /^data:image\/(png|jpg);base64,/;
+    return (
+      typeof string === 'string' &&
+      imageRegex.test(string) &&
+      base64Regex.test(string.replace(imageRegex, ""))
+    );
   }
   function isImage (object) {
     return isType(object, TYPE_IMAGE);
@@ -71,11 +71,11 @@
   }
   function isImageType (object) {
     return (
-      isBase64Image(object) ||
       isImage(object) ||
       isCanvas(object) ||
       isContext(object) ||
-      isImageData(object)
+      isImageData(object) ||
+      isBase64Image(object)
     );
   }
   function isType (object, type) {
@@ -103,25 +103,29 @@
     return newImageData;
   }
   function toImageData (object) {
-    if (isBase64Image(object)) { return toImageDataFromBase64(object); }
     if (isImage(object)) { return toImageDataFromImage(object); }
     if (isCanvas(object)) { return toImageDataFromCanvas(object); }
     if (isContext(object)) { return toImageDataFromContext(object); }
     if (isImageData(object)) { return object; }
+    if (isBase64Image(object)) { return toImageDataFromBase64.apply(null, arguments); }
   }
 
-  function toImageDataFromBase64 (string) {
-    var image = new Canvas.Image;
+  function toImageDataFromBase64 (string, callback) {
+    var
+      image = new Image;
     image.src = string;
-
-    var height = image.height,
+    image.onload = function () {
+      var
+        height = image.height,
         width = image.width;
-
-    canvas.width = width;
-    canvas.height = height;
-    context.clearRect(0, 0, width, height);
-    context.drawImage(image, 0, 0);
-    return context.getImageData(0, 0, width, height);
+      canvas.width = width;
+      canvas.height = height;
+      context.clearRect(0, 0, width, height);
+      context.drawImage(image, 0, 0);
+      if (callback) {
+        callback(context.getImageData(0, 0, width, height));
+      }
+    };
   }
   function toImageDataFromImage (image) {
     var
@@ -370,16 +374,16 @@
     toImageData : function (object) {
       checkType(object);
       if (isImageData(object)) { return copyImageData(object); }
-      return toImageData(object);
+      return toImageData.apply(null, arguments);
     },
 
-    equal : function (a, b, tolerance) {
+    equal : function (a, b, tolerance, callback) {
       checkType(a, b);
       a = toImageData(a);
       b = toImageData(b);
       return equal(a, b, tolerance);
     },
-    diff : function (a, b) {
+    diff : function (a, b, callback) {
       checkType(a, b);
       a = toImageData(a);
       b = toImageData(b);
