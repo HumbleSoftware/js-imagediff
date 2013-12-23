@@ -1,7 +1,7 @@
 {
   "name": "js-imagediff",
   "version": "1.0.4",
-  "main": "imagediff.jsjs",
+  "main": "imagediff.js",
   "ignore": [
     "**/.*",
     "node_modules",
