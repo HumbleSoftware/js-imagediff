@@ -310,6 +310,57 @@ describe('ImageUtils', function() {
 
         expect(c).toImageDiffEqual(d);
       });
+
+      it('should calculate difference', function () {
+        a = imagediff.createImageData(1, 1),
+        a.data[1] = 200;
+        b = imagediff.createImageData(1, 1),
+        b.data[1] = 158;
+        c = imagediff.diff(a, b);
+
+        d = imagediff.createImageData(1, 1);
+        d.data[1] = 42;
+        d.data[3] = 255;
+
+        expect(c).toImageDiffEqual(d);
+      });
+
+      it('should center images of unequal size', function () {
+        a = imagediff.createImageData(3, 3),
+        b = imagediff.createImageData(1, 1),
+        b.data[1] = 21;
+        c = imagediff.diff(a, b);
+
+        d = imagediff.createImageData(3, 3);
+        // 4 * (rowPos * imageWidth + columnPos) + rgbPos
+        d.data[4 * (1 * 3 + 1) + 1] = 21;
+        // set alpha
+        Array.prototype.forEach.call(d.data, function (value, i) {
+          if (i % 4 === 3) {
+            d.data[i] = 255;
+          }
+        });
+
+        expect(c).toImageDiffEqual(d);
+      });
+
+      it('should optionally align images top left for unequal size', function () {
+        a = imagediff.createImageData(3, 3),
+        b = imagediff.createImageData(1, 1),
+        b.data[1] = 21;
+        c = imagediff.diff(a, b, {align: 'top'});
+
+        d = imagediff.createImageData(3, 3);
+        d.data[1] = 21;
+        // set alpha
+        Array.prototype.forEach.call(d.data, function (value, i) {
+          if (i % 4 === 3) {
+            d.data[i] = 255;
+          }
+        });
+
+        expect(c).toImageDiffEqual(d);
+      });
     });
 
     /*

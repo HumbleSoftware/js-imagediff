@@ -166,10 +166,10 @@
 
 
   // Diff
-  function diff (a, b) {
-    return (equalDimensions(a, b) ? diffEqual : diffUnequal)(a, b);
+  function diff (a, b, options) {
+    return (equalDimensions(a, b) ? diffEqual : diffUnequal)(a, b, options);
   }
-  function diffEqual (a, b) {
+  function diffEqual (a, b, options) {
 
     var
       height  = a.height,
@@ -191,7 +191,7 @@
 
     return c;
   }
-  function diffUnequal (a, b) {
+  function diffUnequal (a, b, options) {
 
     var
       height  = Math.max(a.height, b.height),
@@ -200,6 +200,7 @@
       aData   = a.data,
       bData   = b.data,
       cData   = c.data,
+      align   = options && options.align,
       rowOffset,
       columnOffset,
       row, column,
@@ -237,8 +238,13 @@
 
     // Helpers
     function offsets (imageData) {
-      rowOffset = Math.floor((height - imageData.height) / 2);
-      columnOffset = Math.floor((width - imageData.width) / 2);
+      if (align === 'top') {
+        rowOffset = 0;
+        columnOffset = 0;
+      } else {
+        rowOffset = Math.floor((height - imageData.height) / 2);
+        columnOffset = Math.floor((width - imageData.width) / 2);
+      }
     }
 
     return c;
@@ -358,11 +364,11 @@
       b = toImageData(b);
       return equal(a, b, tolerance);
     },
-    diff : function (a, b) {
+    diff : function (a, b, options) {
       checkType(a, b);
       a = toImageData(a);
       b = toImageData(b);
-      return diff(a, b);
+      return diff(a, b, options);
     },
 
     jasmine : jasmine,
