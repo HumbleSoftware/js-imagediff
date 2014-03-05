@@ -16,7 +16,7 @@
   "contributors": [
     "Jordan Santell <@jsantell>"
   ],
-  "dependencies": {
+  "optionalDependencies": {
     "canvas": "~1.0"
   },
   "devDependencies": {
