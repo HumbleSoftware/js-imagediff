@@ -187,7 +187,7 @@
       cData[i] = Math.abs(aData[i] - bData[i]);
       cData[i+1] = Math.abs(aData[i+1] - bData[i+1]);
       cData[i+2] = Math.abs(aData[i+2] - bData[i+2]);
-      cData[i+3] = Math.abs(255 - aData[i+3] - bData[i+3]);
+      cData[i+3] = Math.abs(255 - Math.abs(aData[i+3] - bData[i+3]));
     }
 
     return c;
