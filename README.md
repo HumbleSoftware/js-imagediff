@@ -30,6 +30,10 @@ Install js-imagediff with `npm install -g imagediff`.
 * `imagediff [-e|equal] [-t|tolerance VALUE] FILE_A FILE_B` tests equality of two image files with an optional tolerance, printing 'true' or 'false'.
 * `imagediff [-d|diff] FILE_A FILE_B OUTPUT_FILE` renders an imagediff between two files, saving as the output file.
 
+### Cannot find module 'canvas'
+
+Canvas has been moved to an optional dependency for better browser and browserify support.  If you see a message that the module cannot be found, please check `npm install` first, incase there was indeed an issue installing it.  This relates to  https://github.com/HumbleSoftware/js-imagediff/issues/22.  Please let me know if you have any issues on account of this, or know of a better work around.
+
 Unit Testing Canvas
 -------------------
 
