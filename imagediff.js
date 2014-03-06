@@ -7,7 +7,14 @@
 (function (name, definition) {
   var root = this;
   if (typeof module !== 'undefined') {
-    var Canvas = require('canvas');
+    try {
+      var Canvas = require('canvas');
+    } catch (e) {
+      throw new Error(
+        e.message + '\n' + 
+        'Please see https://github.com/HumbleSoftware/js-imagediff#cannot-find-module-canvas\n'
+      );
+    }
     module.exports = definition(root, name, Canvas);
   } else if (typeof define === 'function' && typeof define.amd === 'object') {
     define(definition);
