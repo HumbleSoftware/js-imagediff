@@ -72,6 +72,10 @@ If you are using js-imagediff pelase drop us a line and let us know what you are
 
 Changelog
 ---------
+<h3>1.0.6</h3>
+* Add top-aligned diffing option.
+* Fix issue with diffing transparencies.
+
 <h3>1.0.5</h3>
 * Move canvas to optional dependencies for browserify support.
 
