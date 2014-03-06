@@ -15,7 +15,8 @@ API
 * `isImageType(object)` tests for any of the above.
 * `toImageData(object)` converts image type object to a new ImageData object.
 * `equal(a, b, tolerance)` tests image type objects for equality; accepts tolerance in pixels.
-* `diff(a, b)` performs an image diff on a and b, returning a - b.
+* `diff(a, b, options)` performs an image diff on a and b, returning a - b.
+  * `options.align` set to `'top'` to top-align the images when diffing different sizes.
 * `noConflict()` removes imagediff from the global space for compatibility, returning imagediff.
 * `imageDataToPNG(imageData, outputFile, [callback])` (node only) renders the imageData to png in outputFile with optional callback.
 
