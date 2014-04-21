@@ -44,7 +44,7 @@ describe('ImageUtils', function() {
       callback(imageData);
   }
 
-  function toImageDiffEqual (util, customEqualityTesters) {
+  function toImageDiffEqual () {
     return {
       compare: function (actual, expected) {
         var
@@ -70,13 +70,13 @@ describe('ImageUtils', function() {
           }
 
           return 'Differed in ' + count + ' places. ' + examples;
-        }
+        };
         return result;
       }
     };
   }
 
-  function toBeImageData (util, customEqualityTesters) {
+  function toBeImageData () {
     return {
       compare: function (actual) {
         return {
@@ -209,16 +209,17 @@ describe('ImageUtils', function() {
       });
 
       it('should copy ImageData to new ImageData', function () {
-        result = imagediff.toImageData(imageData);
+        var
+          result = imagediff.toImageData(imageData);
         expect(result).toBeImageData();
         expect(result).toImageDiffEqual(imageData);
         expect(imageData !== result).toBeTruthy();
       });
 
       it('should fail on non-ImageType', function () {
-        expect(function () { imagediff.toImageData() }).toThrow(E_TYPE);
-        expect(function () { imagediff.toImageData('') }).toThrow(E_TYPE);
-        expect(function () { imagediff.toImageData({}) }).toThrow(E_TYPE);
+        expect(function () { imagediff.toImageData(); }).toThrow(E_TYPE);
+        expect(function () { imagediff.toImageData(''); }).toThrow(E_TYPE);
+        expect(function () { imagediff.toImageData({}); }).toThrow(E_TYPE);
       });
     });
   });
@@ -291,8 +292,8 @@ describe('ImageUtils', function() {
     describe('Geometry', function () {
 
       it('should be square, 1x1', function () {
-        a = imagediff.createImageData(1, 1),
-        b = imagediff.createImageData(1, 1),
+        a = imagediff.createImageData(1, 1);
+        b = imagediff.createImageData(1, 1);
         c = imagediff.diff(a, b);
 
         expect(c.width).toEqual(1);
@@ -300,8 +301,8 @@ describe('ImageUtils', function() {
       });
 
       it('should be square, 2x2', function () {
-        a = imagediff.createImageData(1, 2),
-        b = imagediff.createImageData(2, 1),
+        a = imagediff.createImageData(1, 2);
+        b = imagediff.createImageData(2, 1);
         c = imagediff.diff(a, b);
 
         expect(c.width).toEqual(2);
@@ -309,8 +310,8 @@ describe('ImageUtils', function() {
       });
 
       it('should be rectangular, 1x2', function () {
-        a = imagediff.createImageData(1, 2),
-        b = imagediff.createImageData(1, 1),
+        a = imagediff.createImageData(1, 2);
+        b = imagediff.createImageData(1, 1);
         c = imagediff.diff(a, b);
 
         expect(c.width).toEqual(1);
@@ -318,8 +319,8 @@ describe('ImageUtils', function() {
       });
 
       it('should be rectangular, 2x1', function () {
-        a = imagediff.createImageData(2, 1),
-        b = imagediff.createImageData(1, 1),
+        a = imagediff.createImageData(2, 1);
+        b = imagediff.createImageData(1, 1);
         c = imagediff.diff(a, b);
 
         expect(c.width).toEqual(2);
@@ -330,8 +331,8 @@ describe('ImageUtils', function() {
     describe('Difference', function () {
 
       it('should be black', function () {
-        a = imagediff.createImageData(1, 1),
-        b = imagediff.createImageData(1, 1),
+        a = imagediff.createImageData(1, 1);
+        b = imagediff.createImageData(1, 1);
         c = imagediff.diff(a, b);
 
         d = imagediff.createImageData(1, 1);
@@ -341,9 +342,9 @@ describe('ImageUtils', function() {
       });
 
       it('should calculate difference', function () {
-        a = imagediff.createImageData(1, 1),
+        a = imagediff.createImageData(1, 1);
         a.data[1] = 200;
-        b = imagediff.createImageData(1, 1),
+        b = imagediff.createImageData(1, 1);
         b.data[1] = 158;
         c = imagediff.diff(a, b);
 
@@ -355,8 +356,8 @@ describe('ImageUtils', function() {
       });
 
       it('should center images of unequal size', function () {
-        a = imagediff.createImageData(3, 3),
-        b = imagediff.createImageData(1, 1),
+        a = imagediff.createImageData(3, 3);
+        b = imagediff.createImageData(1, 1);
         b.data[1] = 21;
         c = imagediff.diff(a, b);
 
@@ -374,8 +375,8 @@ describe('ImageUtils', function() {
       });
 
       it('should optionally align images top left for unequal size', function () {
-        a = imagediff.createImageData(3, 3),
-        b = imagediff.createImageData(1, 1),
+        a = imagediff.createImageData(3, 3);
+        b = imagediff.createImageData(1, 1);
         b.data[1] = 21;
         c = imagediff.diff(a, b, {align: 'top'});
 
@@ -418,19 +419,10 @@ describe('ImageUtils', function() {
   // Jasmine Matcher Testing
   describe("jasmine.Matchers", function() {
 
-    var
-      jasmineUtil;
-
-    beforeEach(function() {
-      jasmineUtil = {
-        contains: jasmine.createSpy('delegated-contains').and.returnValue(true)
-      };
-    });
-
     describe("toBeImageData", function () {
       it('should pass on imagedata', function () {
         var
-          matcher = imagediff.jasmine.toBeImageData(jasmineUtil),
+          matcher = imagediff.jasmine.toBeImageData(),
           imageData = imagediff.createImageData(1, 1),
           result;
 
@@ -441,7 +433,7 @@ describe('ImageUtils', function() {
 
       it('should fail if not imagedata', function () {
         var
-          matcher = imagediff.jasmine.toBeImageData(jasmineUtil),
+          matcher = imagediff.jasmine.toBeImageData(),
           result;
 
         result = matcher.compare({});
@@ -473,7 +465,7 @@ describe('ImageUtils', function() {
 
       it('should pass with similar images', function () {
         var
-          matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil),
+          matcher = imagediff.jasmine.toImageDiffEqual(),
           result;
 
         result = matcher.compare(imageA, imageB);
@@ -483,7 +475,7 @@ describe('ImageUtils', function() {
 
       it('should fail with different images', function () {
         var
-          matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil),
+          matcher = imagediff.jasmine.toImageDiffEqual(),
           result;
 
         result = matcher.compare(imageB, imageC);
@@ -493,7 +485,7 @@ describe('ImageUtils', function() {
 
       it('should throw an error if image is compared to an object without image content', function () {
         var
-          matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil);
+          matcher = imagediff.jasmine.toImageDiffEqual();
 
         expect(function () {
           matcher.compare(imageA, {});
@@ -502,7 +494,7 @@ describe('ImageUtils', function() {
 
       it('should pass with similar contexts (not a DOM element)', function () {
         var
-          matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil),
+          matcher = imagediff.jasmine.toImageDiffEqual(),
           a = contextForCanvasWithSizeOf(imageA),
           b = contextForCanvasWithSizeOf(imageB),
           result;
@@ -517,7 +509,7 @@ describe('ImageUtils', function() {
 
       it('should fail with different contexts (not a DOM element)', function () {
         var
-          matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil),
+          matcher = imagediff.jasmine.toImageDiffEqual(),
           a = contextForCanvasWithSizeOf(imageA),
           c = contextForCanvasWithSizeOf(imageC),
           result;
@@ -532,9 +524,8 @@ describe('ImageUtils', function() {
 
       it('should throw an error if context (not a DOM element) is compared to an object without image content', function () {
         var
-          matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil),
-          a = contextForCanvasWithSizeOf(imageA),
-          result;
+          matcher = imagediff.jasmine.toImageDiffEqual(),
+          a = contextForCanvasWithSizeOf(imageA);
 
         a.drawImage(imageA, 0, 0);
 
@@ -545,7 +536,7 @@ describe('ImageUtils', function() {
 
       it('should pass with different images with negative comparison', function () {
         var
-          matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil),
+          matcher = imagediff.jasmine.toImageDiffEqual(),
           result;
 
         result = matcher.negativeCompare(imageA, imageC);
@@ -555,7 +546,7 @@ describe('ImageUtils', function() {
 
       it('should fail with similar images with negative comparison', function () {
         var
-          matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil),
+          matcher = imagediff.jasmine.toImageDiffEqual(),
           result;
 
         result = matcher.negativeCompare(imageA, imageB);
@@ -573,7 +564,7 @@ describe('ImageUtils', function() {
 
         it('should show error message on failing', function () {
           var
-            matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil),
+            matcher = imagediff.jasmine.toImageDiffEqual(),
             message;
 
           message = matcher.compare(imageB, imageC).message();
@@ -591,7 +582,7 @@ describe('ImageUtils', function() {
 
         it('should show error message on failing for negative match', function () {
           var
-            matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil),
+            matcher = imagediff.jasmine.toImageDiffEqual(),
             message;
 
           message = matcher.negativeCompare(imageB, imageC).message;
@@ -611,7 +602,7 @@ describe('ImageUtils', function() {
       output = 'images/spec_output.png';
 
     beforeEach(function () {
-      jasmine.addMatchers(imagediff.jasmine)
+      jasmine.addMatchers(imagediff.jasmine);
     });
 
     afterEach(function () {

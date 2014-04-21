@@ -18,7 +18,6 @@
 })('imagediff', function (root, name, Canvas) {
 
   var
-    TYPE_ARRAY        = /\[object Array\]/i,
     TYPE_CANVAS       = /\[object (Canvas|HTMLCanvasElement)\]/i,
     TYPE_CONTEXT      = /\[object CanvasRenderingContext2D\]/i,
     TYPE_IMAGE        = /\[object (Image|HTMLImageElement)\]/i,
@@ -180,8 +179,7 @@
       bData   = b.data,
       cData   = c.data,
       length  = cData.length,
-      row, column,
-      i, j, k, v;
+      i;
 
     for (i = 0; i < length; i += 4) {
       cData[i] = Math.abs(aData[i] - bData[i]);
@@ -205,7 +203,7 @@
       rowOffset,
       columnOffset,
       row, column,
-      i, j, k, v;
+      i, j;
 
 
     for (i = cData.length - 1; i > 0; i = i - 4) {
@@ -311,7 +309,7 @@
 
   jasmine = {
 
-    toBeImageData : function (util, customEqualityTesters) {
+    toBeImageData : function () {
       return {
         compare: function (actual) {
           return {
@@ -321,7 +319,7 @@
       };
     },
 
-    toImageDiffEqual: function (util, customEqualityTesters) {
+    toImageDiffEqual: function () {
       return {
         compare: function (actual, expected, tolerance) {
           var
