@@ -33,5 +33,8 @@
   },
   "bin" : {
     "imagediff" : "./bin/imagediff"
+  },
+  "scripts": {
+    "test": "cd spec && jasmine-node --captureExceptions ."
   }
 }
