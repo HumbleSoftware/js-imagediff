@@ -44,32 +44,46 @@ describe('ImageUtils', function() {
       callback(imageData);
   }
 
-  function toImageDiffEqual (expected) {
+  function toImageDiffEqual (util, customEqualityTesters) {
+    return {
+      compare: function (actual, expected) {
+        var
+          result = {},
+          expectedData = expected.data,
+          actualData = actual.data;
 
-    var
-      expectedData = expected.data,
-      actualData = this.actual.data;
+        result.pass = imagediff.equal(actual, expected);
+        result.message = function () {
+          var
+            length = Math.min(expectedData.length, actualData.length),
+            examples = '',
+            count = 0,
+            i;
 
-    this.message = function () {
-      var
-        length = Math.min(expectedData.length, actualData.length),
-        examples = '',
-        count = 0,
-        i;
-
-      for (i = 0; i < length; i++) {
-        if (expectedData[i] !== actualData[i]) {
-          count++;
-          if (count < 10) {
-            examples += (examples ? ', ' : '') + 'Expected '+expectedData[i]+' to equal '+actualData[i]+' at '+i;
+          for (i = 0; i < length; i++) {
+            if (expectedData[i] !== actualData[i]) {
+              count++;
+              if (count < 10) {
+                examples += (examples ? ', ' : '') + 'Expected '+expectedData[i]+' to equal '+actualData[i]+' at '+i;
+              }
+            }
           }
+
+          return 'Differed in ' + count + ' places. ' + examples;
         }
+        return result;
       }
+    };
+  }
 
-      return 'Differed in ' + count + ' places. ' + examples;
-    }
-
-    return imagediff.equal(this.actual, expected);
+  function toBeImageData (util, customEqualityTesters) {
+    return {
+      compare: function (actual) {
+        return {
+          pass: imagediff.isImageData(actual)
+        };
+      }
+    };
   }
 
   // Creation Testing
@@ -143,11 +157,9 @@ describe('ImageUtils', function() {
       var
         image, imageData;
 
-      beforeEach(function () {
-        this.addMatchers({
-          toBeImageData : function () {
-            return imagediff.isImageData(this.actual);
-          },
+      beforeEach(function (done) {
+        jasmine.addMatchers({
+          toBeImageData : toBeImageData,
           toImageDiffEqual : toImageDiffEqual
         });
 
@@ -158,12 +170,11 @@ describe('ImageUtils', function() {
 
           loadImageData(theImage, function (theImageData) {
             imageData = theImageData;
+
+            done();
           });
         });
 
-        waitsFor(function () {
-          return image !== undefined && imageData !== undefined;
-        }, 'image not loaded.', 1000);
       });
 
       it('should convert Image to ImageData', function () {
@@ -274,7 +285,7 @@ describe('ImageUtils', function() {
     var a, b, c, d;
 
     beforeEach(function () {
-      this.addMatchers({
+      jasmine.addMatchers({
         toImageDiffEqual : toImageDiffEqual
       });
     });
@@ -423,7 +434,7 @@ describe('ImageUtils', function() {
       spyOn(spec, 'addMatcherResult');
 
       spec.addMatchers(imagediff.jasmine);
-      this.addMatchers({
+      jasmine.addMatchers({
         toPass: function() {
           return lastResult().passed();
         },
@@ -500,17 +511,16 @@ describe('ImageUtils', function() {
       output = 'images/spec_output.png';
 
     beforeEach(function () {
-      this.addMatchers(imagediff.jasmine)
+      jasmine.addMatchers(imagediff.jasmine)
     });
 
     afterEach(function () {
       require('fs').unlink(output);
     });
 
-    it('saves an image as a PNG', function () {
+    it('saves an image as a PNG', function (done) {
 
       var
-        image = newImage(),
         canvas = imagediff.createCanvas(10, 10),
         context = canvas.getContext('2d'),
         a, b;
@@ -522,17 +532,13 @@ describe('ImageUtils', function() {
       a = context.getImageData(0, 0, 10, 10);
 
       imagediff.imageDataToPNG(a, output, function () {
-        image.src = output;
-      });
+        loadImage(output, function (image) {
+          b = imagediff.toImageData(image);
+          expect(b).toBeImageData();
+          expect(canvas).toImageDiffEqual(b, 10);
 
-      waitsFor(function () {
-        return image.complete;
-      }, 'image not loaded.', 2000);
-
-      runs(function () {
-        b = imagediff.toImageData(image);
-        expect(b).toBeImageData();
-        expect(canvas).toImageDiffEqual(b, 10);
+          done();
+        });
       });
     });
   });
