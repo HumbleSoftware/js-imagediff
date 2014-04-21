@@ -22,6 +22,28 @@ describe('ImageUtils', function() {
     return isNode ? new Canvas.Image() : new Image();
   }
 
+  function loadImage (url, callback) {
+    var
+      image = newImage();
+
+    image.onload = function () {
+      callback(image);
+    };
+    image.src = url;
+  }
+
+  function loadImageData (image, callback) {
+    var
+      canvas = imagediff.createCanvas(image.width, image.height),
+      context = canvas.getContext('2d'),
+      imageData;
+
+      context.drawImage(image, 0, 0);
+      imageData = context.getImageData(0, 0, image.width, image.height);
+
+      callback(imageData);
+  }
+
   function toImageDiffEqual (expected) {
 
     var
@@ -119,8 +141,7 @@ describe('ImageUtils', function() {
     describe('Conversion', function () {
 
       var
-        image = newImage(),
-        imageData;
+        image, imageData;
 
       beforeEach(function () {
         this.addMatchers({
@@ -129,30 +150,29 @@ describe('ImageUtils', function() {
           },
           toImageDiffEqual : toImageDiffEqual
         });
+
+        image = theImageData = undefined;
+
+        loadImage('images/checkmark.png', function (theImage) {
+          image = theImage;
+
+          loadImageData(theImage, function (theImageData) {
+            imageData = theImageData;
+          });
+        });
+
+        waitsFor(function () {
+          return image !== undefined && imageData !== undefined;
+        }, 'image not loaded.', 1000);
       });
 
       it('should convert Image to ImageData', function () {
-
         var
           result;
 
-        image.src = 'images/checkmark.png';
-        waitsFor(function () {
-          return image.complete;
-        }, 'image not loaded.', 1000);
-
-        runs(function () {
-          var
-            canvas = imagediff.createCanvas(image.width, image.height),
-            context = canvas.getContext('2d');
-
-          context.drawImage(image, 0, 0);
-          imageData = context.getImageData(0, 0, image.width, image.height);
-
-          result = imagediff.toImageData(image);
-          expect(result).toBeImageData();
-          expect(result).toImageDiffEqual(imageData);
-        });
+        result = imagediff.toImageData(image);
+        expect(result).toBeImageData();
+        expect(result).toImageDiffEqual(imageData);
       });
 
       it('should convert Canvas to ImageData', function () {
@@ -390,14 +410,7 @@ describe('ImageUtils', function() {
   describe("jasmine.Matchers", function() {
 
     var
-      imageA = newImage(),
-      imageB = newImage(),
-      imageC = newImage(),
-      env, spec;
-
-    imageA.src = 'images/xmark.png';
-    imageB.src = 'images/xmark.png';
-    imageC.src = 'images/checkmark.png';
+      imageA, imageB, imageC, env, spec;
 
     beforeEach(function() {
       env = new jasmine.Env();
@@ -418,6 +431,23 @@ describe('ImageUtils', function() {
           return !lastResult().passed();
         }
       });
+
+      imageA = undefined;
+      imageB = undefined;
+      imageC = undefined;
+      loadImage('images/xmark.png', function (theImageA) {
+        imageA = theImageA;
+        loadImage('images/xmark.png', function (theImageB) {
+          imageB = theImageB;
+          loadImage('images/checkmark.png', function (theImageC) {
+            imageC = theImageC;
+          });
+        });
+      });
+
+      waitsFor(function () {
+        return imageA !== undefined && imageB !== undefined && imageC !== undefined;
+      }, "images not loaded", 2000);
     });
 
     function match(value) {
@@ -436,18 +466,11 @@ describe('ImageUtils', function() {
     });
 
     it('toImageDiffEqual with images', function () {
-
-      waitsFor(function () {
-        return imageA.complete && imageB.complete && imageC.complete;
-      }, 'image not loaded.', 2000);
-
-      runs(function () {
-        expect(match(imageA).toImageDiffEqual(imageB)).toPass();
-        expect(match(imageA).toImageDiffEqual(imageC)).toFail();
-        expect(function () {
-          match(imageA).toImageDiffEqual({});
-        }).toThrow(E_TYPE);
-      });
+      expect(match(imageA).toImageDiffEqual(imageB)).toPass();
+      expect(match(imageA).toImageDiffEqual(imageC)).toFail();
+      expect(function () {
+        match(imageA).toImageDiffEqual({});
+      }).toThrow(E_TYPE);
     });
 
     it('toImageDiffEqual with contexts (not a DOM element)', function () {
