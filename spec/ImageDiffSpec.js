@@ -163,8 +163,6 @@ describe('ImageUtils', function() {
           toImageDiffEqual : toImageDiffEqual
         });
 
-        image = theImageData = undefined;
-
         loadImage('images/checkmark.png', function (theImage) {
           image = theImage;
 
@@ -421,84 +419,129 @@ describe('ImageUtils', function() {
   describe("jasmine.Matchers", function() {
 
     var
-      imageA, imageB, imageC, env, spec;
+      jasmineUtil;
 
     beforeEach(function() {
-      env = new jasmine.Env();
-      env.updateInterval = 0;
+      jasmineUtil = {
+        contains: jasmine.createSpy('delegated-contains').and.returnValue(true)
+      };
+    });
 
-      var suite = env.describe("suite", function() {
-        spec = env.it("spec", function() {
-        });
-      });
-      spyOn(spec, 'addMatcherResult');
+    describe("toBeImageData", function () {
+      it('should pass on imagedata', function () {
+        var
+          matcher = imagediff.jasmine.toBeImageData(jasmineUtil),
+          imageData = imagediff.createImageData(1, 1),
+          result;
 
-      spec.addMatchers(imagediff.jasmine);
-      jasmine.addMatchers({
-        toPass: function() {
-          return lastResult().passed();
-        },
-        toFail: function() {
-          return !lastResult().passed();
-        }
+        result = matcher.compare(imageData);
+
+        expect(result.pass).toBe(true);
       });
 
-      imageA = undefined;
-      imageB = undefined;
-      imageC = undefined;
-      loadImage('images/xmark.png', function (theImageA) {
-        imageA = theImageA;
-        loadImage('images/xmark.png', function (theImageB) {
-          imageB = theImageB;
-          loadImage('images/checkmark.png', function (theImageC) {
-            imageC = theImageC;
+      it('should fail if not imagedata', function () {
+        var
+          matcher = imagediff.jasmine.toBeImageData(jasmineUtil),
+          result;
+
+        result = matcher.compare({});
+
+        expect(result.pass).toBe(false);
+      });
+    });
+
+    describe("toImageDiffEqual", function () {
+      var
+        imageA, imageB, imageC;
+
+      function contextForCanvasWithSizeOf (image) {
+        return imagediff.createCanvas(image.width, image.height).getContext('2d');
+      }
+
+      beforeEach(function(done) {
+        loadImage('images/xmark.png', function (theImageA) {
+          imageA = theImageA;
+          loadImage('images/xmark.png', function (theImageB) {
+            imageB = theImageB;
+            loadImage('images/checkmark.png', function (theImageC) {
+              imageC = theImageC;
+              done();
+            });
           });
         });
       });
 
-      waitsFor(function () {
-        return imageA !== undefined && imageB !== undefined && imageC !== undefined;
-      }, "images not loaded", 2000);
-    });
+      it('should pass with similar images', function () {
+        var
+          matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil),
+          result;
 
-    function match(value) {
-      return spec.expect(value);
-    }
+        result = matcher.compare(imageA, imageB);
 
-    function lastResult() {
-      return spec.addMatcherResult.mostRecentCall.args[0];
-    }
+        expect(result.pass).toBe(true);
+      });
 
-    it('toBeImageData', function () {
-      var a = imagediff.createImageData(1, 1),
-          b = {};
-      expect(match(a).toBeImageData()).toPass();
-      expect(match(b).toBeImageData()).toFail();
-    });
+      it('should fail with different images', function () {
+        var
+          matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil),
+          result;
 
-    it('toImageDiffEqual with images', function () {
-      expect(match(imageA).toImageDiffEqual(imageB)).toPass();
-      expect(match(imageA).toImageDiffEqual(imageC)).toFail();
-      expect(function () {
-        match(imageA).toImageDiffEqual({});
-      }).toThrow(E_TYPE);
-    });
+        result = matcher.compare(imageB, imageC);
 
-    it('toImageDiffEqual with contexts (not a DOM element)', function () {
-      var
-        a = imagediff.createCanvas(imageA.width, imageA.height).getContext('2d'),
-        b = imagediff.createCanvas(imageB.width, imageB.height).getContext('2d'),
-        c = imagediff.createCanvas(imageC.width, imageC.height).getContext('2d');
+        expect(result.pass).toBe(false);
+      });
 
-      a.drawImage(imageA, 0, 0);
-      b.drawImage(imageB, 0, 0);
-      c.drawImage(imageC, 0, 0);
+      it('should throw an error if image is compared to an object without image content', function () {
+        var
+          matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil);
 
-      expect(match(a).toImageDiffEqual(b)).toPass();
-      expect(match(a).toImageDiffEqual(c)).toFail();
-      expect(function () {
-        match(a).toImageDiffEqual({});
-      }).toThrow(E_TYPE);
+        expect(function () {
+          matcher.compare(imageA, {});
+        }).toThrow(E_TYPE);
+      });
+
+      it('should pass with similar contexts (not a DOM element)', function () {
+        var
+          matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil),
+          a = contextForCanvasWithSizeOf(imageA),
+          b = contextForCanvasWithSizeOf(imageB),
+          result;
+
+        a.drawImage(imageA, 0, 0);
+        b.drawImage(imageB, 0, 0);
+
+        result = matcher.compare(a, b);
+
+        expect(result.pass).toBe(true);
+      });
+
+      it('should fail with different contexts (not a DOM element)', function () {
+        var
+          matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil),
+          a = contextForCanvasWithSizeOf(imageA),
+          c = contextForCanvasWithSizeOf(imageC),
+          result;
+
+        a.drawImage(imageA, 0, 0);
+        c.drawImage(imageC, 0, 0);
+
+        result = matcher.compare(a, c);
+
+        expect(result.pass).toBe(false);
+      });
+
+      it('should throw an error if context (not a DOM element) is compared to an object without image content', function () {
+        var
+          matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil),
+          a = contextForCanvasWithSizeOf(imageA),
+          result;
+
+        a.drawImage(imageA, 0, 0);
+
+        expect(function () {
+          matcher.compare(a, {});
+        }).toThrow(E_TYPE);
+      });
     });
   });
 
