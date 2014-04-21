@@ -41,12 +41,20 @@
         });
       });
 
-      it("one should pass", function () {
+      it("toImageDiffEqual should pass", function () {
         expect(imageA).toImageDiffEqual(imageB);
       });
 
-      it("one should fail", function () {
+      it("toImageDiffEqual should fail", function () {
         expect(imageA).toImageDiffEqual(imageC);
+      });
+
+      it("not.toImageDiffEqual should pass", function () {
+        expect(imageA).not.toImageDiffEqual(imageC);
+      });
+
+      it("not.toImageDiffEqual should fail", function () {
+        expect(imageA).not.toImageDiffEqual(imageB);
       });
     });
   </script>

@@ -542,6 +542,63 @@ describe('ImageUtils', function() {
           matcher.compare(a, {});
         }).toThrow(E_TYPE);
       });
+
+      it('should pass with different images with negative comparison', function () {
+        var
+          matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil),
+          result;
+
+        result = matcher.negativeCompare(imageA, imageC);
+
+        expect(result.pass).toBe(true);
+      });
+
+      it('should fail with similar images with negative comparison', function () {
+        var
+          matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil),
+          result;
+
+        result = matcher.negativeCompare(imageA, imageB);
+
+        expect(result.pass).toBe(false);
+      });
+
+      describe("toImageDiffEqual message", function () {
+
+        if (isNode) { return; }
+
+        beforeEach(function() {
+          jasmine.addMatchers(imagediff.jasmine);
+        });
+
+        it('should show error message on failing', function () {
+          var
+            matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil),
+            message;
+
+          message = matcher.compare(imageB, imageC).message();
+
+          expect(message.querySelectorAll('div div div')[0].textContent).toEqual('Actual:');
+          expect(message.querySelectorAll('div div canvas')[0]).toImageDiffEqual(imageB);
+
+          expect(message.querySelectorAll('div div div')[1].textContent).toEqual('Expected:');
+          expect(message.querySelectorAll('div div canvas')[1]).toImageDiffEqual(imageC);
+
+          expect(message.querySelectorAll('div div div')[2].textContent).toEqual('Diff:');
+          // TODO minimal difference fails the following
+          // expect(message.querySelectorAll('div div canvas')[2]).toImageDiffEqual(imagediff.diff(imageB, imageC));
+        });
+
+        it('should show error message on failing for negative match', function () {
+          var
+            matcher = imagediff.jasmine.toImageDiffEqual(jasmineUtil),
+            message;
+
+          message = matcher.negativeCompare(imageB, imageC).message;
+
+          expect(message).toEqual('Expected not to be equal.');
+        });
+      });
     });
   });
 
