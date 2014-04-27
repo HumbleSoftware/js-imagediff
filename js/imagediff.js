@@ -1,14 +1,10 @@
 (function (name, definition) {
   var root = this;
   if (typeof module !== 'undefined') {
+    var Canvas;
     try {
-      var Canvas = require('canvas');
-    } catch (e) {
-      throw new Error(
-        e.message + '\n' + 
-        'Please see https://github.com/HumbleSoftware/js-imagediff#cannot-find-module-canvas\n'
-      );
-    }
+      Canvas = require('canvas');
+    } catch (e) {}
     module.exports = definition(root, name, Canvas);
   } else if (typeof define === 'function' && typeof define.amd === 'object') {
     define(definition);
@@ -33,10 +29,17 @@
 
   // Creation
   function getCanvas (width, height) {
-    var
-      canvas = Canvas ?
-        new Canvas() :
-        document.createElement('canvas');
+    var canvas;
+    if (Canvas) {
+      canvas = new Canvas();
+    } else if (root.document && root.document.createElement) {
+      canvas = document.createElement('canvas');
+    } else {
+        throw new Error(
+          e.message + '\n' +
+          'Please see https://github.com/HumbleSoftware/js-imagediff#cannot-find-module-canvas\n'
+        );
+    }
     if (width) canvas.width = width;
     if (height) canvas.height = height;
     return canvas;
