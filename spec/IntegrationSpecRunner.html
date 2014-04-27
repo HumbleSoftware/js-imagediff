@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Jasmine Spec Runner</title>
+
+  <link rel="stylesheet" href="../node_modules/jasmine-core/lib/jasmine-core/jasmine.css">
+  <script src="../node_modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
+  <script src="../node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
+  <script src="../node_modules/jasmine-core/lib/jasmine-core/boot.js"></script>
+
+  <!-- include source files here... -->
+  <script src="../js/imagediff.js"></script>
+
+  <!-- include spec files here... -->
+  <script>
+    describe("Integrative tests", function () {
+      var imageA, imageB, imageC;
+
+      function loadImage (url, callback) {
+        var
+          image = new Image();
+
+        image.onload = function () {
+          callback(image);
+        };
+        image.src = url;
+      }
+
+      beforeEach(function (done) {
+        jasmine.addMatchers(imagediff.jasmine);
+
+        loadImage('images/xmark.png', function (image) {
+          imageA = image;
+          loadImage('images/xmark.png', function (image) {
+            imageB = image;
+            loadImage('images/checkmark.png', function (image) {
+              imageC = image;
+              done();
+            });
+          });
+        });
+      });
+
+      it("toImageDiffEqual should pass", function () {
+        expect(imageA).toImageDiffEqual(imageB);
+      });
+
+      it("toImageDiffEqual should fail", function () {
+        expect(imageA).toImageDiffEqual(imageC);
+      });
+
+      it("not.toImageDiffEqual should pass", function () {
+        expect(imageA).not.toImageDiffEqual(imageC);
+      });
+
+      it("not.toImageDiffEqual should fail", function () {
+        expect(imageA).not.toImageDiffEqual(imageB);
+      });
+    });
+  </script>
+</head>
+<body>
+    <p>These test suite is intented to fail to show off the failing message.</p>
+</body>
+</html>

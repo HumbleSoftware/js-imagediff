@@ -20,8 +20,9 @@
     "canvas": "~1.0"
   },
   "devDependencies": {
-    "jasmine-node": ">=1.0.20",
-    "smoosh": ">=0.3.1"
+    "jasmine-node": "~2.0.0",
+    "smoosh": ">=0.3.1",
+    "jasmine-core": "~2.0.0"
   },
   "repository": {
     "type": "git",
@@ -31,7 +32,10 @@
   "engines": {
     "node": ">= 0.6.0"
   },
-  "bin" : {
+  "bin": {
     "imagediff" : "./bin/imagediff"
+  },
+  "scripts": {
+    "test": "cd spec && jasmine-node --captureExceptions ."
   }
 }
