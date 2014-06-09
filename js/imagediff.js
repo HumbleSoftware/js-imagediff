@@ -148,18 +148,24 @@
   function equalDimensions (a, b) {
     return equalHeight(a, b) && equalWidth(a, b);
   }
-  function equal (a, b, tolerance) {
+  function equal (a, b, options) {
 
     var
       aData     = a.data,
       bData     = b.data,
       length    = aData.length,
+      absoluteTolerance = 0,
       i;
 
-    tolerance = tolerance || 0;
+    if (typeof options === "number") {
+      // Support old interface
+      absoluteTolerance = options;
+    } else if (options) {
+      absoluteTolerance = (options.tolerance * 256) || 0;
+    }
 
     if (!equalDimensions(a, b)) return false;
-    for (i = length; i--;) if (aData[i] !== bData[i] && Math.abs(aData[i] - bData[i]) > tolerance) return false;
+    for (i = length; i--;) if (aData[i] !== bData[i] && Math.abs(aData[i] - bData[i]) > absoluteTolerance) return false;
 
     return true;
   }

@@ -258,22 +258,42 @@ describe('ImageUtils', function() {
       expect(imagediff.equal(a, b)).toEqual(false);
     });
 
-    it('should be equal within optional tolerance', function () {
-      b = context.createImageData(2, 2);
-      b.data[0] = 100;
-      expect(imagediff.equal(a, b, 101)).toEqual(true);
-    });
+    describe("tolerance", function () {
+      it('should be equal within optional tolerance', function () {
+        b = context.createImageData(2, 2);
+        b.data[0] = 100;
+        expect(imagediff.equal(a, b, 101)).toEqual(true);
+      });
 
-    it('should be equal optional tolerance', function () {
-      b = context.createImageData(2, 2);
-      b.data[0] = 100;
-      expect(imagediff.equal(a, b, 100)).toEqual(true);
-    });
+      it('should be equal optional tolerance', function () {
+        b = context.createImageData(2, 2);
+        b.data[0] = 100;
+        expect(imagediff.equal(a, b, 100)).toEqual(true);
+      });
 
-    it('should not be equal outside tolerance', function () {
-      b = context.createImageData(2, 2);
-      b.data[0] = 100;
-      expect(imagediff.equal(a, b, 5)).toEqual(false);
+      it('should not be equal outside tolerance', function () {
+        b = context.createImageData(2, 2);
+        b.data[0] = 100;
+        expect(imagediff.equal(a, b, 5)).toEqual(false);
+      });
+
+      it('should be equal within optional tolerance using new API', function () {
+        b = context.createImageData(2, 2);
+        b.data[0] = 100;
+        expect(imagediff.equal(a, b, {tolerance: 101/256})).toEqual(true);
+      });
+
+      it('should be equal optional tolerance using new API', function () {
+        b = context.createImageData(2, 2);
+        b.data[0] = 100;
+        expect(imagediff.equal(a, b, {tolerance: 100/256})).toEqual(true);
+      });
+
+      it('should not be equal outside tolerance using new API', function () {
+        b = context.createImageData(2, 2);
+        b.data[0] = 100;
+        expect(imagediff.equal(a, b, {tolerance: 5/256})).toEqual(false);
+      });
     });
   });
 
