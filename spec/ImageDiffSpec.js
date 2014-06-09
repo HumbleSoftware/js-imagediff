@@ -294,6 +294,24 @@ describe('ImageUtils', function() {
         b.data[0] = 100;
         expect(imagediff.equal(a, b, {tolerance: 5/256})).toEqual(false);
       });
+
+      it('should be equal within optional total tolerance', function () {
+        b = context.createImageData(2, 2);
+        b.data[0] = 255;
+        expect(imagediff.equal(a, b, {tolerance: 1/4, totalTolerance: true})).toEqual(true);
+      });
+
+      it('should be equal optional total tolerance', function () {
+        b = context.createImageData(2, 2);
+        b.data[0] = 255;
+        expect(imagediff.equal(a, b, {tolerance: 1/16, totalTolerance: true})).toEqual(true);
+      });
+
+      it('should not be equal outside total tolerance', function () {
+        b = context.createImageData(2, 2);
+        b.data[0] = 255;
+        expect(imagediff.equal(a, b, {tolerance: 1/20, totalTolerance: true})).toEqual(false);
+      });
     });
   });
 

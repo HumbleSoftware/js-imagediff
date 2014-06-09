@@ -148,26 +148,44 @@
   function equalDimensions (a, b) {
     return equalHeight(a, b) && equalWidth(a, b);
   }
+  function hasTotalDifference (aData, bData, absoluteTolerance) {
+    var length         = aData.length,
+        sumDifferences = 0,
+        i;
+    for (i = 0; i < length; i++) {
+      sumDifferences += Math.abs(aData[i] - bData[i]);
+    };
+
+    return sumDifferences / (255 * length) <= (absoluteTolerance / 256);
+  }
+  function hasPerPixelDifference (aData, bData, absoluteTolerance) {
+    var length = aData.length,
+        i;
+    for (i = length; i--;) if (aData[i] !== bData[i] && Math.abs(aData[i] - bData[i]) > absoluteTolerance) return false;
+    return true;
+  }
   function equal (a, b, options) {
 
     var
-      aData     = a.data,
-      bData     = b.data,
-      length    = aData.length,
+      aData             = a.data,
+      bData             = b.data,
       absoluteTolerance = 0,
-      i;
+      totalTolerance    = false;
 
     if (typeof options === "number") {
       // Support old interface
       absoluteTolerance = options;
     } else if (options) {
       absoluteTolerance = (options.tolerance * 256) || 0;
+      totalTolerance = options.totalTolerance || false;
     }
 
     if (!equalDimensions(a, b)) return false;
-    for (i = length; i--;) if (aData[i] !== bData[i] && Math.abs(aData[i] - bData[i]) > absoluteTolerance) return false;
-
-    return true;
+    if (totalTolerance) {
+      return hasTotalDifference(aData, bData, absoluteTolerance)
+    } else {
+      return hasPerPixelDifference(aData, bData, absoluteTolerance);
+    }
   }
 
 
