@@ -148,7 +148,7 @@
   function equalDimensions (a, b) {
     return equalHeight(a, b) && equalWidth(a, b);
   }
-  function hasTotalDifference (aData, bData, absoluteTolerance) {
+  function hasTotalDifference (aData, bData, totalToleranceRatio) {
     var length         = aData.length,
         sumDifferences = 0,
         i;
@@ -156,12 +156,12 @@
       sumDifferences += Math.abs(aData[i] - bData[i]);
     };
 
-    return sumDifferences / (255 * length) <= (absoluteTolerance / 256);
+    return sumDifferences / (255 * length) <= totalToleranceRatio;
   }
-  function hasPerPixelDifference (aData, bData, absoluteTolerance) {
+  function hasPerPixelDifference (aData, bData, relativePixelTolerance) {
     var length = aData.length,
         i;
-    for (i = length; i--;) if (aData[i] !== bData[i] && Math.abs(aData[i] - bData[i]) > absoluteTolerance) return false;
+    for (i = length; i--;) if (aData[i] !== bData[i] && Math.abs(aData[i] - bData[i]) > relativePixelTolerance) return false;
     return true;
   }
   function equal (a, b, options) {
@@ -169,22 +169,24 @@
     var
       aData             = a.data,
       bData             = b.data,
-      absoluteTolerance = 0,
-      totalTolerance    = false;
+      toleranceValue, toleranceMethod;
 
+    // Support old interface
     if (typeof options === "number") {
-      // Support old interface
-      absoluteTolerance = options;
-    } else if (options) {
-      absoluteTolerance = (options.tolerance * 256) || 0;
-      totalTolerance = options.totalTolerance || false;
+      options = {
+        toleranceValue: options
+      };
     }
 
+    toleranceValue = options && options.toleranceValue || 0;
+    toleranceMethod = options && options.toleranceMethod || 'relativePerPixel';
+
     if (!equalDimensions(a, b)) return false;
-    if (totalTolerance) {
-      return hasTotalDifference(aData, bData, absoluteTolerance)
+
+    if (toleranceMethod === 'totalRatio') {
+      return hasTotalDifference(aData, bData, toleranceValue)
     } else {
-      return hasPerPixelDifference(aData, bData, absoluteTolerance);
+      return hasPerPixelDifference(aData, bData, toleranceValue);
     }
   }
 

@@ -280,37 +280,44 @@ describe('ImageUtils', function() {
       it('should be equal within optional tolerance using new API', function () {
         b = context.createImageData(2, 2);
         b.data[0] = 100;
-        expect(imagediff.equal(a, b, {tolerance: 101/256})).toEqual(true);
+        expect(imagediff.equal(a, b, {toleranceValue: 101, toleranceMethod: 'relativePerPixel'})).toEqual(true);
       });
 
       it('should be equal optional tolerance using new API', function () {
         b = context.createImageData(2, 2);
         b.data[0] = 100;
-        expect(imagediff.equal(a, b, {tolerance: 100/256})).toEqual(true);
+        expect(imagediff.equal(a, b, {toleranceValue: 100, toleranceMethod: 'relativePerPixel'})).toEqual(true);
       });
 
       it('should not be equal outside tolerance using new API', function () {
         b = context.createImageData(2, 2);
         b.data[0] = 100;
-        expect(imagediff.equal(a, b, {tolerance: 5/256})).toEqual(false);
+        expect(imagediff.equal(a, b, {toleranceValue: 5, toleranceMethod: 'relativePerPixel'})).toEqual(false);
       });
 
       it('should be equal within optional total tolerance', function () {
         b = context.createImageData(2, 2);
         b.data[0] = 255;
-        expect(imagediff.equal(a, b, {tolerance: 1/4, totalTolerance: true})).toEqual(true);
+        expect(imagediff.equal(a, b, {toleranceValue: 1/4, toleranceMethod: 'totalRatio'})).toEqual(true);
       });
 
       it('should be equal optional total tolerance', function () {
         b = context.createImageData(2, 2);
         b.data[0] = 255;
-        expect(imagediff.equal(a, b, {tolerance: 1/16, totalTolerance: true})).toEqual(true);
+        expect(imagediff.equal(a, b, {toleranceValue: 1/16, toleranceMethod: 'totalRatio'})).toEqual(true);
       });
 
       it('should not be equal outside total tolerance', function () {
         b = context.createImageData(2, 2);
         b.data[0] = 255;
-        expect(imagediff.equal(a, b, {tolerance: 1/20, totalTolerance: true})).toEqual(false);
+        expect(imagediff.equal(a, b, {toleranceValue: 1/20, toleranceMethod: 'totalRatio'})).toEqual(false);
+      });
+
+      it('should use tolerance method "relativePerPixel" by default', function () {
+        b = context.createImageData(2, 2);
+        b.data[0] = 100;
+        expect(imagediff.equal(a, b, {toleranceValue: 100})).toEqual(true);
+        expect(imagediff.equal(a, b, {toleranceValue: 99})).toEqual(false);
       });
     });
   });
