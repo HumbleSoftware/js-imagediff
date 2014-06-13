@@ -567,7 +567,7 @@ describe('ImageUtils', function() {
             matcher = imagediff.jasmine.toImageDiffEqual(),
             message;
 
-          message = matcher.compare(imageB, imageC).message();
+          message = matcher.compare(imageB, imageC).message;
 
           expect(message.querySelectorAll('div div div')[0].textContent).toEqual('Actual:');
           expect(message.querySelectorAll('div div canvas')[0]).toImageDiffEqual(imageB);
