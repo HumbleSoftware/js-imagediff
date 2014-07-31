@@ -28,14 +28,17 @@ function commandLine (args) {
     switch (args[i]) {
       case '-d':
       case 'diff':
+      case '--diff':
         fn = 'diff';
         break;
       case '-e':
       case 'equal':
+      case '--equal':
         fn = 'equal'
         break;
       case '-t':
       case 'tolerance':
+      case '--tolerance':
         t = args[i + 1];
         break;
     }
