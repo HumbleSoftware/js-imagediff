@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 var
+  fs = require('fs'),
   imagediff = require('../imagediff.js'),
   Canvas = require('canvas');
 
@@ -12,11 +13,17 @@ function do_exit (is_equal) {
 function loadImage (url, callback) {
   var
     image = new Canvas.Image();
-
-  image.onload = function () {
-    callback(image);
-  };
-  image.src = url;
+  fs.readFile(url, function (error, data) {
+    if (error) throw error;
+    image.onload = function () {
+      callback(image);
+    };
+    image.onerror = function () {
+      throw 'Error loading image buffer.'
+    };
+    image.src = data;
+  });
+  return image;
 }
 
 function commandLine (args) {
