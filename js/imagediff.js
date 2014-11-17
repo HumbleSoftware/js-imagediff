@@ -148,20 +148,46 @@
   function equalDimensions (a, b) {
     return equalHeight(a, b) && equalWidth(a, b);
   }
-  function equal (a, b, tolerance) {
+  function hasTotalDifference (aData, bData, totalToleranceRatio) {
+    var length         = aData.length,
+        sumDifferences = 0,
+        i;
+    for (i = 0; i < length; i++) {
+      sumDifferences += Math.abs(aData[i] - bData[i]);
+    };
+
+    return sumDifferences / (255 * length) <= totalToleranceRatio;
+  }
+  function hasPerPixelDifference (aData, bData, relativePixelTolerance) {
+    var length = aData.length,
+        i;
+    for (i = length; i--;) if (aData[i] !== bData[i] && Math.abs(aData[i] - bData[i]) > relativePixelTolerance) return false;
+    return true;
+  }
+  function equal (a, b, options) {
 
     var
-      aData     = a.data,
-      bData     = b.data,
-      length    = aData.length,
-      i;
+      aData             = a.data,
+      bData             = b.data,
+      toleranceValue, toleranceMethod;
 
-    tolerance = tolerance || 0;
+    // Support old interface
+    if (typeof options === "number") {
+      options = {
+        toleranceValue: options
+      };
+    }
+
+    toleranceValue = options && options.toleranceValue || 0;
+    toleranceMethod = options && options.toleranceMethod || 'relativePerPixel';
 
     if (!equalDimensions(a, b)) return false;
-    for (i = length; i--;) if (aData[i] !== bData[i] && Math.abs(aData[i] - bData[i]) > tolerance) return false;
 
-    return true;
+    if (toleranceMethod === 'totalRatio') {
+      return hasTotalDifference(aData, bData, toleranceValue)
+    } else {
+      return hasPerPixelDifference(aData, bData, toleranceValue);
+    }
   }
 
 
