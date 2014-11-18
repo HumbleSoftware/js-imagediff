@@ -20,9 +20,12 @@
     "canvas": "~1.0"
   },
   "devDependencies": {
+    "jasmine-core": "~2.1.2",
     "jasmine-node": "~2.0.0",
-    "smoosh": ">=0.3.1",
-    "jasmine-core": "~2.0.0"
+    "karma": "~0.12.25",
+    "karma-jasmine": "~0.3.0",
+    "karma-phantomjs-launcher": "~0.1.4",
+    "smoosh": ">=0.3.1"
   },
   "repository": {
     "type": "git",
@@ -33,9 +36,9 @@
     "node": ">= 0.6.0"
   },
   "bin": {
-    "imagediff" : "./bin/imagediff"
+    "imagediff": "./bin/imagediff"
   },
   "scripts": {
-    "test": "cd spec && jasmine-node --captureExceptions ."
+    "test": "cd spec && jasmine-node --captureExceptions . && cd .. && karma start karma.conf.js"
   }
 }
