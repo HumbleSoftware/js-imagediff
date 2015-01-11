@@ -114,7 +114,7 @@
     canvas.width = width;
     canvas.height = height;
     context.clearRect(0, 0, width, height);
-    context.drawImage(image, 0, 0);
+    context.drawImage(image, 0, 0, width, height);
     return context.getImageData(0, 0, width, height);
   }
   function toImageDataFromCanvas (canvas) {
