@@ -30,7 +30,6 @@ div.footer {
 div.example {
   margin-top: 24px;
   margin-bottom: 32px;
-  overflow: hidden
 }
 div.label {
   width: 300px;
@@ -61,4 +60,28 @@ div.example.size div.image-b {
   width: 200px;
   height: 200px;
   margin: 54px;
+}
+div.dropbox {
+  float: left;
+  border: 1px solid #999;
+  width: 300px;
+  height: 300px;
+  text-align: center;
+  line-height: 300px;
+  font-weight: 600;
+  font-size: 20px;
+}
+img.dropped_img {
+  display: none;
+}
+.big_canvas {
+}
+.text_left {
+  text-align: left;
+}
+.clearfix {
+  clear: both;
+}
+.result_title {
+  padding-top: 40px;
 }
