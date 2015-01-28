@@ -11,7 +11,7 @@
       var Canvas = require('canvas');
     } catch (e) {
       throw new Error(
-        e.message + '\n' + 
+        e.message + '\n' +
         'Please see https://github.com/HumbleSoftware/js-imagediff#cannot-find-module-canvas\n'
       );
     }
@@ -52,6 +52,10 @@
     canvas.height = height;
     context.clearRect(0, 0, width, height);
     return context.createImageData(width, height);
+  }
+  // expost canvas module
+  function getCanvasRef() {
+    return Canvas;
   }
 
 
@@ -352,6 +356,7 @@
 
     createCanvas : getCanvas,
     createImageData : getImageData,
+    getCanvasRef: getCanvasRef,
 
     isImage : isImage,
     isCanvas : isCanvas,
