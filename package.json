@@ -30,7 +30,7 @@
     "type": "git",
     "url": "git://github.com/HumbleSoftware/js-imagediff.git"
   },
-  "version": "1.0.7",
+  "version": "1.0.8",
   "engines": {
     "node": ">= 0.6.0"
   },

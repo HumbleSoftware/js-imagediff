@@ -72,6 +72,10 @@ If you are using js-imagediff pelase drop us a line and let us know what you are
 
 Changelog
 ---------
+<h3>1.0.8</h3>
+* Update canvas dependency.
+* Expose internal Canvas.
+
 <h3>1.0.7</h3>
 * Add async image loading for canvas (closes #31, #35, #39).
 * Support `--diff`, `--equal`, `--tolerance` (closes #17).
