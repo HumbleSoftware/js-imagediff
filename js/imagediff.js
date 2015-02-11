@@ -7,7 +7,7 @@
     } catch (e) {}
     module.exports = definition(root, name, Canvas);
   } else if (typeof define === 'function' && typeof define.amd === 'object') {
-    define(definition);
+    define(definition(root, name));
   } else {
     root[name] = definition(root, name);
   }
