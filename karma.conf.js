@@ -4,8 +4,12 @@ module.exports = function(config) {
     frameworks: ['jasmine'],
     files: [
       'js/*.js',
-      'spec/*.js'
+      'spec/*.js',
+      {pattern: 'spec/images/*', included: false}
     ],
-    singleRun: true
+    singleRun: true,
+    proxies: {
+       '/images/': 'http://localhost:9876/base/spec/images/'
+    }
   });
 };
