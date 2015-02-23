@@ -217,9 +217,9 @@ describe('ImageUtils', function() {
       });
 
       it('should fail on non-ImageType', function () {
-        expect(function () { imagediff.toImageData(); }).toThrow(E_TYPE);
-        expect(function () { imagediff.toImageData(''); }).toThrow(E_TYPE);
-        expect(function () { imagediff.toImageData({}); }).toThrow(E_TYPE);
+        expect(function () { imagediff.toImageData(); }).toThrow(jasmine.objectContaining(E_TYPE));
+        expect(function () { imagediff.toImageData(''); }).toThrow(jasmine.objectContaining(E_TYPE));
+        expect(function () { imagediff.toImageData({}); }).toThrow(jasmine.objectContaining(E_TYPE));
       });
     });
   });
@@ -489,7 +489,7 @@ describe('ImageUtils', function() {
 
         expect(function () {
           matcher.compare(imageA, {});
-        }).toThrow(E_TYPE);
+        }).toThrow(jasmine.objectContaining(E_TYPE));
       });
 
       it('should pass with similar contexts (not a DOM element)', function () {
@@ -531,7 +531,7 @@ describe('ImageUtils', function() {
 
         expect(function () {
           matcher.compare(a, {});
-        }).toThrow(E_TYPE);
+        }).toThrow(jasmine.objectContaining(E_TYPE));
       });
 
       it('should pass with different images with negative comparison', function () {
