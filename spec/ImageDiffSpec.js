@@ -570,10 +570,10 @@ describe('ImageUtils', function() {
           message = matcher.compare(imageB, imageC).message;
 
           expect(message.querySelectorAll('div div div')[0].textContent).toEqual('Actual:');
-          expect(message.querySelectorAll('div div canvas')[0]).toImageDiffEqual(imageB);
+          expect(message.querySelectorAll('div div canvas')[0]).toImageDiffEqual(imageB, 1);
 
           expect(message.querySelectorAll('div div div')[1].textContent).toEqual('Expected:');
-          expect(message.querySelectorAll('div div canvas')[1]).toImageDiffEqual(imageC);
+          expect(message.querySelectorAll('div div canvas')[1]).toImageDiffEqual(imageC, 1);
 
           expect(message.querySelectorAll('div div div')[2].textContent).toEqual('Diff:');
           // TODO minimal difference fails the following
