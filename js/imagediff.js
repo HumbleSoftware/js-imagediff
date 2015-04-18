@@ -187,10 +187,12 @@
       i, j, k, v;
 
     for (i = 0; i < length; i += 4) {
-      cData[i] = Math.abs(aData[i] - bData[i]);
-      cData[i+1] = Math.abs(aData[i+1] - bData[i+1]);
-      cData[i+2] = Math.abs(aData[i+2] - bData[i+2]);
-      cData[i+3] = Math.abs(255 - Math.abs(aData[i+3] - bData[i+3]));
+      // rgbIndex: r = 0, g = 1, b = 2
+      for (var rgbIndex = 0; rgbIndex < 3 ; rgbIndex++) {
+        cData[i+rgbIndex] = diffColorValue(aData[i+rgbIndex], bData[i+rgbIndex], options);
+      }
+      // Disables alpha transparency for clearly visible diff pixels:
+      cData[i+3] = 255;
     }
 
     return c;
@@ -224,7 +226,6 @@
         cData[i+0] = aData[j+0]; // r
         cData[i+1] = aData[j+1]; // g
         cData[i+2] = aData[j+2]; // b
-        // cData[i+3] = aData[j+3]; // a
       }
     }
 
@@ -234,9 +235,11 @@
       for (column = b.width; column--;) {
         i = 4 * ((row + rowOffset) * width + (column + columnOffset));
         j = 4 * (row * b.width + column);
-        cData[i+0] = Math.abs(cData[i+0] - bData[j+0]); // r
-        cData[i+1] = Math.abs(cData[i+1] - bData[j+1]); // g
-        cData[i+2] = Math.abs(cData[i+2] - bData[j+2]); // b
+
+        // rgbIndex: r = 0, g = 1, b = 2
+        for (var rgbIndex = 0; rgbIndex < 3 ; rgbIndex++) {
+          cData[i+rgbIndex] = diffColorValue(cData[i+rgbIndex], bData[j+rgbIndex], options);
+        }
       }
     }
 
@@ -254,6 +257,22 @@
     return c;
   }
 
+  /**
+   * Differentiates two colors values from their substraction.
+   * A black pixel means no difference (value 0), light value marks difference gap.
+   *
+   * Lightens the color difference with options.lightness (default +25).
+   * @see https://github.com/HumbleSoftware/js-imagediff/issues/34
+   *
+   * @returns {Number} a color value between 0 and 255.
+   */
+  function diffColorValue(leftValue, rightValue, options) {
+    var lightness = 25;
+    if (options && options.lightness) lightness = options.lightness;
+    var diff = Math.abs(leftValue - rightValue);
+    if (diff > 0) diff += lightness;
+    return Math.min(diff, 255);
+  }
 
   // Validation
   function checkType () {
