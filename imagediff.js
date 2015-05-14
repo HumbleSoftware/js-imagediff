@@ -196,9 +196,9 @@
     for (i = 0; i < length; i += 4) {
       var pixelA = Array.prototype.slice.call(aData, i, i+3);
       var pixelB = Array.prototype.slice.call(bData, i, i+3);
-      var diffPixel = diffPixels(pixelA, pixelB, options);
+      var pixelC = diffPixels(pixelA, pixelB, options);
       for (var rgbIndex = 0; rgbIndex < 4; rgbIndex++) {
-        cData[i+rgbIndex] = diffPixel[rgbIndex];
+        cData[i+rgbIndex] = pixelC[rgbIndex];
       }
     }
 
@@ -244,9 +244,9 @@
         j = 4 * (row * b.width + column);
         var pixelA = Array.prototype.slice.call(cData, i, i+3);
         var pixelB = Array.prototype.slice.call(bData, j, j+3);
-        var diffPixel = diffPixels(pixelA, pixelB, options);
+        var pixelC = diffPixels(pixelA, pixelB, options);
         for (var rgbIndex = 0; rgbIndex < 4; rgbIndex++) {
-          cData[i+rgbIndex] = diffPixel[rgbIndex];
+          cData[i+rgbIndex] = pixelC[rgbIndex];
         }
       }
     }
@@ -267,37 +267,32 @@
 
   /**
    * Differentiates two rgb pixels by subtracting color values.
-   * The light value for each color marks the difference gap.
+   * @see https://github.com/HumbleSoftware/js-imagediff/pull/52
    *
-   * @see https://github.com/HumbleSoftware/js-imagediff/issues/34
    * @param {Object} options
-   *   options.lightness: light added to color value, increasing differences visibility
-   *   options.rgb : array used to specify rgb balance instead of lightness
-   *   options.stack: stack differences on top of the original image, preserving common pixels
+   *   options.lightboost: increases differences visibility with a light boost.
+   *   options.diffColor: a rgb array used to specify differences color instead of light gap.
+   *   options.stack: stacks differences on top of the original image, preserving common pixels.
    *
    * @returns {Array} pixel rgba values between 0 and 255.
    */
   function diffPixels(pixelA, pixelB, options) {
-    var lightness = options && options.lightness || 25;
-    if (options && options.lightness === 0) lightness = 0;
-    var diffColor = options && options.rgb || [lightness,lightness,lightness];
-    var stack = options && options.stack;
-    // diffPixel = [r,g,b,a]
-    var diffPixel = [0,0,0,255];
+    var lightboost = options && options.lightboost || 0;
+    var diffColor = options && options.diffColor || false;
+    var stack = options && options.stack || false;
+    // pixel = [r,g,b,a]
+    var pixelC = [0,0,0,255];
     for (var rgbIndex = 0; rgbIndex < 3 ; rgbIndex++) {
-      diffPixel[rgbIndex] = Math.abs(pixelA[rgbIndex] - pixelB[rgbIndex]);
-      if (diffPixel[rgbIndex] > 0) {
-        // Optionally colors area of difference, adds visibility with lightness.
-        diffPixel[rgbIndex] += diffColor[rgbIndex];
-        diffPixel[rgbIndex] = Math.min(diffPixel[rgbIndex], 255);
+      pixelC[rgbIndex] = Math.abs(pixelA[rgbIndex] - pixelB[rgbIndex]);
+      if (pixelC[rgbIndex] > 0) {
+        if (diffColor) pixelC[rgbIndex] = diffColor[rgbIndex];
+        pixelC[rgbIndex] = Math.min(pixelC[rgbIndex] + lightboost, 255);
       }
       else if (stack) {
-        // If options.stack and no pixel differences are found,
-        // print original pixel instead of a black (0) pixel.
-        diffPixel[rgbIndex] = pixelA[rgbIndex];
+        pixelC[rgbIndex] = pixelA[rgbIndex];
       }
     }
-    return diffPixel;
+    return pixelC;
   }
 
   // Validation

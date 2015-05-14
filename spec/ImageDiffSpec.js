@@ -316,7 +316,7 @@ describe('ImageUtils', function() {
         a.data[1] = 200,
         b = imagediff.createImageData(1, 1),
         b.data[1] = 158,
-        c = imagediff.diff(a, b, {lightness: 0}),
+        c = imagediff.diff(a, b),
 
         d = imagediff.createImageData(1, 1);
         d.data[1] = 42;
@@ -325,16 +325,16 @@ describe('ImageUtils', function() {
         expect(c).toImageDiffEqual(d);
       });
 
-      it('should calculate difference with adjusted lightness', function () {
+      it('should calculate color difference with adjusted lightness', function () {
         a = imagediff.createImageData(1, 1),
         a.data[1] = 200;
         b = imagediff.createImageData(1, 1),
         b.data[1] = 158;
-        c = imagediff.diff(a, b);
+        c = imagediff.diff(a, b, {lightboost: 155});
 
         d = imagediff.createImageData(1, 1);
-        // 42 + 25 (default increased lightness)
-        d.data[1] = 67;
+        // a-b + 155
+        d.data[1] = 197;
         d.data[3] = 255;
 
         expect(c).toImageDiffEqual(d);
@@ -344,7 +344,7 @@ describe('ImageUtils', function() {
         a = imagediff.createImageData(3, 3),
         b = imagediff.createImageData(1, 1),
         b.data[1] = 21;
-        c = imagediff.diff(a, b, {lightness: 0});
+        c = imagediff.diff(a, b);
 
         d = imagediff.createImageData(3, 3);
         // 4 * (rowPos * imageWidth + columnPos) + rgbPos
@@ -363,7 +363,7 @@ describe('ImageUtils', function() {
         a = imagediff.createImageData(3, 3),
         b = imagediff.createImageData(1, 1),
         b.data[1] = 21;
-        c = imagediff.diff(a, b, {lightness: 0, align: 'top'});
+        c = imagediff.diff(a, b, {align: 'top'});
 
         d = imagediff.createImageData(3, 3);
         d.data[1] = 21;
@@ -384,12 +384,12 @@ describe('ImageUtils', function() {
         Array.prototype.forEach.call(b.data, function (value, i) {
           b.data[i] = 125;
         });
-        c = imagediff.diff(a, b, {rgb: [255,0,255]});
+        c = imagediff.diff(a, b, {diffColor: [255,0,44], lightboost: 191});
 
         d = imagediff.createImageData(1, 1);
         d.data[0] = 255;
-        d.data[1] = 125;
-        d.data[2] = 255;
+        d.data[1] = 191;
+        d.data[2] = 235;
         d.data[3] = 255;
 
         expect(c).toImageDiffEqual(d);
