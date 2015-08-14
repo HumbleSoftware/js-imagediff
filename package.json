@@ -20,7 +20,7 @@
     "Jordan Santell <@jsantell>"
   ],
   "optionalDependencies": {
-    "canvas": "~1.1.6"
+    "canvas": "~1.2.7"
   },
   "devDependencies": {
     "jasmine-node": ">=1.0.20",
