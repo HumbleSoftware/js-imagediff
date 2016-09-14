@@ -221,7 +221,7 @@
       bData     = b.data,
       length    = aData.length,
       mask      = null,
-      i;
+      i, ii, j;
 
     tolerance = tolerance || 0;
     options   = options || {};
@@ -232,12 +232,13 @@
       mask = createMask(a.width, a.height, options.regions);
     }
 
-    for (i = length; i >= 0; i -= 1) {
-      if ((!mask || mask[i]) &&
-          aData[i] !== bData[i] &&
-          Math.abs(aData[i] - bData[i]) > tolerance) {
-        return false;
-      }
+    for (i = 0; i < length; i += 1) {
+      if (mask && !mask[i]) continue;
+      for(j = 0, ii = i * 4; j < 4; j += 1, ii += 1)
+        if (aData[ii] !== bData[ii] &&
+            Math.abs(aData[ii] - bData[ii]) > tolerance) {
+          return false;
+        }
     }
 
     return true;
@@ -258,14 +259,26 @@
       bData   = b.data,
       cData   = c.data,
       length  = cData.length,
+      mask    = null,
       row, column,
       i, j, k, v;
 
+    if(options.regions && options.mask) {
+      mask = createMask(width, height, options.regions);
+    }
+
     for (i = 0; i < length; i += 4) {
-      cData[i] = Math.abs(aData[i] - bData[i]);
-      cData[i+1] = Math.abs(aData[i+1] - bData[i+1]);
-      cData[i+2] = Math.abs(aData[i+2] - bData[i+2]);
-      cData[i+3] = Math.abs(255 - Math.abs(aData[i+3] - bData[i+3]));
+      if(mask && !mask[i]) {
+        cData[i]   = 255;
+        cData[i+1] = 0;
+        cData[i+2] = 0;
+        cData[i+3] = 255;
+      } else {
+        cData[i]   = Math.abs(aData[i] - bData[i]);
+        cData[i+1] = Math.abs(aData[i+1] - bData[i+1]);
+        cData[i+2] = Math.abs(aData[i+2] - bData[i+2]);
+        cData[i+3] = Math.abs(255 - Math.abs(aData[i+3] - bData[i+3]));
+      }
     }
 
     return c;

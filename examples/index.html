@@ -4,7 +4,7 @@
   <title>JS-ImageDiff Example</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta name="description" content="JavaScript imagediff utility using canvas for doing image diff in the browser." />
-  <script type="text/javascript" src="../imagediff.js"></script>
+  <script type="text/javascript" src="../js/imagediff.js"></script>
   <link rel="stylesheet" href="styles.css" type="text/css" />
 </head>
 <body>
@@ -16,7 +16,7 @@
       <img id="1-a" alt="example image one" src="1_normal_a.jpg" />
       <img id="1-b" alt="example image two" src="1_normal_b.jpg" />
     </div>
-    <div id="demo-2" style = "display: none;">
+    <div id="demo-2" style = "display: block;">
       <img id="2-a" alt="example image one" src="1_normal_a.jpg" />
       <img id="2-b" alt="example image two" src="1_normal_c.jpg" />
     </div>
@@ -44,9 +44,15 @@
 
         }
 
+
+        if(regions) {
+          options.regions = regions;
+          options.mask = true;
+        }
+
         // Once they are ready, create a diff.
         // This returns an ImageData object.
-        diff = imagediff.diff(a, b);
+        diff = imagediff.diff(a, b, options);
 
         // Now create a canvas,
         canvas = imagediff.createCanvas(diff.width, diff.height);
@@ -59,8 +65,6 @@
 
         // Add the canvas element to the container.
         demo.appendChild(canvas);
-
-        if(regions) options.regions = regions;
 
         console.log("EQUAL?", imagediff.equal(a, b, 0, options));
       
@@ -92,7 +96,7 @@
         document.getElementById('2-b'),
         document.getElementById('demo-2'),
         [
-          [10, 10, 20, 20, true],
+          [10, 10, 200, 20, true],
         ]
       );
 
