@@ -8,17 +8,24 @@ API
 
 * `createCanvas()` create a new Canvas element.
 * `createImageData(width, height)` create a new ImageData object.
+* `displayMask(width, height, regions)` create a image representation of regions mask.
 * `isImage(object)` tests for Image object.
 * `isCanvas(object)` tests for Canvas object.
 * `isContext(object)` tests for CanvasRenderingContext2D object.
 * `isImageData(object)` tests for ImageData object.
 * `isImageType(object)` tests for any of the above.
 * `toImageData(object)` converts image type object to a new ImageData object.
-* `equal(a, b, tolerance)` tests image type objects for equality; accepts tolerance in pixels.
+* `equal(a, b, tolerance, options)` tests image type objects for equality; accepts tolerance in pixels.
 * `diff(a, b, options)` performs an image diff on a and b, returning a - b.
   * `options.align` set to `'top'` to top-align the images when diffing different sizes.
 * `noConflict()` removes imagediff from the global space for compatibility, returning imagediff.
 * `imageDataToPNG(imageData, outputFile, [callback])` (node only) renders the imageData to png in outputFile with optional callback.
+
+Regions
+_______
+
+`equal` method accepts optional region array.
+
 
 NodeJS
 ------
@@ -73,6 +80,9 @@ If you are using js-imagediff pelase drop us a line and let us know what you are
 
 Changelog
 ---------
+<h3>NEXT</h3>
+* Accept regions for masking image comparison
+
 <h3>1.0.8</h3>
 * Update canvas dependency.
 * Expose internal Canvas.

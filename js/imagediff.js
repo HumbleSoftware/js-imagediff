@@ -141,6 +141,68 @@
     return canvas;
   }
 
+  // Image mask generation
+
+
+  function fillArray(array, value, start, end) {
+    var i,
+        i0 = (start !== undefined) ? start : 0,
+        i1 = (end !== undefined) ? end : array.length;
+    if(Array.prototype.fill) {
+      return array.fill(value, start, end);
+    }
+    for(i = i0; i < i1; i += 1) {
+      array[i] = value;
+    }
+    return array;
+  }
+  /*
+    region format: [x0, y0, x1, y1, include]
+  */
+  function createMask (width, height, regions) {
+    var
+      array   = fillArray(Array(width * height), false),
+      i, y, region;
+
+    for(i = 0; i < regions.length; i += 1) {
+      region = regions[i];
+      for(y = region[1]; y < region[3]; y += 1) {
+        fillArray(array, region[4], y * width + region[0], y * width + region[2]);
+      }
+    }
+    return array;
+  }
+  function displayMask(width, height, regions) {
+    var
+      mask    = createMask(width, height, regions),
+      image   = getImageData(width, height),
+      iData   = image.data,
+      length  = mask.length,
+      i, ii, color;
+
+
+      
+      // height  = a.height,
+      // width   = a.width,
+      // c       = getImageData(width, height), // c = a - b
+      // aData   = a.data,
+      // bData   = b.data,
+      // cData   = c.data,
+      // length  = cData.length,
+      // row, column,
+      // i, j, k, v;
+
+    for (i = 0, ii = 0; i < length; i += 1, ii += 4) {
+      color = mask[i] ? 255 : 0;
+      iData[ii]   = color;
+      iData[ii+1] = color;
+      iData[ii+2] = color;
+      iData[ii+3] = 255;
+    }
+
+    return image;
+  }
+
 
   // ImageData Equality Operators
   function equalWidth (a, b) {
@@ -152,18 +214,31 @@
   function equalDimensions (a, b) {
     return equalHeight(a, b) && equalWidth(a, b);
   }
-  function equal (a, b, tolerance) {
+  function equal (a, b, tolerance, options) {
 
     var
       aData     = a.data,
       bData     = b.data,
       length    = aData.length,
+      mask      = null,
       i;
 
     tolerance = tolerance || 0;
+    options   = options || {};
 
     if (!equalDimensions(a, b)) return false;
-    for (i = length; i--;) if (aData[i] !== bData[i] && Math.abs(aData[i] - bData[i]) > tolerance) return false;
+
+    if(options.regions) {
+      mask = createMask(a.width, a.height, options.regions);
+    }
+
+    for (i = length; i >= 0; i -= 1) {
+      if ((!mask || mask[i]) &&
+          aData[i] !== bData[i] &&
+          Math.abs(aData[i] - bData[i]) > tolerance) {
+        return false;
+      }
+    }
 
     return true;
   }
@@ -349,6 +424,8 @@
 
     createCanvas : getCanvas,
     createImageData : getImageData,
+
+    displayMask : displayMask,
 
     isImage : isImage,
     isCanvas : isCanvas,
