@@ -20,7 +20,7 @@
       <img id="2-a" alt="example image one" src="1_normal_a.jpg" />
       <img id="2-b" alt="example image two" src="1_normal_c.jpg" />
     </div>
-    <div id="mask" style = "display: none;">
+    <div id="mask" style = "display: block;">
     </div>
     <script type="text/javascript">
 
@@ -39,11 +39,10 @@
           // Images are loaded asynchronously.
           // Let's wait until they are ready.
           return setTimeout(function() {
-            difference(a, b, demo)
+            difference(a, b, demo, regions)
           }, 10);
 
         }
-
 
         if(regions) {
           options.regions = regions;
@@ -70,14 +69,9 @@
       
       }
 
-      function mask (div) {
+      function mask (div, w, h, regions) {
         var canvas;
-        var image = imagediff.displayMask(480, 320, [
-          [40, 40, 280, 280, true],
-          [320, 40, 440, 80, true],
-          [80, 80, 160, 160, false],
-          [160, 160, 200, 200, false],
-        ]);
+        var image = imagediff.displayMask(w, h, regions);
 
         canvas = imagediff.createCanvas(image.width, image.height);
         context = canvas.getContext('2d');
@@ -100,7 +94,16 @@
         ]
       );
 
-      mask(document.getElementById('mask'));
+      mask(document.getElementById('mask'), 480, 320, [
+        [40, 40, 280, 280, true],
+        [320, 40, 440, 80, true],
+        [80, 80, 160, 160, false],
+        [160, 160, 200, 200, false],
+      ]);
+
+      mask(document.getElementById('mask'), 300, 300, [
+        [10, 10, 200, 20, true],
+      ]);
 
 
     </script>
