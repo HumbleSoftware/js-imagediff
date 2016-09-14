@@ -180,24 +180,18 @@
       length  = mask.length,
       i, ii, color;
 
-
-      
-      // height  = a.height,
-      // width   = a.width,
-      // c       = getImageData(width, height), // c = a - b
-      // aData   = a.data,
-      // bData   = b.data,
-      // cData   = c.data,
-      // length  = cData.length,
-      // row, column,
-      // i, j, k, v;
-
     for (i = 0, ii = 0; i < length; i += 1, ii += 4) {
       color = mask[i] ? 255 : 0;
       iData[ii]   = color;
       iData[ii+1] = color;
       iData[ii+2] = color;
       iData[ii+3] = 255;
+
+      if(!(mask[i] === true || mask[i] === false)) {
+        iData[ii]   = 255;
+        iData[ii+1] = 0;
+        iData[ii+2] = 0;
+      }
     }
 
     return image;
@@ -219,7 +213,7 @@
     var
       aData     = a.data,
       bData     = b.data,
-      length    = aData.length,
+      length    = aData.length / 4,
       mask      = null,
       i, ii, j;
 
@@ -261,23 +255,23 @@
       length  = cData.length,
       mask    = null,
       row, column,
-      i, j, k, v;
+      i, ii, j, k, v;
 
     if(options.regions && options.mask) {
       mask = createMask(width, height, options.regions);
     }
 
-    for (i = 0; i < length; i += 4) {
+    for (i = 0, ii = 0; ii < length; i += 1, ii += 4) {
       if(mask && !mask[i]) {
-        cData[i]   = 255;
-        cData[i+1] = 0;
-        cData[i+2] = 0;
-        cData[i+3] = 255;
+        cData[ii]   = 0;
+        cData[ii+1] = 0;
+        cData[ii+2] = 92;
+        cData[ii+3] = 255;
       } else {
-        cData[i]   = Math.abs(aData[i] - bData[i]);
-        cData[i+1] = Math.abs(aData[i+1] - bData[i+1]);
-        cData[i+2] = Math.abs(aData[i+2] - bData[i+2]);
-        cData[i+3] = Math.abs(255 - Math.abs(aData[i+3] - bData[i+3]));
+        cData[ii]   = Math.abs(aData[ii] - bData[ii]);
+        cData[ii+1] = Math.abs(aData[ii+1] - bData[ii+1]);
+        cData[ii+2] = Math.abs(aData[ii+2] - bData[ii+2]);
+        cData[ii+3] = Math.abs(255 - Math.abs(aData[ii+3] - bData[ii+3]));
       }
     }
 
@@ -452,11 +446,11 @@
       return toImageData(object);
     },
 
-    equal : function (a, b, tolerance) {
+    equal : function (a, b, tolerance, options) {
       checkType(a, b);
       a = toImageData(a);
       b = toImageData(b);
-      return equal(a, b, tolerance);
+      return equal(a, b, tolerance, options);
     },
     diff : function (a, b, options) {
       checkType(a, b);

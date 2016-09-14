@@ -16,11 +16,11 @@
       <img id="1-a" alt="example image one" src="1_normal_a.jpg" />
       <img id="1-b" alt="example image two" src="1_normal_b.jpg" />
     </div>
-    <div id="demo-2" style = "display: block;">
+    <div id="demo-2" style = "display: none;">
       <img id="2-a" alt="example image one" src="1_normal_a.jpg" />
       <img id="2-b" alt="example image two" src="1_normal_c.jpg" />
     </div>
-    <div id="mask" style = "display: block;">
+    <div id="mask" style = "display: none;">
     </div>
     <script type="text/javascript">
 
@@ -90,7 +90,10 @@
         document.getElementById('2-b'),
         document.getElementById('demo-2'),
         [
-          [10, 10, 200, 20, true],
+          [10, 10, 30, 30, true],
+          [270, 10, 290, 30, true],
+          [270, 270, 290, 290, true],
+          [10, 270, 30, 290, true],
         ]
       );
 
@@ -99,10 +102,6 @@
         [320, 40, 440, 80, true],
         [80, 80, 160, 160, false],
         [160, 160, 200, 200, false],
-      ]);
-
-      mask(document.getElementById('mask'), 300, 300, [
-        [10, 10, 200, 20, true],
       ]);
 
 
