@@ -24,7 +24,20 @@ API
 Regions
 _______
 
-`equal` method accepts optional region array.
+Sometimes there's only part of the image that you want to test.
+`equal` method accepts optional `regions` array that allows you to specify mask for image comparison.
+Each region in the array is a five element array in the form `[x0, y0, x1, y1, include]`, where
+
+* `(x0, y0)` is the smallest coordinate corner of the region (inclusive)
+* `(x1, y1)` is the largest coordinate corner of the region (non-inclusive)
+* `include` is a boolean value that decides whether the rectangle should be checked for equality.
+
+Setting `include` to `true` will add the region to the mask, setting it to `false` will substract it.
+Initially the mask is empty, therefore passing a single rectangle, e.g.:
+
+`equal(a, b, 0, {regions: [[20, 20, 240, 120, true]]})`
+
+will yield `true` if the images are equal within the single passed rectangle (`[20, 20, 240, 120]`).
 
 
 NodeJS
