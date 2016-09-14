@@ -39,6 +39,7 @@ Initially the mask is empty, therefore passing a single rectangle, e.g.:
 
 will yield `true` if the images are equal within the single passed rectangle (`[20, 20, 240, 120]`).
 
+You can use `displayMask` method to generate visual representation of created mask.
 
 NodeJS
 ------
