@@ -19,10 +19,8 @@
   "contributors": [
     "Jordan Santell <@jsantell>"
   ],
-  "optionalDependencies": {
-    "canvas-prebuilt": "~1.6.7"
-  },
   "devDependencies": {
+    "canvas-prebuilt": "^1.6.0",
     "jasmine-node": ">=1.0.20",
     "smoosh": ">=0.3.1"
   },
