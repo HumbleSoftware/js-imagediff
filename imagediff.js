@@ -8,7 +8,7 @@
   var root = this;
   if (typeof module !== 'undefined') {
     try {
-      var Canvas = require('canvas');
+      var Canvas = require('canvas-prebuilt');
     } catch (e) {
       throw new Error(
         e.message + '\n' +
