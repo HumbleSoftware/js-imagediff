@@ -3,7 +3,7 @@
   if (typeof module !== 'undefined') {
     var Canvas;
     try {
-      Canvas = require('canvas');
+      Canvas = require('canvas-prebuilt');
     } catch (e) {}
     module.exports = definition(root, name, Canvas);
   } else if (typeof define === 'function' && typeof define.amd === 'object') {
