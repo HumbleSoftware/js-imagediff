@@ -365,19 +365,16 @@
     isImageType : isImageType,
 
     toImageData : function (object) {
-      checkType(object);
       if (isImageData(object)) { return copyImageData(object); }
       return toImageData(object);
     },
 
     equal : function (a, b, tolerance) {
-      checkType(a, b);
       a = toImageData(a);
       b = toImageData(b);
       return equal(a, b, tolerance);
     },
     diff : function (a, b, options) {
-      checkType(a, b);
       a = toImageData(a);
       b = toImageData(b);
       return diff(a, b, options);
