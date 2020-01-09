@@ -20,7 +20,7 @@
     "Jordan Santell <@jsantell>"
   ],
   "optionalDependencies": {
-    "canvas": "~1.2.7"
+    "canvas": ">=2.6.1"
   },
   "devDependencies": {
     "jasmine-node": ">=1.0.20",
@@ -34,7 +34,7 @@
   "engines": {
     "node": ">= 0.6.0"
   },
-  "bin" : {
-    "imagediff" : "./bin/imagediff"
+  "bin": {
+    "imagediff": "./bin/imagediff"
   }
 }
