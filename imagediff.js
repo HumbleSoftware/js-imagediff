@@ -360,7 +360,7 @@
 
     createCanvas : getCanvas,
     createImageData : getImageData,
-    getCanvasRef: getCanvasRef,
+    getCanvasRef : getCanvasRef,
 
     isImage : isImage,
     isCanvas : isCanvas,
