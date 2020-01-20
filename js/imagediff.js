@@ -1,7 +1,7 @@
 (function (name, definition) {
   var root = this;
   if (typeof module !== 'undefined') {
-    var Canvas;
+    var createCanvas;
     try {
       Canvas = require('canvas');
     } catch (e) {}
@@ -31,17 +31,17 @@
   function getCanvas (width, height) {
     var canvas;
     if (Canvas) {
-      canvas = new Canvas();
+      canvas = Canvas.createCanvas(width, height);
     } else if (root.document && root.document.createElement) {
       canvas = document.createElement('canvas');
+      if (width) canvas.width = width;
+      if (height) canvas.height = height;
     } else {
         throw new Error(
           e.message + '\n' +
           'Please see https://github.com/HumbleSoftware/js-imagediff#cannot-find-module-canvas\n'
         );
     }
-    if (width) canvas.width = width;
-    if (height) canvas.height = height;
     return canvas;
   }
   function getImageData (width, height) {

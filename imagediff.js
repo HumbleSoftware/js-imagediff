@@ -7,17 +7,13 @@
 (function (name, definition) {
   var root = this;
   if (typeof module !== 'undefined') {
+    var createCanvas;
     try {
-      var Canvas = require('canvas');
-    } catch (e) {
-      throw new Error(
-        e.message + '\n' +
-        'Please see https://github.com/HumbleSoftware/js-imagediff#cannot-find-module-canvas\n'
-      );
-    }
+      Canvas = require('canvas');
+    } catch (e) {}
     module.exports = definition(root, name, Canvas);
   } else if (typeof define === 'function' && typeof define.amd === 'object') {
-    define(definition);
+    define(definition(root, name));
   } else {
     root[name] = definition(root, name);
   }
@@ -39,12 +35,19 @@
 
   // Creation
   function getCanvas (width, height) {
-    var
-      canvas = Canvas ?
-        new Canvas() :
-        document.createElement('canvas');
-    if (width) canvas.width = width;
-    if (height) canvas.height = height;
+    var canvas;
+    if (Canvas) {
+      canvas = Canvas.createCanvas(width, height);
+    } else if (root.document && root.document.createElement) {
+      canvas = document.createElement('canvas');
+      if (width) canvas.width = width;
+      if (height) canvas.height = height;
+    } else {
+        throw new Error(
+          e.message + '\n' +
+          'Please see https://github.com/HumbleSoftware/js-imagediff#cannot-find-module-canvas\n'
+        );
+    }
     return canvas;
   }
   function getImageData (width, height) {
@@ -52,10 +55,6 @@
     canvas.height = height;
     context.clearRect(0, 0, width, height);
     return context.createImageData(width, height);
-  }
-  // expost canvas module
-  function getCanvasRef() {
-    return Canvas;
   }
 
 
@@ -356,7 +355,6 @@
 
     createCanvas : getCanvas,
     createImageData : getImageData,
-    getCanvasRef: getCanvasRef,
 
     isImage : isImage,
     isCanvas : isCanvas,
