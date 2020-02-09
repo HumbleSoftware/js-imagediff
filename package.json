@@ -23,7 +23,9 @@
     "canvas": ">=2.6.1"
   },
   "devDependencies": {
-    "jasmine-node": ">=1.0.20",
+    "jasmine": "^3.5.0",
+    "karma": "^4.4.1",
+    "karma-jasmine": "^3.1.0",
     "smoosh": ">=0.3.1"
   },
   "repository": {
