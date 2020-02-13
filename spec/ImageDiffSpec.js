@@ -9,9 +9,9 @@ describe('ImageUtils', function() {
     TYPE_CANVAS       = isNode ? '[object Canvas]' : '[object HTMLCanvasElement]',
     E_TYPE            = { name : 'ImageTypeError', message : 'Submitted object was not an image.' };
 
-  function getContext () {
+  function getContext (width, height) {
     var
-      canvas = imagediff.createCanvas(),
+      canvas = imagediff.createCanvas(width, height),
       context = canvas.getContext('2d');
     return context;
   }
@@ -85,7 +85,7 @@ describe('ImageUtils', function() {
     describe('Checking', function () {
       var
         image = newImage(),
-        canvas = imagediff.createCanvas(),
+        canvas = imagediff.createCanvas(30, 30),
         context = canvas.getContext('2d'),
         imageData = context.createImageData(30, 30);
 
@@ -199,7 +199,7 @@ describe('ImageUtils', function() {
     var context, a, b;
 
     beforeEach(function () {
-      context = getContext();
+      context = getContext(2, 2);
       a = context.createImageData(2, 2);
     });
 
