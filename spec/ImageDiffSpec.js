@@ -121,7 +121,7 @@ describe('ImageUtils', function() {
         imageData;
 
       beforeEach(function () {
-        this.addMatchers({
+        jasmine.addMatchers({
           toBeImageData : function () {
             return imagediff.isImageData(this.actual);
           },
@@ -252,7 +252,7 @@ describe('ImageUtils', function() {
     var a, b, c, d;
 
     beforeEach(function () {
-      this.addMatchers({
+      jasmine.addMatchers({
         toImageDiffEqual : toImageDiffEqual
       });
     });
@@ -408,7 +408,7 @@ describe('ImageUtils', function() {
       spyOn(spec, 'addMatcherResult');
 
       spec.addMatchers(imagediff.jasmine);
-      this.addMatchers({
+      jasmine.addMatchers({
         toPass: function() {
           return lastResult().passed();
         },
@@ -475,7 +475,7 @@ describe('ImageUtils', function() {
       output = 'images/spec_output.png';
 
     beforeEach(function () {
-      this.addMatchers(imagediff.jasmine)
+      jasmine.addMatchers(imagediff.jasmine)
     });
 
     afterEach(function () {
