@@ -8,17 +8,38 @@ API
 
 * `createCanvas()` create a new Canvas element.
 * `createImageData(width, height)` create a new ImageData object.
+* `displayMask(width, height, regions)` create a image representation of regions mask.
 * `isImage(object)` tests for Image object.
 * `isCanvas(object)` tests for Canvas object.
 * `isContext(object)` tests for CanvasRenderingContext2D object.
 * `isImageData(object)` tests for ImageData object.
 * `isImageType(object)` tests for any of the above.
 * `toImageData(object)` converts image type object to a new ImageData object.
-* `equal(a, b, tolerance)` tests image type objects for equality; accepts tolerance in pixels.
+* `equal(a, b, tolerance, options)` tests image type objects for equality; accepts tolerance in pixels.
 * `diff(a, b, options)` performs an image diff on a and b, returning a - b.
   * `options.align` set to `'top'` to top-align the images when diffing different sizes.
 * `noConflict()` removes imagediff from the global space for compatibility, returning imagediff.
 * `imageDataToPNG(imageData, outputFile, [callback])` (node only) renders the imageData to png in outputFile with optional callback.
+
+Regions
+_______
+
+Sometimes there's only part of the image that you want to test.
+`equal` method accepts optional `regions` array that allows you to specify mask for image comparison.
+Each region in the array is a five element array in the form `[x0, y0, x1, y1, include]`, where
+
+* `(x0, y0)` is the smallest coordinate corner of the region (inclusive)
+* `(x1, y1)` is the largest coordinate corner of the region (non-inclusive)
+* `include` is a boolean value that decides whether the rectangle should be checked for equality.
+
+Setting `include` to `true` will add the region to the mask, setting it to `false` will substract it.
+Initially the mask is empty, therefore passing a single rectangle, e.g.:
+
+`equal(a, b, 0, {regions: [[20, 20, 240, 120, true]]})`
+
+will yield `true` if the images are equal within the single passed rectangle (`[20, 20, 240, 120]`).
+
+You can use `displayMask` method to generate visual representation of created mask.
 
 NodeJS
 ------
@@ -73,6 +94,9 @@ If you are using js-imagediff pelase drop us a line and let us know what you are
 
 Changelog
 ---------
+<h3>NEXT</h3>
+* Accept regions for masking image comparison
+
 <h3>1.0.8</h3>
 * Update canvas dependency.
 * Expose internal Canvas.

@@ -146,6 +146,62 @@
     return canvas;
   }
 
+  // Image mask generation
+
+
+  function fillArray(array, value, start, end) {
+    var i,
+        i0 = (start !== undefined) ? start : 0,
+        i1 = (end !== undefined) ? end : array.length;
+    if(Array.prototype.fill) {
+      return array.fill(value, start, end);
+    }
+    for(i = i0; i < i1; i += 1) {
+      array[i] = value;
+    }
+    return array;
+  }
+  /*
+    region format: [x0, y0, x1, y1, include]
+  */
+  function createMask (width, height, regions) {
+    var
+      array   = fillArray(Array(width * height), false),
+      i, y, region;
+
+    for(i = 0; i < regions.length; i += 1) {
+      region = regions[i];
+      for(y = region[1]; y < region[3]; y += 1) {
+        fillArray(array, region[4], y * width + region[0], y * width + region[2]);
+      }
+    }
+    return array;
+  }
+  function displayMask(width, height, regions) {
+    var
+      mask    = createMask(width, height, regions),
+      image   = getImageData(width, height),
+      iData   = image.data,
+      length  = mask.length,
+      i, ii, color;
+
+    for (i = 0, ii = 0; i < length; i += 1, ii += 4) {
+      color = mask[i] ? 255 : 0;
+      iData[ii]   = color;
+      iData[ii+1] = color;
+      iData[ii+2] = color;
+      iData[ii+3] = 255;
+
+      if(!(mask[i] === true || mask[i] === false)) {
+        iData[ii]   = 255;
+        iData[ii+1] = 0;
+        iData[ii+2] = 0;
+      }
+    }
+
+    return image;
+  }
+
 
   // ImageData Equality Operators
   function equalWidth (a, b) {
@@ -157,18 +213,32 @@
   function equalDimensions (a, b) {
     return equalHeight(a, b) && equalWidth(a, b);
   }
-  function equal (a, b, tolerance) {
+  function equal (a, b, tolerance, options) {
 
     var
       aData     = a.data,
       bData     = b.data,
-      length    = aData.length,
-      i;
+      length    = aData.length / 4,
+      mask      = null,
+      i, ii, j;
 
     tolerance = tolerance || 0;
+    options   = options || {};
 
     if (!equalDimensions(a, b)) return false;
-    for (i = length; i--;) if (aData[i] !== bData[i] && Math.abs(aData[i] - bData[i]) > tolerance) return false;
+
+    if(options.regions) {
+      mask = createMask(a.width, a.height, options.regions);
+    }
+
+    for (i = 0; i < length; i += 1) {
+      if (mask && !mask[i]) continue;
+      for(j = 0, ii = i * 4; j < 4; j += 1, ii += 1)
+        if (aData[ii] !== bData[ii] &&
+            Math.abs(aData[ii] - bData[ii]) > tolerance) {
+          return false;
+        }
+    }
 
     return true;
   }
@@ -188,14 +258,26 @@
       bData   = b.data,
       cData   = c.data,
       length  = cData.length,
+      mask    = null,
       row, column,
-      i, j, k, v;
+      i, ii, j, k, v;
 
-    for (i = 0; i < length; i += 4) {
-      cData[i] = Math.abs(aData[i] - bData[i]);
-      cData[i+1] = Math.abs(aData[i+1] - bData[i+1]);
-      cData[i+2] = Math.abs(aData[i+2] - bData[i+2]);
-      cData[i+3] = Math.abs(255 - Math.abs(aData[i+3] - bData[i+3]));
+    if(options.regions && options.mask) {
+      mask = createMask(width, height, options.regions);
+    }
+
+    for (i = 0, ii = 0; ii < length; i += 1, ii += 4) {
+      if(mask && !mask[i]) {
+        cData[ii]   = 0;
+        cData[ii+1] = 0;
+        cData[ii+2] = 92;
+        cData[ii+3] = 255;
+      } else {
+        cData[ii]   = Math.abs(aData[ii] - bData[ii]);
+        cData[ii+1] = Math.abs(aData[ii+1] - bData[ii+1]);
+        cData[ii+2] = Math.abs(aData[ii+2] - bData[ii+2]);
+        cData[ii+3] = Math.abs(255 - Math.abs(aData[ii+3] - bData[ii+3]));
+      }
     }
 
     return c;
@@ -356,6 +438,8 @@
     createImageData : getImageData,
     getCanvasRef : getCanvasRef,
 
+    displayMask : displayMask,
+
     isImage : isImage,
     isCanvas : isCanvas,
     isContext : isContext,
@@ -368,11 +452,11 @@
       return toImageData(object);
     },
 
-    equal : function (a, b, tolerance) {
+    equal : function (a, b, tolerance, options) {
       checkType(a, b);
       a = toImageData(a);
       b = toImageData(b);
-      return equal(a, b, tolerance);
+      return equal(a, b, tolerance, options);
     },
     diff : function (a, b, options) {
       checkType(a, b);
