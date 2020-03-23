@@ -20,6 +20,16 @@ describe('ImageUtils', function() {
     return isNode ? new Canvas.Image() : new Image();
   }
 
+  function loadImage(image, src, callback) {
+    image.src = src;
+    var interval = setInterval(function () {
+      if (image.complete) {
+        clearInterval(interval);
+        callback();
+      }
+    }, 10);
+  }
+
   function toBeImageData() {
     return {
       compare: function (actual, expected) {
@@ -147,9 +157,7 @@ describe('ImageUtils', function() {
       });
 
       beforeAll(function (done) {
-        image.src = 'images/checkmark.png';
-        while (!image.complete) {}
-        done();
+        loadImage(image, 'images/checkmark.png', done);
       });
 
       it('should convert Image to ImageData', function () {
