@@ -20,6 +20,18 @@ describe('ImageUtils', function() {
     return isNode ? new Canvas.Image() : new Image();
   }
 
+  function toBeImageData() {
+    return {
+      compare: function (actual, expected) {
+        var pass = imagediff.isImageData(actual);
+        return {
+          pass: pass,
+          message: pass ? 'Is ImageData' : 'Is not ImageData'
+        }
+      }
+    }
+  }
+
   function reportDifference (actual, expected) {
     var
       expectedData = expected.data,
@@ -129,10 +141,8 @@ describe('ImageUtils', function() {
 
       beforeEach(function () {
         jasmine.addMatchers({
-          toBeImageData : function () {
-            return imagediff.isImageData(this.actual);
-          },
-          toImageDiffEqual : toImageDiffEqual
+          toBeImageData: toBeImageData,
+          toImageDiffEqual: toImageDiffEqual
         });
       });
 
