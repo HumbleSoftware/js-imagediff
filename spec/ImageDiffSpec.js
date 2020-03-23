@@ -20,32 +20,39 @@ describe('ImageUtils', function() {
     return isNode ? new Canvas.Image() : new Image();
   }
 
-  function toImageDiffEqual (expected) {
-
+  function reportDifference (actual, expected) {
     var
       expectedData = expected.data,
-      actualData = this.actual.data;
+      actualData = actual.data,
+      length = Math.min(expectedData.length, actualData.length),
+      examples = '',
+      count = 0,
+      i;
 
-    this.message = function () {
-      var
-        length = Math.min(expectedData.length, actualData.length),
-        examples = '',
-        count = 0,
-        i;
-
-      for (i = 0; i < length; i++) {
-        if (expectedData[i] !== actualData[i]) {
-          count++;
-          if (count < 10) {
-            examples += (examples ? ', ' : '') + 'Expected '+expectedData[i]+' to equal '+actualData[i]+' at '+i;
-          }
+    for (i = 0; i < length; i++) {
+      if (expectedData[i] !== actualData[i]) {
+        count++;
+        if (count < 10) {
+          examples += (examples ? ', ' : '') + 'Expected '+expectedData[i]+' to equal '+actualData[i]+' at '+i;
         }
       }
-
-      return 'Differed in ' + count + ' places. ' + examples;
     }
 
-    return imagediff.equal(this.actual, expected);
+    return 'Differed in ' + count + ' places. ' + examples;
+  }
+
+  function toImageDiffEqual () {
+    return {
+      compare: function (actual, expected) {
+        var pass = imagediff.equal(actual, expected);
+        return {
+          pass: pass,
+          message: pass
+            ? 'Images did not differ.'
+            : reportDifference(actual, expected)
+        };
+      }
+    }
   }
 
   // Creation Testing
