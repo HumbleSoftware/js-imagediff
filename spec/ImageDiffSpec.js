@@ -166,23 +166,19 @@ describe('ImageUtils', function() {
 
       it('should convert Canvas to ImageData', function () {
         var
-          canvas = imagediff.createCanvas(),
+          canvas = imagediff.createCanvas(image.width, image.height),
           context = canvas.getContext('2d'),
           result;
 
-        canvas.height = image.height;
-        canvas.width = image.width;
         context.drawImage(image, 0, 0);
-
         result = imagediff.toImageData(canvas);
-
         expect(result).toBeImageData();
         expect(result).toImageDiffEqual(imageData);
       });
 
       it('should convert Context to ImageData', function () {
         var
-          canvas = imagediff.createCanvas(),
+          canvas = imagediff.createCanvas(image.width, image.height),
           context = canvas.getContext('2d'),
           result = imagediff.toImageData(context);
         expect(result).toBeImageData();
