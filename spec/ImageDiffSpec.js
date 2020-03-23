@@ -146,28 +146,22 @@ describe('ImageUtils', function() {
         });
       });
 
-      it('should convert Image to ImageData', function () {
-
-        var
-          result;
-
+      beforeAll(function (done) {
         image.src = 'images/checkmark.png';
-        waitsFor(function () {
-          return image.complete;
-        }, 'image not loaded.', 1000);
+        while (!image.complete) {}
+        done();
+      });
 
-        runs(function () {
-          var
-            canvas = imagediff.createCanvas(image.width, image.height),
-            context = canvas.getContext('2d');
-
-          context.drawImage(image, 0, 0);
-          imageData = context.getImageData(0, 0, image.width, image.height);
-
+      it('should convert Image to ImageData', function () {
+        var
+          canvas = imagediff.createCanvas(image.width, image.height),
+          context = canvas.getContext('2d'),
           result = imagediff.toImageData(image);
-          expect(result).toBeImageData();
-          expect(result).toImageDiffEqual(imageData);
-        });
+
+        context.drawImage(image, 0, 0);
+        imageData = context.getImageData(0, 0, image.width, image.height);
+        expect(result).toBeImageData();
+        expect(result).toImageDiffEqual(imageData);
       });
 
       it('should convert Canvas to ImageData', function () {
