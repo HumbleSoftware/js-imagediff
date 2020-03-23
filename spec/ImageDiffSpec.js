@@ -391,85 +391,84 @@ describe('ImageUtils', function() {
   });
 
 
-  // Jasmine Matcher Testing
-  describe("jasmine.Matchers", function() {
+  describe("Jasmine Matchers", function() {
 
-    var
-      imageA = newImage(),
-      imageB = newImage(),
-      imageC = newImage(),
-      env, spec;
+    describe('toBeImageData', function () {
 
-    imageA.src = 'images/xmark.png';
-    imageB.src = 'images/xmark.png';
-    imageC.src = 'images/checkmark.png';
+      var toBeImageData = imagediff.jasmine.toBeImageData();
 
-    beforeEach(function() {
-      env = new jasmine.Env();
-      env.updateInterval = 0;
+      it('is image data', function () {
+        var result = toBeImageData.compare(imagediff.createImageData(1, 1));
+        expect(result.pass).toBeTruthy();
+        expect(result.message).not.toContain('not');
+      })
 
-      var suite = env.describe("suite", function() {
-        spec = env.it("spec", function() {
-        });
-      });
-      spyOn(spec, 'addMatcherResult');
-
-      spec.addMatchers(imagediff.jasmine);
-      jasmine.addMatchers({
-        toPass: function() {
-          return lastResult().passed();
-        },
-        toFail: function() {
-          return !lastResult().passed();
-        }
-      });
+      it('is not image data', function () {
+        var result = toBeImageData.compare({});
+        expect(result.pass).not.toBeTruthy();
+        expect(result.message).toContain('not');
+      })
     });
 
-    function match(value) {
-      return spec.expect(value);
-    }
+    describe('toImageDiffEqual', function () {
 
-    function lastResult() {
-      return spec.addMatcherResult.mostRecentCall.args[0];
-    }
-
-    it('toBeImageData', function () {
-      var a = imagediff.createImageData(1, 1),
-          b = {};
-      expect(match(a).toBeImageData()).toPass();
-      expect(match(b).toBeImageData()).toFail();
-    });
-
-    it('toImageDiffEqual with images', function () {
-
-      waitsFor(function () {
-        return imageA.complete && imageB.complete && imageC.complete;
-      }, 'image not loaded.', 2000);
-
-      runs(function () {
-        expect(match(imageA).toImageDiffEqual(imageB)).toPass();
-        expect(match(imageA).toImageDiffEqual(imageC)).toFail();
-        expect(function () {
-          match(imageA).toImageDiffEqual({});
-        }).toThrow(E_TYPE);
-      });
-    });
-
-    it('toImageDiffEqual with contexts (not a DOM element)', function () {
       var
-        a = imagediff.createCanvas(imageA.width, imageA.height).getContext('2d'),
-        b = imagediff.createCanvas(imageB.width, imageB.height).getContext('2d'),
-        c = imagediff.createCanvas(imageC.width, imageC.height).getContext('2d');
+        toImageDiffEqual = imagediff.jasmine.toImageDiffEqual(),
+        imageA = newImage(),
+        imageB = newImage(),
+        imageC = newImage();
 
-      a.drawImage(imageA, 0, 0);
-      b.drawImage(imageB, 0, 0);
-      c.drawImage(imageC, 0, 0);
+      imageA.src = 'images/xmark.png';
+      imageB.src = 'images/xmark.png';
+      imageC.src = 'images/checkmark.png';
 
-      expect(match(a).toImageDiffEqual(b)).toPass();
-      expect(match(a).toImageDiffEqual(c)).toFail();
-      expect(function () {
-        match(a).toImageDiffEqual({});
-      }).toThrow(E_TYPE);
+      beforeAll(function (done) {
+        setTimeout(function () {
+          if (!imageA.complete || !imageB.complete || !imageC.complete) {
+            throw new Error('Images did not load.');
+          }
+          done();
+        }, 10);
+      });
+
+
+      describe('with images', function () {
+        generateTests(imageA, imageB, imageC);
+      });
+
+      describe('with CanvasRenderingContext2D', function () {
+        var
+          a = imagediff.createCanvas(imageA.width, imageA.height).getContext('2d'),
+          b = imagediff.createCanvas(imageB.width, imageB.height).getContext('2d'),
+          c = imagediff.createCanvas(imageC.width, imageC.height).getContext('2d');
+
+        a.drawImage(imageA, 0, 0);
+        b.drawImage(imageB, 0, 0);
+        c.drawImage(imageC, 0, 0);
+
+        generateTests(a, b, c);
+      });
+
+      function generateTests(a, b, c) {
+
+        it('is imagediff equal', function () {
+          var result = toImageDiffEqual.compare(a, b);
+          expect(result.message).not.toContain('not');
+          expect(result.pass).toBeTruthy();
+        });
+
+        it('is not imagediff equal', function () {
+          var result = toImageDiffEqual.compare(a, c);
+          expect(result.message).toContain('Expected');
+          expect(result.pass).not.toBeTruthy();
+        });
+
+        it('throws when not image', function () {
+          expect(function () {
+            toImageDiffEqual.compare(a, {});
+          }).toThrow(E_TYPE);
+        });
+      }
     });
   });
 
