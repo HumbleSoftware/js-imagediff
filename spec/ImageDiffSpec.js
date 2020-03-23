@@ -436,13 +436,13 @@ describe('ImageUtils', function() {
       require('fs').unlink(output, done);
     });
 
-    it('saves an image as a PNG', function () {
+    it('saves an image as a PNG', function (done) {
 
       var
         image = newImage(),
         canvas = imagediff.createCanvas(10, 10),
         context = canvas.getContext('2d'),
-        a, b;
+        a, b, c;
 
       context.moveTo(0, 0);
       context.lineTo(10, 10);
@@ -451,17 +451,14 @@ describe('ImageUtils', function() {
       a = context.getImageData(0, 0, 10, 10);
 
       imagediff.imageDataToPNG(a, output, function () {
-        image.src = output;
-      });
-
-      waitsFor(function () {
-        return image.complete;
-      }, 'image not loaded.', 2000);
-
-      runs(function () {
-        b = imagediff.toImageData(image);
-        expect(b).toBeImageData();
-        expect(canvas).toImageDiffEqual(b, 10);
+        loadImage(image, output, function () {
+          b = imagediff.toImageData(image);
+          c = context.getImageData(0, 0, 5, 10);
+          expect(b).toBeImageData();
+          expect(a).toImageDiffEqual(b, 10);
+          expect(a).not.toImageDiffEqual(c, 10);
+          done();
+        });
       });
     });
   });
