@@ -432,8 +432,8 @@ describe('ImageUtils', function() {
     var
       output = 'images/spec_output.png';
 
-    afterEach(function () {
-      require('fs').unlink(output);
+    afterEach(function (done) {
+      require('fs').unlink(output, done);
     });
 
     it('saves an image as a PNG', function () {
