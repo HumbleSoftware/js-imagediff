@@ -30,52 +30,9 @@ describe('ImageUtils', function() {
     }, 10);
   }
 
-  function toBeImageData() {
-    return {
-      compare: function (actual, expected) {
-        var pass = imagediff.isImageData(actual);
-        return {
-          pass: pass,
-          message: pass ? 'Is ImageData' : 'Is not ImageData'
-        }
-      }
-    }
-  }
-
-  function reportDifference (actual, expected) {
-    var
-      expectedData = expected.data,
-      actualData = actual.data,
-      length = Math.min(expectedData.length, actualData.length),
-      examples = '',
-      count = 0,
-      i;
-
-    for (i = 0; i < length; i++) {
-      if (expectedData[i] !== actualData[i]) {
-        count++;
-        if (count < 10) {
-          examples += (examples ? ', ' : '') + 'Expected '+expectedData[i]+' to equal '+actualData[i]+' at '+i;
-        }
-      }
-    }
-
-    return 'Differed in ' + count + ' places. ' + examples;
-  }
-
-  function toImageDiffEqual () {
-    return {
-      compare: function (actual, expected) {
-        var pass = imagediff.equal(actual, expected);
-        return {
-          pass: pass,
-          message: pass
-            ? 'Images did not differ.'
-            : reportDifference(actual, expected)
-        };
-      }
-    }
-  }
+  beforeEach(function () {
+    jasmine.addMatchers(imagediff.jasmine);
+  });
 
   // Creation Testing
   describe('Creation', function () {
@@ -148,13 +105,6 @@ describe('ImageUtils', function() {
       var
         image = newImage(),
         imageData;
-
-      beforeEach(function () {
-        jasmine.addMatchers({
-          toBeImageData: toBeImageData,
-          toImageDiffEqual: toImageDiffEqual
-        });
-      });
 
       beforeAll(function (done) {
         loadImage(image, 'images/checkmark.png', done);
@@ -265,12 +215,6 @@ describe('ImageUtils', function() {
   describe('Diff', function () {
 
     var a, b, c, d;
-
-    beforeEach(function () {
-      jasmine.addMatchers({
-        toImageDiffEqual : toImageDiffEqual
-      });
-    });
 
     describe('Geometry', function () {
 
@@ -487,10 +431,6 @@ describe('ImageUtils', function() {
 
     var
       output = 'images/spec_output.png';
-
-    beforeEach(function () {
-      jasmine.addMatchers(imagediff.jasmine)
-    });
 
     afterEach(function () {
       require('fs').unlink(output);
