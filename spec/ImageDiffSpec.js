@@ -380,38 +380,48 @@ describe('ImageUtils', function() {
             throw new Error('Images did not load.');
           }
           done();
-        }, 10);
+        }, 100);
       });
 
-
       describe('with images', function () {
-        generateTests(imageA, imageB, imageC);
+        generateTests({a: imageA, b: imageB, c: imageC});
       });
 
       describe('with CanvasRenderingContext2D', function () {
-        var
-          a = imagediff.createCanvas(imageA.width, imageA.height).getContext('2d'),
-          b = imagediff.createCanvas(imageB.width, imageB.height).getContext('2d'),
-          c = imagediff.createCanvas(imageC.width, imageC.height).getContext('2d');
+        var subject = {};
+        function beforeAll () {
 
-        a.drawImage(imageA, 0, 0);
-        b.drawImage(imageB, 0, 0);
-        c.drawImage(imageC, 0, 0);
+          subject.a = imagediff.createCanvas(imageA.width, imageA.height).getContext('2d');
+          subject.b = imagediff.createCanvas(imageB.width, imageB.height).getContext('2d');
+          subject.c = imagediff.createCanvas(imageC.width, imageC.height).getContext('2d');
 
-        generateTests(a, b, c);
+          subject.a.drawImage(imageA, 0, 0);
+          subject.b.drawImage(imageB, 0, 0);
+          subject.c.drawImage(imageC, 0, 0);
+        }
+
+        generateTests(subject, beforeAll);
       });
 
-      function generateTests(a, b, c) {
+      function generateTests(subject, beforeAllCallback) {
+
+        var a, b, c;
+        beforeAll(function () {
+          if (beforeAllCallback) beforeAllCallback();
+          a = subject.a;
+          b = subject.b;
+          c = subject.c;
+        });
 
         it('is imagediff equal', function () {
           var result = toImageDiffEqual.compare(a, b);
-          expect(result.message).not.toContain('not');
+          expect(result.message).toContain('Expected not to be equal');
           expect(result.pass).toBeTruthy();
         });
 
         it('is not imagediff equal', function () {
           var result = toImageDiffEqual.compare(a, c);
-          expect(result.message).toContain('Expected');
+          expect(result.message.toString()).toContain('Expected to be equal');
           expect(result.pass).not.toBeTruthy();
         });
 

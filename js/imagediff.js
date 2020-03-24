@@ -293,11 +293,11 @@
 
   function formatImageDiffEqualHtmlReport (actual, expected) {
     var
-      div     = get('div'),
+      div     = get('div', '<span>Expected to be equal.'),
       a       = get('div', '<div>Actual:</div>'),
       b       = get('div', '<div>Expected:</div>'),
       c       = get('div', '<div>Diff:</div>'),
-      diff    = imagediff.diff(this.actual, expected),
+      diff    = imagediff.diff(actual, expected),
       canvas  = getCanvas(),
       context;
 
@@ -312,7 +312,7 @@
     context = canvas.getContext('2d');
     context.putImageData(diff, 0, 0);
 
-    a.appendChild(toCanvas(this.actual));
+    a.appendChild(toCanvas(actual));
     b.appendChild(toCanvas(expected));
     c.appendChild(canvas);
 
@@ -320,10 +320,7 @@
     div.appendChild(b);
     div.appendChild(c);
 
-    return [
-      div,
-      "Expected not to be equal."
-    ];
+    return div.innerHTML;
   }
 
   function formatImageDiffEqualTextReport (actual, expected) {
@@ -350,7 +347,7 @@
           return {
             pass: pass,
             message: pass
-              ? 'Images equal.'
+              ? 'Expected not to be equal.'
               : formatImageDiffEqualReport(actual, expected)
           };
         }
