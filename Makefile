@@ -1,7 +1,7 @@
-default: test test-node imagediff
+default: test imagediff
 
 imagediff:
-	./node_modules/.bin/smoosh make/build.json
+	npm run build
 
 test:
 	npm run test
