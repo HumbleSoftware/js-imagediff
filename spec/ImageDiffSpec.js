@@ -1,19 +1,16 @@
-var
-  //TODO can roll isNode up into a function if checks get longer
-  isNode    = typeof module !== 'undefined',
-  Canvas    = isNode && require('canvas'),
-  imagediff = imagediff || require('../js/imagediff.js');
+var isNode    = typeof module !== 'undefined';
+var Canvas    = isNode && require('canvas');
+var imagediff = imagediff || require('../js/imagediff.js');
 
 describe('ImageUtils', function() {
 
   var
     OBJECT            = 'object',
-    TYPE_CANVAS       = isNode ? '[object Canvas]' : '[object HTMLCanvasElement]',
-    E_TYPE            = { name : 'ImageTypeError', message : 'Submitted object was not an image.' };
+    TYPE_CANVAS       = isNode ? '[object Canvas]' : '[object HTMLCanvasElement]';
 
-  function getContext () {
+  function getContext (width, height) {
     var
-      canvas = imagediff.createCanvas(),
+      canvas = imagediff.createCanvas(width, height),
       context = canvas.getContext('2d');
     return context;
   }
@@ -22,33 +19,19 @@ describe('ImageUtils', function() {
     return isNode ? new Canvas.Image() : new Image();
   }
 
-  function toImageDiffEqual (expected) {
-
-    var
-      expectedData = expected.data,
-      actualData = this.actual.data;
-
-    this.message = function () {
-      var
-        length = Math.min(expectedData.length, actualData.length),
-        examples = '',
-        count = 0,
-        i;
-
-      for (i = 0; i < length; i++) {
-        if (expectedData[i] !== actualData[i]) {
-          count++;
-          if (count < 10) {
-            examples += (examples ? ', ' : '') + 'Expected '+expectedData[i]+' to equal '+actualData[i]+' at '+i;
-          }
-        }
+  function loadImage(image, src, callback) {
+    image.src = src;
+    var interval = setInterval(function () {
+      if (image.complete) {
+        clearInterval(interval);
+        callback();
       }
-
-      return 'Differed in ' + count + ' places. ' + examples;
-    }
-
-    return imagediff.equal(this.actual, expected);
+    }, 10);
   }
+
+  beforeEach(function () {
+    jasmine.addMatchers(imagediff.jasmine);
+  });
 
   // Creation Testing
   describe('Creation', function () {
@@ -87,7 +70,7 @@ describe('ImageUtils', function() {
     describe('Checking', function () {
       var
         image = newImage(),
-        canvas = imagediff.createCanvas(),
+        canvas = imagediff.createCanvas(30, 30),
         context = canvas.getContext('2d'),
         imageData = context.createImageData(30, 30);
 
@@ -122,58 +105,37 @@ describe('ImageUtils', function() {
         image = newImage(),
         imageData;
 
-      beforeEach(function () {
-        this.addMatchers({
-          toBeImageData : function () {
-            return imagediff.isImageData(this.actual);
-          },
-          toImageDiffEqual : toImageDiffEqual
-        });
+      beforeAll(function (done) {
+        loadImage(image, 'spec/images/checkmark.png', done);
       });
 
       it('should convert Image to ImageData', function () {
-
         var
-          result;
-
-        image.src = 'images/checkmark.png';
-        waitsFor(function () {
-          return image.complete;
-        }, 'image not loaded.', 1000);
-
-        runs(function () {
-          var
-            canvas = imagediff.createCanvas(image.width, image.height),
-            context = canvas.getContext('2d');
-
-          context.drawImage(image, 0, 0);
-          imageData = context.getImageData(0, 0, image.width, image.height);
-
+          canvas = imagediff.createCanvas(image.width, image.height),
+          context = canvas.getContext('2d'),
           result = imagediff.toImageData(image);
-          expect(result).toBeImageData();
-          expect(result).toImageDiffEqual(imageData);
-        });
+
+        context.drawImage(image, 0, 0);
+        imageData = context.getImageData(0, 0, image.width, image.height);
+        expect(result).toBeImageData();
+        expect(result).toImageDiffEqual(imageData);
       });
 
       it('should convert Canvas to ImageData', function () {
         var
-          canvas = imagediff.createCanvas(),
+          canvas = imagediff.createCanvas(image.width, image.height),
           context = canvas.getContext('2d'),
           result;
 
-        canvas.height = image.height;
-        canvas.width = image.width;
         context.drawImage(image, 0, 0);
-
         result = imagediff.toImageData(canvas);
-
         expect(result).toBeImageData();
         expect(result).toImageDiffEqual(imageData);
       });
 
       it('should convert Context to ImageData', function () {
         var
-          canvas = imagediff.createCanvas(),
+          canvas = imagediff.createCanvas(image.width, image.height),
           context = canvas.getContext('2d'),
           result = imagediff.toImageData(context);
         expect(result).toBeImageData();
@@ -187,9 +149,9 @@ describe('ImageUtils', function() {
       });
 
       it('should fail on non-ImageType', function () {
-        expect(function () { imagediff.toImageData() }).toThrow(E_TYPE);
-        expect(function () { imagediff.toImageData('') }).toThrow(E_TYPE);
-        expect(function () { imagediff.toImageData({}) }).toThrow(E_TYPE);
+        expect(function () { imagediff.toImageData() }).toThrow();
+        expect(function () { imagediff.toImageData('') }).toThrow();
+        expect(function () { imagediff.toImageData({}) }).toThrow();
       });
     });
   });
@@ -201,7 +163,7 @@ describe('ImageUtils', function() {
     var context, a, b;
 
     beforeEach(function () {
-      context = getContext();
+      context = getContext(2, 2);
       a = context.createImageData(2, 2);
     });
 
@@ -252,12 +214,6 @@ describe('ImageUtils', function() {
   describe('Diff', function () {
 
     var a, b, c, d;
-
-    beforeEach(function () {
-      this.addMatchers({
-        toImageDiffEqual : toImageDiffEqual
-      });
-    });
 
     describe('Geometry', function () {
 
@@ -362,109 +318,96 @@ describe('ImageUtils', function() {
         expect(c).toImageDiffEqual(d);
       });
     });
-
-    /*
-    var
-      a = imagediff.createImageData(1, 3),
-      b = imagediff.createImageData(3, 1),
-      c, d;
-
-    a.data[0] = 255;
-    a.data[3] = 255;
-    a.data[4] = 255;
-    a.data[7] = 255;
-    a.data[8] = 255;
-    a.data[11] = 255;
-
-    b.data[0] = 255;
-    b.data[3] = 255;
-    b.data[4] = 255;
-    b.data[7] = 255;
-    b.data[8] = 255;
-    b.data[11] = 255;
-    */
   });
 
+  describe("Jasmine Matchers", function() {
 
-  // Jasmine Matcher Testing
-  describe("jasmine.Matchers", function() {
+    describe('toBeImageData', function () {
 
-    var
-      imageA = newImage(),
-      imageB = newImage(),
-      imageC = newImage(),
-      env, spec;
+      var toBeImageData = imagediff.jasmine.toBeImageData();
 
-    imageA.src = 'images/xmark.png';
-    imageB.src = 'images/xmark.png';
-    imageC.src = 'images/checkmark.png';
+      it('is image data', function () {
+        var result = toBeImageData.compare(imagediff.createImageData(1, 1));
+        expect(result.pass).toBeTruthy();
+        expect(result.message).not.toContain('not');
+      })
 
-    beforeEach(function() {
-      env = new jasmine.Env();
-      env.updateInterval = 0;
-
-      var suite = env.describe("suite", function() {
-        spec = env.it("spec", function() {
-        });
-      });
-      spyOn(spec, 'addMatcherResult');
-
-      spec.addMatchers(imagediff.jasmine);
-      this.addMatchers({
-        toPass: function() {
-          return lastResult().passed();
-        },
-        toFail: function() {
-          return !lastResult().passed();
-        }
-      });
+      it('is not image data', function () {
+        var result = toBeImageData.compare({});
+        expect(result.pass).not.toBeTruthy();
+        expect(result.message).toContain('not');
+      })
     });
 
-    function match(value) {
-      return spec.expect(value);
-    }
+    describe('toImageDiffEqual', function () {
 
-    function lastResult() {
-      return spec.addMatcherResult.mostRecentCall.args[0];
-    }
-
-    it('toBeImageData', function () {
-      var a = imagediff.createImageData(1, 1),
-          b = {};
-      expect(match(a).toBeImageData()).toPass();
-      expect(match(b).toBeImageData()).toFail();
-    });
-
-    it('toImageDiffEqual with images', function () {
-
-      waitsFor(function () {
-        return imageA.complete && imageB.complete && imageC.complete;
-      }, 'image not loaded.', 2000);
-
-      runs(function () {
-        expect(match(imageA).toImageDiffEqual(imageB)).toPass();
-        expect(match(imageA).toImageDiffEqual(imageC)).toFail();
-        expect(function () {
-          match(imageA).toImageDiffEqual({});
-        }).toThrow(E_TYPE);
-      });
-    });
-
-    it('toImageDiffEqual with contexts (not a DOM element)', function () {
       var
-        a = imagediff.createCanvas(imageA.width, imageA.height).getContext('2d'),
-        b = imagediff.createCanvas(imageB.width, imageB.height).getContext('2d'),
-        c = imagediff.createCanvas(imageC.width, imageC.height).getContext('2d');
+        toImageDiffEqual = imagediff.jasmine.toImageDiffEqual(),
+        imageA = newImage(),
+        imageB = newImage(),
+        imageC = newImage();
 
-      a.drawImage(imageA, 0, 0);
-      b.drawImage(imageB, 0, 0);
-      c.drawImage(imageC, 0, 0);
+      imageA.src = 'spec/images/xmark.png';
+      imageB.src = 'spec/images/xmark.png';
+      imageC.src = 'spec/images/checkmark.png';
 
-      expect(match(a).toImageDiffEqual(b)).toPass();
-      expect(match(a).toImageDiffEqual(c)).toFail();
-      expect(function () {
-        match(a).toImageDiffEqual({});
-      }).toThrow(E_TYPE);
+      beforeAll(function (done) {
+        setTimeout(function () {
+          if (!imageA.complete || !imageB.complete || !imageC.complete) {
+            throw new Error('Images did not load.');
+          }
+          done();
+        }, 100);
+      });
+
+      describe('with images', function () {
+        generateTests({a: imageA, b: imageB, c: imageC});
+      });
+
+      describe('with CanvasRenderingContext2D', function () {
+        var subject = {};
+        function beforeAll () {
+
+          subject.a = imagediff.createCanvas(imageA.width, imageA.height).getContext('2d');
+          subject.b = imagediff.createCanvas(imageB.width, imageB.height).getContext('2d');
+          subject.c = imagediff.createCanvas(imageC.width, imageC.height).getContext('2d');
+
+          subject.a.drawImage(imageA, 0, 0);
+          subject.b.drawImage(imageB, 0, 0);
+          subject.c.drawImage(imageC, 0, 0);
+        }
+
+        generateTests(subject, beforeAll);
+      });
+
+      function generateTests(subject, beforeAllCallback) {
+
+        var a, b, c;
+        beforeAll(function () {
+          if (beforeAllCallback) beforeAllCallback();
+          a = subject.a;
+          b = subject.b;
+          c = subject.c;
+        });
+
+        it('is imagediff equal', function () {
+          var result = toImageDiffEqual.compare(a, b);
+          expect(result.message).toContain('Expected not to be equal');
+          expect(result.pass).toBeTruthy();
+        });
+
+        it('is not imagediff equal', function () {
+          var result = toImageDiffEqual.compare(a, c);
+          expect(result.message.toString()).toContain('Expected to be equal');
+          expect(result.pass).not.toBeTruthy();
+        });
+
+        it('throws when not image', function () {
+          expect(function () {
+            toImageDiffEqual.compare(a, {});
+          }).toThrow();
+        });
+      }
     });
   });
 
@@ -474,23 +417,19 @@ describe('ImageUtils', function() {
     if (!isNode) { return; }
 
     var
-      output = 'images/spec_output.png';
+    output = 'spec/images/spec_output.png';
 
-    beforeEach(function () {
-      this.addMatchers(imagediff.jasmine)
+    afterEach(function (done) {
+      require('fs').unlink(output, done);
     });
 
-    afterEach(function () {
-      require('fs').unlink(output);
-    });
-
-    it('saves an image as a PNG', function () {
+    it('saves an image as a PNG', function (done) {
 
       var
         image = newImage(),
         canvas = imagediff.createCanvas(10, 10),
         context = canvas.getContext('2d'),
-        a, b;
+        a, b, c;
 
       context.moveTo(0, 0);
       context.lineTo(10, 10);
@@ -499,17 +438,14 @@ describe('ImageUtils', function() {
       a = context.getImageData(0, 0, 10, 10);
 
       imagediff.imageDataToPNG(a, output, function () {
-        image.src = output;
-      });
-
-      waitsFor(function () {
-        return image.complete;
-      }, 'image not loaded.', 2000);
-
-      runs(function () {
-        b = imagediff.toImageData(image);
-        expect(b).toBeImageData();
-        expect(canvas).toImageDiffEqual(b, 10);
+        loadImage(image, output, function () {
+          b = imagediff.toImageData(image);
+          c = context.getImageData(0, 0, 5, 10);
+          expect(b).toBeImageData();
+          expect(a).toImageDiffEqual(b, 10);
+          expect(a).not.toImageDiffEqual(c, 10);
+          done();
+        });
       });
     });
   });

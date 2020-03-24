@@ -6,6 +6,11 @@
   },
   "description": "JavaScript Canvas based imagediff utility.",
   "homepage": "http://HumbleSoftware.github.com/js-imagediff/",
+  "scripts": {
+    "build": "smoosh make/build.json",
+    "test": "karma start ./spec/karma.config.js --browsers PhantomJS --single-run; jasmine --config=./spec/jasmine.json",
+    "watch": "karma start spec/karma.config.js --browsers PhantomJS"
+  },
   "keywords": [
     "util",
     "server",
@@ -23,16 +28,19 @@
     "canvas": ">=2.6.1"
   },
   "devDependencies": {
-    "jasmine-node": ">=1.0.20",
+    "jasmine": "^3.5.0",
+    "karma": "^4.4.1",
+    "karma-jasmine": "^3.1.0",
+    "karma-phantomjs-launcher": "^1.0.4",
     "smoosh": ">=0.3.1"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/HumbleSoftware/js-imagediff.git"
   },
-  "version": "1.0.8",
+  "version": "2.0.0-alpha.1",
   "engines": {
-    "node": ">= 0.6.0"
+    "node": ">= 10.0.0"
   },
   "bin": {
     "imagediff": "./bin/imagediff"
