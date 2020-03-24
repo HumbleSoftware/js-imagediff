@@ -2,7 +2,10 @@
 module.exports = function(config) {
   config.set({
     frameworks: ['jasmine'],
-    plugins: ['karma-jasmine'],
+    plugins: [
+      'karma-jasmine',
+      'karma-phantomjs-launcher'
+    ],
     reporters: ['dots'],
     client: {
       jasmine: {

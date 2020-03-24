@@ -26,6 +26,7 @@
     "jasmine": "^3.5.0",
     "karma": "^4.4.1",
     "karma-jasmine": "^3.1.0",
+    "karma-phantomjs-launcher": "^1.0.4",
     "smoosh": ">=0.3.1"
   },
   "repository": {
