@@ -13,7 +13,7 @@ module.exports = function(config) {
       }
     },
     proxies: {
-      '/images/': '/base/spec/images/'
+      '/spec/': '/base/spec/'
     },
     files: [
       './js/imagediff.js',

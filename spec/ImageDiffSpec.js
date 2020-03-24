@@ -106,7 +106,7 @@ describe('ImageUtils', function() {
         imageData;
 
       beforeAll(function (done) {
-        loadImage(image, 'images/checkmark.png', done);
+        loadImage(image, 'spec/images/checkmark.png', done);
       });
 
       it('should convert Image to ImageData', function () {
@@ -347,9 +347,9 @@ describe('ImageUtils', function() {
         imageB = newImage(),
         imageC = newImage();
 
-      imageA.src = 'images/xmark.png';
-      imageB.src = 'images/xmark.png';
-      imageC.src = 'images/checkmark.png';
+      imageA.src = 'spec/images/xmark.png';
+      imageB.src = 'spec/images/xmark.png';
+      imageC.src = 'spec/images/checkmark.png';
 
       beforeAll(function (done) {
         setTimeout(function () {
@@ -417,7 +417,7 @@ describe('ImageUtils', function() {
     if (!isNode) { return; }
 
     var
-      output = 'images/spec_output.png';
+    output = 'spec/images/spec_output.png';
 
     afterEach(function (done) {
       require('fs').unlink(output, done);
