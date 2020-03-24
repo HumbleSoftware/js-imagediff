@@ -13,12 +13,12 @@ module.exports = function(config) {
       }
     },
     proxies: {
-      '/spec/': '/base/spec/'
+      '/spec/': '/base/'
     },
     files: [
-      './js/imagediff.js',
-      './spec/ImageDiffSpec.js',
-      {'pattern': 'spec/images/*.png', 'included': false, 'served': true}
+      './../js/imagediff.js',
+      './ImageDiffSpec.js',
+      {'pattern': 'images/*.png', 'included': false, 'served': true}
     ]
   })
 };
