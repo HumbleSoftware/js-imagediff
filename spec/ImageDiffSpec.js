@@ -6,8 +6,7 @@ describe('ImageUtils', function() {
 
   var
     OBJECT            = 'object',
-    TYPE_CANVAS       = isNode ? '[object Canvas]' : '[object HTMLCanvasElement]',
-    E_TYPE            = { name : 'ImageTypeError', message : 'Submitted object was not an image.' };
+    TYPE_CANVAS       = isNode ? '[object Canvas]' : '[object HTMLCanvasElement]';
 
   function getContext (width, height) {
     var
@@ -150,9 +149,9 @@ describe('ImageUtils', function() {
       });
 
       it('should fail on non-ImageType', function () {
-        expect(function () { imagediff.toImageData() }).toThrow(E_TYPE);
-        expect(function () { imagediff.toImageData('') }).toThrow(E_TYPE);
-        expect(function () { imagediff.toImageData({}) }).toThrow(E_TYPE);
+        expect(function () { imagediff.toImageData() }).toThrow();
+        expect(function () { imagediff.toImageData('') }).toThrow();
+        expect(function () { imagediff.toImageData({}) }).toThrow();
       });
     });
   });
@@ -406,7 +405,7 @@ describe('ImageUtils', function() {
         it('throws when not image', function () {
           expect(function () {
             toImageDiffEqual.compare(a, {});
-          }).toThrow(E_TYPE);
+          }).toThrow();
         });
       }
     });
