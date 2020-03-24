@@ -8,7 +8,8 @@
   "homepage": "http://HumbleSoftware.github.com/js-imagediff/",
   "scripts": {
     "build": "smoosh make/build.json",
-    "test": "karma start ./spec/karma.config.js --browsers PhantomJS --single-run; jasmine --config=./spec/jasmine.json"
+    "test": "karma start ./spec/karma.config.js --browsers PhantomJS --single-run; jasmine --config=./spec/jasmine.json",
+    "watch": "karma start spec/karma.config.js --browsers PhantomJS"
   },
   "keywords": [
     "util",
