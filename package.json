@@ -6,6 +6,9 @@
   },
   "description": "JavaScript Canvas based imagediff utility.",
   "homepage": "http://HumbleSoftware.github.com/js-imagediff/",
+  "scripts": {
+    "test": "karma start ./karma.config.js --browsers PhantomJS --single-run; jasmine --config=./spec/jasmine.json"
+  },
   "keywords": [
     "util",
     "server",
