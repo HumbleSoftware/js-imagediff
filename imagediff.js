@@ -289,52 +289,75 @@
     return element;
   }
 
-  jasmine = {
+  function formatImageDiffEqualReport (actual, expected) {
+    if (typeof (document) !== 'undefined') {
+      return formatImageDiffEqualHtmlReport(actual, expected);
+    } else {
+      return formatImageDiffEqualTextReport(actual, expected);
+    }
+  }
 
+  function formatImageDiffEqualHtmlReport (actual, expected) {
+    var
+      div     = get('div', '<span>Expected to be equal.'),
+      a       = get('div', '<div>Actual:</div>'),
+      b       = get('div', '<div>Expected:</div>'),
+      c       = get('div', '<div>Diff:</div>'),
+      diff    = imagediff.diff(actual, expected),
+      canvas  = getCanvas(),
+      context;
+
+    canvas.height = diff.height;
+    canvas.width  = diff.width;
+
+    div.style.overflow = 'hidden';
+    a.style.float = 'left';
+    b.style.float = 'left';
+    c.style.float = 'left';
+
+    context = canvas.getContext('2d');
+    context.putImageData(diff, 0, 0);
+
+    a.appendChild(toCanvas(actual));
+    b.appendChild(toCanvas(expected));
+    c.appendChild(canvas);
+
+    div.appendChild(a);
+    div.appendChild(b);
+    div.appendChild(c);
+
+    return div.innerHTML;
+  }
+
+  function formatImageDiffEqualTextReport (actual, expected) {
+    return 'Expected to be equal.';
+  }
+
+  jasmine = {
     toBeImageData : function () {
-      return imagediff.isImageData(this.actual);
+      return {
+        compare: function (actual, expected) {
+          var pass = imagediff.isImageData(actual);
+          return {
+            pass: pass,
+            message: pass ? 'Is ImageData' : 'Is not ImageData'
+          }
+        }
+      }
     },
 
-    toImageDiffEqual : function (expected, tolerance) {
-
-      if (typeof (document) !== UNDEFINED) {
-        this.message = function () {
-          var
-            div     = get('div'),
-            a       = get('div', '<div>Actual:</div>'),
-            b       = get('div', '<div>Expected:</div>'),
-            c       = get('div', '<div>Diff:</div>'),
-            diff    = imagediff.diff(this.actual, expected),
-            canvas  = getCanvas(),
-            context;
-
-          canvas.height = diff.height;
-          canvas.width  = diff.width;
-
-          div.style.overflow = 'hidden';
-          a.style.float = 'left';
-          b.style.float = 'left';
-          c.style.float = 'left';
-
-          context = canvas.getContext('2d');
-          context.putImageData(diff, 0, 0);
-
-          a.appendChild(toCanvas(this.actual));
-          b.appendChild(toCanvas(expected));
-          c.appendChild(canvas);
-
-          div.appendChild(a);
-          div.appendChild(b);
-          div.appendChild(c);
-
-          return [
-            div,
-            "Expected not to be equal."
-          ];
-        };
+    toImageDiffEqual : function () {
+      return {
+        compare: function (actual, expected, tolerance) {
+          var pass = imagediff.equal(actual, expected, tolerance);
+          return {
+            pass: pass,
+            message: pass
+              ? 'Expected not to be equal.'
+              : formatImageDiffEqualReport(actual, expected)
+          };
+        }
       }
-
-      return imagediff.equal(this.actual, expected, tolerance);
     }
   };
 
@@ -350,7 +373,7 @@
     callback = callback || Function;
 
     base64Data = canvas.toDataURL().replace(/^data:image\/\w+;base64,/,"");
-    decodedImage = new Buffer(base64Data, 'base64');
+    decodedImage = Buffer.from(base64Data, 'base64');
     require('fs').writeFile(outputFile, decodedImage, callback);
   }
 
