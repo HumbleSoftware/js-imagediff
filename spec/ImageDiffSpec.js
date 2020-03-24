@@ -319,29 +319,7 @@ describe('ImageUtils', function() {
         expect(c).toImageDiffEqual(d);
       });
     });
-
-    /*
-    var
-      a = imagediff.createImageData(1, 3),
-      b = imagediff.createImageData(3, 1),
-      c, d;
-
-    a.data[0] = 255;
-    a.data[3] = 255;
-    a.data[4] = 255;
-    a.data[7] = 255;
-    a.data[8] = 255;
-    a.data[11] = 255;
-
-    b.data[0] = 255;
-    b.data[3] = 255;
-    b.data[4] = 255;
-    b.data[7] = 255;
-    b.data[8] = 255;
-    b.data[11] = 255;
-    */
   });
-
 
   describe("Jasmine Matchers", function() {
 
