@@ -73,6 +73,10 @@ If you are using js-imagediff pelase drop us a line and let us know what you are
 
 Changelog
 ---------
+
+<h3>2.0.0-alpha</h3>
+* Update to support Jasmine 3.
+
 <h3>1.0.8</h3>
 * Update canvas dependency.
 * Expose internal Canvas.

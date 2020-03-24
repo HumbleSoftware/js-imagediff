@@ -38,9 +38,9 @@
     "type": "git",
     "url": "git://github.com/HumbleSoftware/js-imagediff.git"
   },
-  "version": "1.0.8",
+  "version": "2.0.0-alpha.1",
   "engines": {
-    "node": ">= 0.6.0"
+    "node": ">= 10.0.0"
   },
   "bin": {
     "imagediff": "./bin/imagediff"
