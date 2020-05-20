@@ -64,7 +64,7 @@ Users
 
 * [Flotr2](http://humblesoftware.com/flotr2/) - unit testing
 * [Envision.js](https://github.com/HumbleSoftware/envisionjs) - unit testing
-* [CSS Critic](https://github.com/cburgmer/csscritic) - A CSS regrestion testing framework
+* [CSS Critic](https://github.com/cburgmer/csscritic) - A CSS regression testing framework
 * [HUSL - Human-friendly HSL](http://boronine.com/husl/) - used for regression testing before release.
 * [SUCCSS](https://github.com/B2F/Succss) - CSS regression testing.
 * [Origami.js](https://github.com/raphamorim/origami.js) - A canvas library 
