@@ -198,10 +198,12 @@
       i, j, k, v;
 
     for (i = 0; i < length; i += 4) {
-      cData[i] = Math.abs(aData[i] - bData[i]);
-      cData[i+1] = Math.abs(aData[i+1] - bData[i+1]);
-      cData[i+2] = Math.abs(aData[i+2] - bData[i+2]);
-      cData[i+3] = Math.abs(255 - Math.abs(aData[i+3] - bData[i+3]));
+      var pixelA = Array.prototype.slice.call(aData, i, i+3);
+      var pixelB = Array.prototype.slice.call(bData, i, i+3);
+      var pixelC = diffPixels(pixelA, pixelB, options);
+      for (var rgbIndex = 0; rgbIndex < 4; rgbIndex++) {
+        cData[i+rgbIndex] = pixelC[rgbIndex];
+      }
     }
 
     return c;
@@ -235,7 +237,6 @@
         cData[i+0] = aData[j+0]; // r
         cData[i+1] = aData[j+1]; // g
         cData[i+2] = aData[j+2]; // b
-        // cData[i+3] = aData[j+3]; // a
       }
     }
 
@@ -245,9 +246,12 @@
       for (column = b.width; column--;) {
         i = 4 * ((row + rowOffset) * width + (column + columnOffset));
         j = 4 * (row * b.width + column);
-        cData[i+0] = Math.abs(cData[i+0] - bData[j+0]); // r
-        cData[i+1] = Math.abs(cData[i+1] - bData[j+1]); // g
-        cData[i+2] = Math.abs(cData[i+2] - bData[j+2]); // b
+        var pixelA = Array.prototype.slice.call(cData, i, i+3);
+        var pixelB = Array.prototype.slice.call(bData, j, j+3);
+        var pixelC = diffPixels(pixelA, pixelB, options);
+        for (var rgbIndex = 0; rgbIndex < 4; rgbIndex++) {
+          cData[i+rgbIndex] = pixelC[rgbIndex];
+        }
       }
     }
 
@@ -265,6 +269,35 @@
     return c;
   }
 
+  /**
+   * Differentiates two rgb pixels by subtracting color values.
+   * @see https://github.com/HumbleSoftware/js-imagediff/pull/52
+   *
+   * @param {Object} options
+   *   options.lightboost: increases differences visibility with a light boost.
+   *   options.diffColor: a rgb array used to specify differences color instead of light gap.
+   *   options.stack: stacks differences on top of the original image, preserving common pixels.
+   *
+   * @returns {Array} pixel rgba values between 0 and 255.
+   */
+  function diffPixels(pixelA, pixelB, options) {
+    var lightboost = options && options.lightboost || 0;
+    var diffColor = options && options.diffColor || false;
+    var stack = options && options.stack || false;
+    // pixel = [r,g,b,a]
+    var pixelC = [0,0,0,255];
+    for (var rgbIndex = 0; rgbIndex < 3 ; rgbIndex++) {
+      pixelC[rgbIndex] = Math.abs(pixelA[rgbIndex] - pixelB[rgbIndex]);
+      if (pixelC[rgbIndex] > 0) {
+        if (diffColor) pixelC[rgbIndex] = diffColor[rgbIndex];
+        pixelC[rgbIndex] = Math.min(pixelC[rgbIndex] + lightboost, 255);
+      }
+      else if (stack) {
+        pixelC[rgbIndex] = pixelA[rgbIndex];
+      }
+    }
+    return pixelC;
+  }
 
   // Validation
   function checkType () {
