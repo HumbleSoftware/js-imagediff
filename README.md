@@ -56,8 +56,8 @@ To use matchers:
 Demo
 ----
 
-* A demo is available at http://humblesoftware.github.com/js-imagediff/
-* A Jasmine test demo is available at http://humblesoftware.github.com/js-imagediff/test.html
+* A demo is available at http://humblesoftware.github.io/js-imagediff/
+* A Jasmine test demo is available at http://humblesoftware.github.io/js-imagediff/test.html
 
 Users
 -----
