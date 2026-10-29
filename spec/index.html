@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>imagediff specs</title>
+  <!-- Specs load fixtures relative to the repository root (spec/images/...). -->
+  <base href="../">
+  <link rel="stylesheet" href="node_modules/jasmine-core/lib/jasmine-core/jasmine.css">
+  <script src="node_modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
+  <script src="node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
+  <script src="node_modules/jasmine-core/lib/jasmine-core/boot.js"></script>
+  <script>
+    // Run specs in declaration order unless ?random= is given.
+    if (!/[?&]random=/.test(window.location.search)) {
+      jasmine.getEnv().configure({ random: false });
+    }
+  </script>
+  <script src="js/imagediff.js"></script>
+  <script src="spec/ImageDiffSpec.js"></script>
+</head>
+<body>
+</body>
+</html>

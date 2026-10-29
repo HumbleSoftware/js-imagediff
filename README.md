@@ -71,6 +71,13 @@ Users
 
 If you are using js-imagediff pelase drop us a line and let us know what you are doing with it.
 
+Development
+-----------
+
+* `npm test` runs the specs in headless Chromium with Playwright (run `npx playwright install chromium` once).
+* `npm run test:serve` serves the specs at http://localhost:8085/spec/ to watch them run in a browser.
+* `npm run test:node` runs the specs in Node.js (requires the optional `canvas` dependency).
+
 Changelog
 ---------
 
