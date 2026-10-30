@@ -88,11 +88,11 @@ npm test
 
 ### Scripts
 
-* `npm test` runs the specs in Node.js and then in headless Chromium, and fails if either fails.
+* `npm test` runs the specs in Node.js and then in headless Chromium, and fails if either fails. The specs and the CLI use the source in `js/`, so no build is needed first.
 * `npm run test:node` runs the specs, including a smoke test of the `imagediff` CLI, in Node.js against [node-canvas](https://github.com/Automattic/node-canvas) (the optional `canvas` dependency, which `npm ci` installs from prebuilt binaries on common platforms).
 * `npm run test:browser` runs the specs in headless Chromium with Playwright.
 * `npm run test:serve` serves the specs at http://localhost:8085/spec/ to watch them run in a browser.
-* `npm run build` (or `make imagediff`) writes `imagediff.js` (license header + `js/imagediff.js`) and `imagediff.min.js`, minified with [terser](https://terser.org/) to ES5 output.
+* `npm run build` (or `make imagediff`) writes `imagediff.js` (license header + `js/imagediff.js`) and `imagediff.min.js`, minified with [terser](https://terser.org/) to ES5 output. Run it only when preparing a release; see [CONTRIBUTING.md](CONTRIBUTING.md#build-outputs).
 
 ### Dev container
 
