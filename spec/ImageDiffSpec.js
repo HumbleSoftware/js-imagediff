@@ -398,7 +398,8 @@ describe('ImageUtils', function() {
 
         it('is not imagediff equal', function () {
           var result = toImageDiffEqual.compare(a, c);
-          expect(result.message.toString()).toContain('Expected to be equal');
+          // Plain text: reporters show messages as text, not HTML.
+          expect(result.message).toBe('Expected to be equal.');
           expect(result.pass).not.toBeTruthy();
         });
 

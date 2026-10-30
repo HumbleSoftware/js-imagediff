@@ -105,6 +105,8 @@ Changelog
 
 <h3>2.0.0-alpha</h3>
 * Update to support Jasmine 3.
+* Test the Jasmine matchers on Jasmine 7 (they work on Jasmine 2.0 and later).
+* `toImageDiffEqual` failure messages are plain text in browsers, as in Node.js.
 
 <h3>1.0.8</h3>
 * Update canvas dependency.
