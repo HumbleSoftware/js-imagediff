@@ -23,10 +23,12 @@ docs: trim local setup to the essentials
 
 ## Releasing
 
-On the release PR, after `npm run build` and committing the build outputs, run:
+In the release PR, run:
 
 ```sh
-npm run test:release
+npm run release
 ```
 
-It rebuilds, runs `npm test` against the built `imagediff.js` and `imagediff.min.js` (through `require` in Node and in a page, along with the CLI specs), and then fails if the fresh build differs from the committed build outputs. Publish only once it passes.
+It builds `imagediff.js` and `imagediff.min.js` and runs `npm test` against each, through `require` in Node and in a page. Commit the built files once it passes. It doesn't bump the version, tag or publish.
+
+After merging, `npm publish` checks the committed built files again before publishing: it refuses if they differ from what's committed or if the specs fail against them. It doesn't rebuild, so what's published is what's committed.
