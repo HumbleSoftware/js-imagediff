@@ -23,17 +23,18 @@ API
 NodeJS
 ------
 
-js-imagediff is available through the npm.  It uses [node-canvas](https://github.com/LearnBoost/node-canvas) which requires lib cairo to be installed.
-Install js-imagediff with `npm install -g imagediff`.
+js-imagediff is available through npm and needs Node.js 18.12 or later on the 18 line, or 20.9 or later (`^18.12.0 || >=20.9.0`, as node-canvas 3 does). In Node.js it draws with [node-canvas](https://github.com/Automattic/node-canvas) 3, an optional dependency that installs from prebuilt binaries on common platforms; elsewhere it builds from source, which needs Cairo and the other libraries listed in the node-canvas [installation guide](https://github.com/Automattic/node-canvas#installation).
+
+Install the library with `npm install imagediff` and load it with `require('imagediff')`, or install the command line tool with `npm install -g imagediff`.
 
 ### Command Line
 
-* `imagediff [-e|equal] [-t|tolerance VALUE] FILE_A FILE_B` tests equality of two image files with an optional tolerance, printing 'true' or 'false'.
-* `imagediff [-d|diff] FILE_A FILE_B OUTPUT_FILE` renders an imagediff between two files, saving as the output file.
+* `imagediff [-e|--equal] [-t|--tolerance VALUE] FILE_A FILE_B` tests equality of two image files with an optional tolerance, printing `true` or `false` and exiting with status 0 or 1.
+* `imagediff [-d|--diff] FILE_A FILE_B OUTPUT_FILE` renders an imagediff between two files, saving it as a PNG in the output file.
 
 ### Cannot find module 'canvas'
 
-Canvas has been moved to an optional dependency for better browser and browserify support.  If you see a message that the module cannot be found, please check `npm install` first, incase there was indeed an issue installing it.  This relates to  https://github.com/HumbleSoftware/js-imagediff/issues/22.  Please let me know if you have any issues on account of this, or know of a better work around.
+Canvas is an optional dependency for better browser and bundler support, so the library loads without it and reports this error when it first needs a canvas. If you see it in Node.js, check the output of `npm install`, in case node-canvas failed to install. This relates to https://github.com/HumbleSoftware/js-imagediff/issues/22.
 
 Unit Testing Canvas
 -------------------
@@ -51,25 +52,28 @@ To use matchers:
   beforeEach(function () {
     jasmine.addMatchers(imagediff.jasmine);
   });
+
+  it('draws the expected image', function () {
+    expect(canvas).toImageDiffEqual(expectedImage, 2);
+  });
 ```
 
 Demo
 ----
 
-* A demo is available at http://humblesoftware.github.com/js-imagediff/
-* A Jasmine test demo is available at http://humblesoftware.github.com/js-imagediff/test.html
+A demo is available at https://humblesoftware.github.io/js-imagediff/, and the same example is in [`examples/`](examples/) in this repository.
 
 Users
 -----
 
-* [Flotr2](http://humblesoftware.com/flotr2/) - unit testing
+* [Flotr2](https://humblesoftware.com/flotr2/) - unit testing
 * [Envision.js](https://github.com/HumbleSoftware/envisionjs) - unit testing
 * [CSS Critic](https://github.com/cburgmer/csscritic) - A CSS regression testing framework
-* [HUSL - Human-friendly HSL](http://boronine.com/husl/) - used for regression testing before release.
+* [HSLuv (formerly HUSL)](https://www.hsluv.org/) - used for regression testing before release.
 * [SUCCSS](https://github.com/B2F/Succss) - CSS regression testing.
-* [Origami.js](https://github.com/raphamorim/origami.js) - A canvas library 
+* [Origami.js](https://github.com/raphamorim/origami.js) - A canvas library
 
-If you are using js-imagediff pelase drop us a line and let us know what you are doing with it.
+If you are using js-imagediff please drop us a line and let us know what you are doing with it.
 
 Development
 -----------
@@ -94,7 +98,7 @@ npm test
 * `npm run test:serve` serves the specs at http://localhost:8085/spec/ to watch them run in a browser.
 * `IMAGEDIFF_LIBRARY=imagediff.min.js npm test` runs the same specs against a built file (a path from the repository root) instead of the source: through `require` in Node and as a `<script>` global in Chromium. `npm run test:built` does this for `imagediff.js` and then `imagediff.min.js`.
 * `npm run release` builds the release files and then runs `npm run test:built`, leaving them ready to commit. `npm publish` runs `npm run test:built` first (without rebuilding) and refuses to publish if it fails or if the built files differ from what's committed. See [CONTRIBUTING.md](CONTRIBUTING.md#releasing).
-* `npm run build` (or `make imagediff`) writes `imagediff.js` (license header + `js/imagediff.js`) and `imagediff.min.js`, minified with [terser](https://terser.org/) to ES5 output. Run it only when preparing a release; see [CONTRIBUTING.md](CONTRIBUTING.md#build-outputs).
+* `npm run build` (or `make imagediff`) writes `imagediff.js` (a license header naming the `package.json` version + `js/imagediff.js`) and `imagediff.min.js`, minified with [terser](https://terser.org/) to ES5 output. Run it only when preparing a release; see [CONTRIBUTING.md](CONTRIBUTING.md#build-outputs).
 
 ### Dev container
 
@@ -105,41 +109,61 @@ The container uses the official Playwright image, whose tag in `.devcontainer/de
 Changelog
 ---------
 
-<h3>2.0.0-alpha</h3>
-* Update to support Jasmine 3.
-* Test the Jasmine matchers on Jasmine 7 (they work on Jasmine 2.0 and later).
-* `toImageDiffEqual` failure messages are plain text in browsers, as in Node.js.
+### 2.0.0
 
-<h3>1.0.8</h3>
+Breaking changes:
+
+* Node.js `^18.12.0 || >=20.9.0` is required, and the optional `canvas` dependency is node-canvas 3 (was 1.x).
+* The Jasmine matchers use the Jasmine 2.0+ API: add them with `jasmine.addMatchers(imagediff.jasmine)`. Jasmine 1 (`this.addMatchers`) is no longer supported.
+* `toImageDiffEqual` failure messages are plain text in browsers, as in Node.js, instead of HTML with the actual, expected and diff images.
+* The Bower package (`bower.json`) is removed; install from npm.
+* The npm package contains only the library, the CLI and their license and docs.
+
+Other changes:
+
+* The library loads without a canvas implementation (in bundlers, or in Node.js without `canvas`) and reports the missing module when first used.
+* The library loads in bundlers that wrap modules in strict mode, and AMD `define` receives the module.
+* The matchers are tested on Jasmine 7.
+* The built files' header names the package version.
+
+### 1.0.8
+
 * Update canvas dependency.
 * Expose internal Canvas.
 
-<h3>1.0.7</h3>
+### 1.0.7
+
 * Add async image loading for canvas (closes #31, #35, #39).
 * Support `--diff`, `--equal`, `--tolerance` (closes #17).
 
-<h3>1.0.6</h3>
+### 1.0.6
+
 * Add top-aligned diffing option.
 * Fix issue with diffing transparencies.
 
-<h3>1.0.5</h3>
+### 1.0.5
+
 * Move canvas to optional dependencies for browserify support.
 
-<h3>1.0.4</h3>
+### 1.0.4
+
 * Updated canvas dependency.
 * Add check for arguments count in diff mode.
 
-<h3>1.0.3</h3>
+### 1.0.3
+
 * Added NPM/node.js support.
 * Added command line interface for `equal` and `diff` methods.
 * Added `imageDataToPNG` method for node environments.
 * Added tolerance to handle lossy formats and provide option for acceptable difference.
 
-<h3>1.0.2</h3>
+### 1.0.2
+
 * Added optional width / height parameters to `createCanvas` for symmetry with `createImageData`.
 * Fixed issue with `toImageDiffEqual()` matcher and non Node types - will no convert ImageData and contexts to Canvas elements for display.
 
-<h3>1.0.1</h3>
+### 1.0.1
+
 * Moved library to imagediff.js
 * Added Jasmine matchers
 * Minor bug fixes, lint fixes.

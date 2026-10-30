@@ -16,7 +16,9 @@ function write (file, contents) {
   console.log('Wrote ' + file);
 }
 
-var license = read('js/license.js');
+// The header names the package version, so it can't drift from it.
+var version = require('../package.json').version;
+var license = '// js-imagediff ' + version + '\n' + read('js/license.js');
 var source = license + '\n' + read('js/imagediff.js');
 
 write('imagediff.js', source);

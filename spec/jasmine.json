@@ -2,7 +2,8 @@
   "spec_files": [
     "spec/ImageDiffSpec.js",
     "spec/CliSpec.js",
-    "spec/LoadSpec.js"
+    "spec/LoadSpec.js",
+    "spec/VersionSpec.js"
   ],
   "env": {
     "random": false
