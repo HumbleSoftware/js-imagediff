@@ -6,7 +6,11 @@
     "fs": false
   },
   "description": "JavaScript Canvas based imagediff utility.",
-  "homepage": "http://HumbleSoftware.github.com/js-imagediff/",
+  "homepage": "https://github.com/HumbleSoftware/js-imagediff#readme",
+  "bugs": {
+    "url": "https://github.com/HumbleSoftware/js-imagediff/issues"
+  },
+  "license": "MIT",
   "scripts": {
     "build": "node make/build.js",
     "prepublishOnly": "git diff --exit-code --stat HEAD -- imagediff.js imagediff.min.js && npm run test:built",
@@ -41,7 +45,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/HumbleSoftware/js-imagediff.git"
+    "url": "git+https://github.com/HumbleSoftware/js-imagediff.git"
   },
   "version": "2.0.0-alpha.1",
   "engines": {
@@ -49,5 +53,12 @@
   },
   "bin": {
     "imagediff": "./bin/imagediff"
-  }
+  },
+  "files": [
+    "imagediff.js",
+    "imagediff.min.js",
+    "js/imagediff.js",
+    "bin/",
+    "browser/"
+  ]
 }
