@@ -1,0 +1,6 @@
+{
+  // Keep the image tag in step with @playwright/test in package-lock.json.
+  "name": "js-imagediff",
+  "image": "mcr.microsoft.com/playwright:v1.64.1-noble",
+  "postCreateCommand": "npm ci"
+}
