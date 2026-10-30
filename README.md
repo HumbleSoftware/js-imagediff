@@ -88,9 +88,10 @@ npm test
 
 ### Scripts
 
-* `npm test` runs the specs in headless Chromium with Playwright.
+* `npm test` runs the specs in Node.js and then in headless Chromium, and fails if either fails.
+* `npm run test:node` runs the specs in Node.js against [node-canvas](https://github.com/Automattic/node-canvas) (the optional `canvas` dependency, which `npm ci` installs from prebuilt binaries on common platforms).
+* `npm run test:browser` runs the specs in headless Chromium with Playwright.
 * `npm run test:serve` serves the specs at http://localhost:8085/spec/ to watch them run in a browser.
-* `npm run test:node` runs the specs in Node.js (requires the optional `canvas` dependency).
 
 ### Dev container
 
