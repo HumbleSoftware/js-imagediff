@@ -411,16 +411,14 @@ describe('ImageUtils', function() {
     });
   });
 
-  // Image Output
-  describe('Image Output', function () {
-
-    if (!isNode) { return; }
+  // Image Output (Node only; skipped in the browser)
+  (isNode ? describe : xdescribe)('Image Output', function () {
 
     var
     output = 'spec/images/spec_output.png';
 
-    afterEach(function (done) {
-      require('fs').unlink(output, done);
+    afterEach(function () {
+      require('fs').unlinkSync(output);
     });
 
     it('saves an image as a PNG', function (done) {

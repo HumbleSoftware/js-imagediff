@@ -8,12 +8,11 @@ test('jasmine specs pass in the browser', async function ({ page }) {
 
   await page.goto('/spec/');
   await page.waitForFunction(function () {
-    return window.jsApiReporter && window.jsApiReporter.finished;
+    return window.specResults && window.specResults.done;
   });
 
   var results = await page.evaluate(function () {
-    var reporter = window.jsApiReporter;
-    var suites = reporter.suites();
+    var specResults = window.specResults;
     function failures(result) {
       return {
         name: result.fullName,
@@ -23,18 +22,17 @@ test('jasmine specs pass in the browser', async function ({ page }) {
       };
     }
     return {
-      specs: reporter.specs().length,
-      failedSpecs: reporter.specs().filter(function (spec) {
+      specs: specResults.specs.length,
+      failedSpecs: specResults.specs.filter(function (spec) {
         return spec.status === 'failed';
       }).map(failures),
-      failedSuites: Object.keys(suites).map(function (id) {
-        return suites[id];
-      }).concat([{ fullName: 'Top level', failedExpectations: reporter.runDetails.failedExpectations }])
+      failedSuites: specResults.suites
+        .concat([{ fullName: 'Top level', failedExpectations: specResults.done.failedExpectations }])
         .filter(function (suite) {
           return suite.failedExpectations && suite.failedExpectations.length;
         }).map(failures),
-      status: reporter.runDetails.overallStatus,
-      incompleteReason: reporter.runDetails.incompleteReason
+      status: specResults.done.overallStatus,
+      incompleteReason: specResults.done.incompleteReason
     };
   });
 

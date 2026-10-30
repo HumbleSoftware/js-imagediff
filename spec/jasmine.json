@@ -3,5 +3,7 @@
     "spec/ImageDiffSpec.js",
     "spec/CliSpec.js"
   ],
-  "random": false
+  "env": {
+    "random": false
+  }
 }
