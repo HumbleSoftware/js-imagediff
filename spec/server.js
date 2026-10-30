@@ -15,7 +15,14 @@ var types = {
 };
 
 http.createServer(function (request, response) {
-  var pathname = decodeURIComponent(request.url.split('?')[0]);
+  var url = request.url.split('?');
+  var pathname;
+  try {
+    pathname = decodeURIComponent(url[0]);
+  } catch (e) {
+    response.writeHead(400);
+    return response.end('Bad request');
+  }
   if (pathname.slice(-1) === '/') { pathname += 'index.html'; }
   var file = path.join(root, pathname);
 
@@ -25,6 +32,13 @@ http.createServer(function (request, response) {
   }
 
   fs.readFile(file, function (error, data) {
+    if (error && error.code === 'EISDIR') {
+      // Redirect directories to their trailing-slash URL (/spec -> /spec/).
+      response.writeHead(301, {
+        Location: url[0] + '/' + (url.length > 1 ? '?' + url.slice(1).join('?') : '')
+      });
+      return response.end();
+    }
     if (error) {
       response.writeHead(404);
       return response.end('Not found');
