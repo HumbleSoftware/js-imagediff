@@ -74,6 +74,8 @@ If you are using js-imagediff pelase drop us a line and let us know what you are
 Development
 -----------
 
+Commit messages and PR titles follow Conventional Commits; see [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ### Local setup
 
 Use the Node version in `.nvmrc`, then:
