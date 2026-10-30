@@ -7,7 +7,7 @@
   "description": "JavaScript Canvas based imagediff utility.",
   "homepage": "http://HumbleSoftware.github.com/js-imagediff/",
   "scripts": {
-    "build": "smoosh make/build.json",
+    "build": "node make/build.js",
     "test": "npm run test:node && npm run test:browser",
     "test:browser": "playwright test --config=spec/playwright.config.js",
     "test:node": "jasmine --config=./spec/jasmine.json",
@@ -33,7 +33,7 @@
     "@playwright/test": "^1.64.1",
     "jasmine": "^3.5.0",
     "jasmine-core": "^3.99.1",
-    "smoosh": ">=0.3.1"
+    "terser": "^5.51.2"
   },
   "repository": {
     "type": "git",
