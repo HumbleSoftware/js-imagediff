@@ -1,7 +1,8 @@
 (function (name, definition) {
-  var root = this;
+  // `this` is undefined when a bundler wraps the file in strict mode.
+  var root = this || (typeof window !== 'undefined' ? window : {});
   if (typeof module !== 'undefined') {
-    var createCanvas;
+    var Canvas;
     try {
       Canvas = require('canvas');
     } catch (e) {}
@@ -22,8 +23,7 @@
 
     UNDEFINED         = 'undefined',
 
-    canvas            = getCanvas(),
-    context           = canvas.getContext('2d'),
+    canvas, context,
     previous          = root[name],
     imagediff, jasmine;
 
@@ -32,21 +32,31 @@
     var canvas;
     if (Canvas) {
       canvas = Canvas.createCanvas(width, height);
-    } else if (root.document && root.document.createElement) {
+    } else if (typeof document !== UNDEFINED && document.createElement) {
       canvas = document.createElement('canvas');
       if (width) canvas.width = width;
       if (height) canvas.height = height;
     } else {
       throw new Error(
-        e.message + '\n' +
+        'Cannot find module \'canvas\'.\n' +
         'Please see https://github.com/HumbleSoftware/js-imagediff#cannot-find-module-canvas\n'
       );
     }
     return canvas;
   }
-  function getImageData (width, height) {
+  // Shared scratch canvas, created on first use so loading the library
+  // doesn't require a canvas implementation.
+  function getScratchContext (width, height) {
+    if (!context) {
+      canvas = getCanvas();
+      context = canvas.getContext('2d');
+    }
     canvas.width = width;
     canvas.height = height;
+    return context;
+  }
+  function getImageData (width, height) {
+    var context = getScratchContext(width, height);
     context.clearRect(0, 0, width, height);
     return context.createImageData(width, height);
   }
@@ -93,10 +103,9 @@
       height = imageData.height,
       width = imageData.width,
       data = imageData.data,
+      context = getScratchContext(width, height),
       newImageData, newData, i;
 
-    canvas.width = width;
-    canvas.height = height;
     newImageData = context.getImageData(0, 0, width, height);
     newData = newImageData.data;
 
@@ -115,9 +124,8 @@
   function toImageDataFromImage (image) {
     var
       height = image.height,
-      width = image.width;
-    canvas.width = width;
-    canvas.height = height;
+      width = image.width,
+      context = getScratchContext(width, height);
     context.clearRect(0, 0, width, height);
     context.drawImage(image, 0, 0);
     return context.getImageData(0, 0, width, height);

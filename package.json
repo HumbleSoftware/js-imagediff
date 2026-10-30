@@ -2,7 +2,8 @@
   "name": "imagediff",
   "main": "./imagediff.js",
   "browser": {
-    "canvas": "./browser/canvas.js"
+    "canvas": "./browser/canvas.js",
+    "fs": false
   },
   "description": "JavaScript Canvas based imagediff utility.",
   "homepage": "http://HumbleSoftware.github.com/js-imagediff/",
