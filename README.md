@@ -92,6 +92,7 @@ npm test
 * `npm run test:node` runs the specs, including a smoke test of the `imagediff` CLI, in Node.js against [node-canvas](https://github.com/Automattic/node-canvas) (the optional `canvas` dependency, which `npm ci` installs from prebuilt binaries on common platforms).
 * `npm run test:browser` runs the specs in headless Chromium with Playwright.
 * `npm run test:serve` serves the specs at http://localhost:8085/spec/ to watch them run in a browser.
+* `npm run test:release` builds the release files fresh in `.release/` (from the files npm would publish) and runs the specs against both `imagediff.js` and `imagediff.min.js`: through `require` in Node, as a `<script>` global in Chromium, and through the `imagediff` CLI. Add `-- --committed` to also fail unless the committed build outputs match the fresh build. Run it before publishing; see [CONTRIBUTING.md](CONTRIBUTING.md#releasing).
 * `npm run build` (or `make imagediff`) writes `imagediff.js` (license header + `js/imagediff.js`) and `imagediff.min.js`, minified with [terser](https://terser.org/) to ES5 output. Run it only when preparing a release; see [CONTRIBUTING.md](CONTRIBUTING.md#build-outputs).
 
 ### Dev container

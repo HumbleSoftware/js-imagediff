@@ -12,6 +12,7 @@
     "test": "npm run test:node && npm run test:browser",
     "test:browser": "playwright test --config=spec/playwright.config.js",
     "test:node": "jasmine --config=./spec/jasmine.json",
+    "test:release": "node make/release-check.js",
     "test:serve": "node spec/server.js"
   },
   "keywords": [

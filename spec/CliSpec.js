@@ -1,5 +1,6 @@
 // Smoke tests for the imagediff command-line tool. Runs the real binary
-// against the spec fixtures and checks its documented behavior.
+// against the spec fixtures and checks its documented behavior. IMAGEDIFF_BIN
+// points it at another copy of the binary (see make/release-check.js).
 var
   childProcess = require('child_process'),
   fs = require('fs'),
@@ -9,7 +10,7 @@ var
 describe('imagediff CLI', function () {
 
   var
-    BIN = path.join(__dirname, '..', 'bin', 'imagediff'),
+    BIN = process.env.IMAGEDIFF_BIN || path.join(__dirname, '..', 'bin', 'imagediff'),
     CHECKMARK = path.join(__dirname, 'images', 'checkmark.png'),
     XMARK = path.join(__dirname, 'images', 'xmark.png'),
     PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
