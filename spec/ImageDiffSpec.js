@@ -6,7 +6,7 @@ describe('ImageUtils', function() {
 
   var
     OBJECT            = 'object',
-    TYPE_CANVAS       = isNode ? '[object Canvas]' : '[object HTMLCanvasElement]';
+    TYPE_CANVAS       = '[object HTMLCanvasElement]';
 
   function getContext (width, height) {
     var
