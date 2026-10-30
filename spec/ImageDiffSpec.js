@@ -1,7 +1,10 @@
 var isNode    = typeof module !== 'undefined';
 var Canvas    = isNode && require('canvas');
-// IMAGEDIFF_LIBRARY points the Node specs at a build (see make/release-check.js).
-var imagediff = imagediff || require(process.env.IMAGEDIFF_LIBRARY || '../js/imagediff.js');
+// IMAGEDIFF_LIBRARY (a path from the repository root) tests a built file
+// instead of the source, e.g. IMAGEDIFF_LIBRARY=imagediff.min.js npm test.
+var imagediff = imagediff || require(
+  require('path').join(__dirname, '..', process.env.IMAGEDIFF_LIBRARY || 'js/imagediff.js')
+);
 
 describe('ImageUtils', function() {
 

@@ -12,7 +12,7 @@
     "test": "npm run test:node && npm run test:browser",
     "test:browser": "playwright test --config=spec/playwright.config.js",
     "test:node": "jasmine --config=./spec/jasmine.json",
-    "test:release": "node make/release-check.js",
+    "test:release": "npm run build && IMAGEDIFF_LIBRARY=imagediff.js npm test && IMAGEDIFF_LIBRARY=imagediff.min.js npm test && git diff --exit-code -- imagediff.js imagediff.min.js",
     "test:serve": "node spec/server.js"
   },
   "keywords": [

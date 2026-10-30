@@ -26,7 +26,7 @@ docs: trim local setup to the essentials
 On the release PR, after `npm run build` and committing the build outputs, run:
 
 ```sh
-npm run test:release -- --committed
+npm run test:release
 ```
 
-It smoke-tests the freshly built `imagediff.js` and `imagediff.min.js` in a page, through `require` in Node, and through the CLI, and checks that the committed build outputs match the fresh build. Publish only once it passes.
+It rebuilds, runs `npm test` against the built `imagediff.js` and `imagediff.min.js` (through `require` in Node and in a page, along with the CLI specs), and then fails if the fresh build differs from the committed build outputs. Publish only once it passes.

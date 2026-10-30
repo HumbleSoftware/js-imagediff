@@ -7,7 +7,7 @@ var
 
 describe('loading imagediff', function () {
 
-  var LIBRARY = require.resolve(process.env.IMAGEDIFF_LIBRARY || path.join(__dirname, '..', 'js', 'imagediff.js'));
+  var LIBRARY = path.join(__dirname, '..', process.env.IMAGEDIFF_LIBRARY || 'js/imagediff.js');
 
   // Runs `body` in a child process with `canvas` unresolvable and calls back
   // with the JSON it prints.
