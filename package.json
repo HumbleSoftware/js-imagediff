@@ -9,8 +9,11 @@
   "homepage": "http://HumbleSoftware.github.com/js-imagediff/",
   "scripts": {
     "build": "node make/build.js",
+    "prepublishOnly": "git diff --exit-code --stat HEAD -- imagediff.js imagediff.min.js && npm run test:built",
+    "release": "npm run build && npm run test:built",
     "test": "npm run test:node && npm run test:browser",
     "test:browser": "playwright test --config=spec/playwright.config.js",
+    "test:built": "IMAGEDIFF_LIBRARY=imagediff.js npm test && IMAGEDIFF_LIBRARY=imagediff.min.js npm test",
     "test:node": "jasmine --config=./spec/jasmine.json",
     "test:serve": "node spec/server.js"
   },

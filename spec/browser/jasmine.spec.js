@@ -1,4 +1,6 @@
 // Runs the Jasmine specs in spec/index.html and reports each failed spec.
+// IMAGEDIFF_LIBRARY (a path from the repository root) loads a built file
+// instead of the source.
 var test = require('@playwright/test').test;
 var expect = require('@playwright/test').expect;
 
@@ -6,7 +8,8 @@ test('jasmine specs pass in the browser', async function ({ page }) {
   var errors = [];
   page.on('pageerror', function (error) { errors.push(error.message); });
 
-  await page.goto('/spec/');
+  var library = process.env.IMAGEDIFF_LIBRARY;
+  await page.goto('/spec/' + (library ? '?lib=' + encodeURIComponent(library) : ''));
   await page.waitForFunction(function () {
     return window.specResults && window.specResults.done;
   });
