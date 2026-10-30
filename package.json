@@ -8,7 +8,8 @@
   "homepage": "http://HumbleSoftware.github.com/js-imagediff/",
   "scripts": {
     "build": "smoosh make/build.json",
-    "test": "playwright test --config=spec/playwright.config.js",
+    "test": "npm run test:node && npm run test:browser",
+    "test:browser": "playwright test --config=spec/playwright.config.js",
     "test:node": "jasmine --config=./spec/jasmine.json",
     "test:serve": "node spec/server.js"
   },
@@ -26,7 +27,7 @@
     "Jordan Santell <@jsantell>"
   ],
   "optionalDependencies": {
-    "canvas": ">=2.6.1"
+    "canvas": "^3.2.3"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
@@ -40,7 +41,7 @@
   },
   "version": "2.0.0-alpha.1",
   "engines": {
-    "node": ">= 10.0.0"
+    "node": "^18.12.0 || >=20.9.0"
   },
   "bin": {
     "imagediff": "./bin/imagediff"
