@@ -43,13 +43,13 @@ JS ImageDiff opens up the easy testing of Canvas and other image-like objects in
 * `toImageDiffEqual(expected, tolerance)` expect a result to equal another image type.
 * `toBeImageData()` expect a result to be ImageData.
 
-On failed tests, `toImageDiffEqual()` will display the expected image, the actual image and the imagediff of the two letting you easily spot mistakes.
+The matchers work with Jasmine 2.0 and later. To see how two images differ, render `imagediff.diff(actual, expected)` to a canvas, or save it with `imagediff.imageDataToPNG()` in Node.js.
 
 To use matchers:
 
 ```javascript
   beforeEach(function () {
-    this.addMatchers(imagediff.jasmine);
+    jasmine.addMatchers(imagediff.jasmine);
   });
 ```
 
@@ -105,6 +105,8 @@ Changelog
 
 <h3>2.0.0-alpha</h3>
 * Update to support Jasmine 3.
+* Test the Jasmine matchers on Jasmine 7 (they work on Jasmine 2.0 and later).
+* `toImageDiffEqual` failure messages are plain text in browsers, as in Node.js.
 
 <h3>1.0.8</h3>
 * Update canvas dependency.

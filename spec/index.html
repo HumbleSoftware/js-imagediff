@@ -14,6 +14,14 @@
     if (!/[?&]random=/.test(window.location.search)) {
       jasmine.getEnv().configure({ random: false });
     }
+
+    // Collect results for spec/browser/jasmine.spec.js.
+    window.specResults = { specs: [], suites: [], done: null };
+    jasmine.getEnv().addReporter({
+      specDone: function (result) { window.specResults.specs.push(result); },
+      suiteDone: function (result) { window.specResults.suites.push(result); },
+      jasmineDone: function (result) { window.specResults.done = result; }
+    });
   </script>
   <script src="js/imagediff.js"></script>
   <script src="spec/ImageDiffSpec.js"></script>

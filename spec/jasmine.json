@@ -4,5 +4,7 @@
     "spec/CliSpec.js",
     "spec/LoadSpec.js"
   ],
-  "random": false
+  "env": {
+    "random": false
+  }
 }
