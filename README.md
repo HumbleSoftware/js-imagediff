@@ -125,6 +125,7 @@ Other changes:
 * The library loads in bundlers that wrap modules in strict mode, and AMD `define` receives the module.
 * The matchers are tested on Jasmine 7.
 * The built files' header names the package version.
+* The repository's default branch is `main` (was `master`).
 
 ### 1.0.8
 
