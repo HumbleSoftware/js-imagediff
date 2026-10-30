@@ -1,4 +1,4 @@
-// Loads the built library in a fresh Node process, the way bundlers and
+// Loads the library source in a fresh Node process, the way bundlers and
 // installs without the optional `canvas` dependency see it.
 var
   childProcess = require('child_process'),
@@ -6,7 +6,7 @@ var
 
 describe('loading imagediff', function () {
 
-  var LIBRARY = path.join(__dirname, '..', 'imagediff.js');
+  var LIBRARY = path.join(__dirname, '..', 'js', 'imagediff.js');
 
   // Runs `body` in a child process with `canvas` unresolvable and calls back
   // with the JSON it prints.

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 var
   fs = require('fs'),
-  imagediff = require('../imagediff.js'),
+  imagediff = require('../js/imagediff.js'),
   Canvas = require('canvas');
 
 commandLine(process.argv.slice(2));
