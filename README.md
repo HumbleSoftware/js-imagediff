@@ -74,7 +74,25 @@ If you are using js-imagediff pelase drop us a line and let us know what you are
 Development
 -----------
 
-* `npm test` runs the specs in headless Chromium with Playwright (run `npx playwright install chromium` once).
+### Local setup
+
+The Node version is declared in `.nvmrc`. With a version manager, enter the repo to pick it up:
+
+* [fnm](https://github.com/Schniz/fnm) switches automatically with `--use-on-cd`, or run `fnm use`.
+* [mise](https://mise.jdx.dev/) switches automatically once `.nvmrc` support is enabled: `mise settings add idiomatic_version_file_enable_tools node`.
+* [nvm](https://github.com/nvm-sh/nvm): run `nvm use` (or set up its `cd` hook).
+
+Then install dependencies and, once, the browser the specs run in:
+
+```sh
+npm ci
+npx playwright install --with-deps chromium  # one-time; --with-deps adds Chromium's system libraries on Linux
+npm test
+```
+
+### Scripts
+
+* `npm test` runs the specs in headless Chromium with Playwright.
 * `npm run test:serve` serves the specs at http://localhost:8085/spec/ to watch them run in a browser.
 * `npm run test:node` runs the specs in Node.js (requires the optional `canvas` dependency).
 
