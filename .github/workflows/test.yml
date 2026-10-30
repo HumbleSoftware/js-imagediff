@@ -1,0 +1,46 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+# The jobs only read the repo; keep the job token read-only.
+permissions:
+  contents: read
+
+jobs:
+  image:
+    name: Read dev container image
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+      # The dev container config is the one place the image version lives.
+      - id: image
+        run: |
+          image=$(sed -n 's/^[[:space:]]*"image":[[:space:]]*"\([^"]*\)".*/\1/p' .devcontainer/devcontainer.json)
+          test -n "$image" || { echo "::error file=.devcontainer/devcontainer.json::No image found"; exit 1; }
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+
+  test:
+    name: npm test
+    needs: image
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.image.outputs.image }}
+    env:
+      # Firefox and some tools misbehave when HOME is not the container user's.
+      HOME: /root
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npm test
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            spec/test-results
+            spec/playwright-report
+          if-no-files-found: ignore

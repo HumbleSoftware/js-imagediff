@@ -94,7 +94,7 @@ npm test
 
 The repo includes an optional [dev container](https://containers.dev/) with Node, Chromium and its system libraries ready to go, so only Podman or Docker is needed. Open the repo in VS Code or Codespaces, or run `devcontainer up --workspace-folder .`, and dependencies are installed with `npm ci`; then `npm test` works as above. Working without the container is still supported.
 
-The container uses the official Playwright image, whose tag in `.devcontainer/devcontainer.json` must match the `@playwright/test` version in `package-lock.json`. Bump the tag whenever Playwright is upgraded.
+The container uses the official Playwright image, whose tag in `.devcontainer/devcontainer.json` must match the `@playwright/test` version in `package-lock.json`. Bump the tag whenever Playwright is upgraded. CI (`.github/workflows/test.yml`) reads the image from the same file, so it needs no separate change.
 
 Changelog
 ---------
