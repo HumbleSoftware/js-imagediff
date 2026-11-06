@@ -414,6 +414,33 @@ describe('ImageUtils', function() {
         });
       }
     });
+
+    describe('jasmineReporter', function () {
+
+      it('is not a matcher', function () {
+        expect(Object.keys(imagediff.jasmine).sort()).toEqual(['toBeImageData', 'toImageDiffEqual']);
+      });
+
+      // spec/browser/reporter.spec.js covers the browser.
+      (isNode ? it : xit)('does nothing in Node', function () {
+        var
+          reporter = imagediff.jasmineReporter,
+          a = imagediff.createImageData(1, 1),
+          b = imagediff.createImageData(1, 1),
+          failure = { matcherName: 'toImageDiffEqual', message: 'Expected to be equal.' },
+          matcher;
+
+        b.data[3] = 255;
+        reporter.jasmineStarted({});
+        reporter.specStarted({});
+        matcher = imagediff.jasmine.toImageDiffEqual({});
+        expect(matcher.compare(a, b).pass).toBe(false);
+        expect(matcher.negativeCompare(a, a).pass).toBe(false);
+        reporter.specDone({ status: 'failed', failedExpectations: [failure, failure] });
+        reporter.suiteDone({ status: 'passed', failedExpectations: [] });
+        reporter.jasmineDone({ overallStatus: 'failed', failedExpectations: [] });
+      });
+    });
   });
 
   // Image Output (Node only; skipped in the browser)

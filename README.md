@@ -44,7 +44,7 @@ JS ImageDiff opens up the easy testing of Canvas and other image-like objects in
 * `toImageDiffEqual(expected, tolerance)` expect a result to equal another image type.
 * `toBeImageData()` expect a result to be ImageData.
 
-The matchers work with Jasmine 2.0 and later. To see how two images differ, render `imagediff.diff(actual, expected)` to a canvas, or save it with `imagediff.imageDataToPNG()` in Node.js.
+The matchers work with Jasmine 2.0 and later. Failure messages are plain text, so every reporter can show them.
 
 To use matchers:
 
@@ -57,6 +57,14 @@ To use matchers:
     expect(canvas).toImageDiffEqual(expectedImage, 2);
   });
 ```
+
+To see the actual, expected and diff images under each failed `toImageDiffEqual` in Jasmine's HTML report in the browser, also add the reporter before the specs run:
+
+```javascript
+  jasmine.getEnv().addReporter(imagediff.jasmineReporter);
+```
+
+The reporter also works with Jasmine 2.0 and later, and does nothing in Node.js or without the HTML report. Elsewhere, render `imagediff.diff(actual, expected)` to a canvas, or save it with `imagediff.imageDataToPNG()` in Node.js.
 
 Demo
 ----
@@ -108,6 +116,10 @@ The container uses the official Playwright image, whose tag in `.devcontainer/de
 
 Changelog
 ---------
+
+### Unreleased
+
+* `imagediff.jasmineReporter` shows the actual, expected and diff images of failed `toImageDiffEqual` matchers in Jasmine's HTML report, as 1.0.8 did. Add it with `jasmine.getEnv().addReporter(imagediff.jasmineReporter)`. Failure messages stay plain text.
 
 ### 2.0.0
 
