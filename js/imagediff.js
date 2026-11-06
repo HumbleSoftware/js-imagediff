@@ -25,7 +25,7 @@
 
     canvas, context,
     previous          = root[name],
-    imagediff, jasmine;
+    imagediff, jasmine, jasmineReporter;
 
   // Creation
   function getCanvas (width, height) {
@@ -296,18 +296,154 @@
       }
     },
 
-    toImageDiffEqual : function () {
+    // Jasmine passes matcher utilities to the factory for each expectation.
+    // Direct calls, as in the specs, don't, and record nothing.
+    toImageDiffEqual : function (util) {
+      var expectation = !!util;
       return {
         compare: function (actual, expected, tolerance) {
           var pass = imagediff.equal(actual, expected, tolerance);
+          if (!pass && expectation) recordImageFailure(actual, expected);
           return {
             pass: pass,
             message: pass
               ? 'Expected not to be equal.'
               : 'Expected to be equal.'
           };
+        },
+        // Used by .not, so a failing negated match can be recorded too.
+        negativeCompare: function (actual, expected, tolerance) {
+          var equal = imagediff.equal(actual, expected, tolerance);
+          if (equal && expectation) recordImageFailure(actual, expected);
+          return {
+            pass: !equal,
+            message: equal
+              ? 'Expected not to be equal.'
+              : 'Expected to be equal.'
+          };
         }
       }
+    }
+  };
+
+
+  // Jasmine HTML Reporter
+  //
+  // Jasmine 2+ matcher messages are strings, so images can't travel with them.
+  // While this reporter is active in a browser, failing toImageDiffEqual
+  // matchers snapshot their images. The reporter pairs the snapshots with the
+  // failures it's told about, then draws them under the matching messages in
+  // Jasmine's HTML report.
+  var
+    reporterActive    = false,
+    pendingFailures   = [],   // snapshots since the last spec or suite ended
+    reportedFailures  = [],   // { message, images } in report order
+    decoratedCount    = 0,
+    observer;
+
+  function recordImageFailure (actual, expected) {
+    if (!reporterActive) return;
+    pendingFailures.push({
+      actual: toCanvas(actual),
+      expected: toCanvas(expected),
+      diff: toCanvas(imagediff.diff(actual, expected))
+    });
+  }
+
+  function collectImageFailures (result) {
+    var
+      snapshots = pendingFailures,
+      expectations = (result && result.failedExpectations) || [],
+      i;
+
+    pendingFailures = [];
+    for (i = 0; i < expectations.length && snapshots.length; i++) {
+      if (expectations[i].matcherName === 'toImageDiffEqual') {
+        reportedFailures.push({
+          message: expectations[i].message,
+          images: snapshots.shift()
+        });
+      }
+    }
+    if (reportedFailures.length > decoratedCount) scheduleDecoration();
+  }
+
+  function scheduleDecoration () {
+    if (!observer && typeof MutationObserver !== UNDEFINED) {
+      observer = new MutationObserver(decorateReport);
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+    }
+    setTimeout(decorateReport, 0);
+  }
+
+  // Walks the failure messages in report order and matches them, by text, to
+  // the recorded failures in the same order. Decorated messages are skipped.
+  function decorateReport () {
+    var messages, element, failure, i;
+
+    if (decoratedCount >= reportedFailures.length) return;
+    messages = document.querySelectorAll(
+      '.jasmine-failures .jasmine-result-message, ' +
+      '.html-reporter .failures .result-message' // Jasmine before 2.5
+    );
+    for (i = 0; i < messages.length && decoratedCount < reportedFailures.length; i++) {
+      element = messages[i];
+      failure = reportedFailures[decoratedCount];
+      if (element.imagediffDecorated || element.textContent !== failure.message) continue;
+      element.imagediffDecorated = true;
+      element.parentNode.insertBefore(imageFailureElement(failure.images), element.nextSibling);
+      decoratedCount++;
+    }
+  }
+
+  function imageFailureElement (images) {
+    var element = document.createElement('div');
+    element.className = 'imagediff-failure';
+    element.style.display = 'flex';
+    element.style.flexWrap = 'wrap';
+    element.style.gap = '12px';
+    element.style.padding = '6px 9px 4px';
+    element.appendChild(labelledImage('Actual', images.actual));
+    element.appendChild(labelledImage('Expected', images.expected));
+    element.appendChild(labelledImage('Diff', images.diff));
+    return element;
+  }
+
+  function labelledImage (label, canvas) {
+    var
+      figure = document.createElement('div'),
+      caption = document.createElement('div'),
+      // Enlarge small images by a whole factor so their pixels can be seen.
+      scale = Math.max(1, Math.min(8, Math.floor(128 / Math.max(canvas.width, canvas.height, 1))));
+
+    figure.className = 'imagediff-' + label.toLowerCase();
+    caption.textContent = label + ' (' + canvas.width + '\u00d7' + canvas.height +
+      (scale > 1 ? ', shown at ' + scale + '\u00d7' : '') + '):';
+    canvas.title = label;
+    canvas.style.width = (canvas.width * scale) + 'px';
+    canvas.style.height = (canvas.height * scale) + 'px';
+    canvas.style.display = 'block';
+    canvas.style.border = '1px solid #999';
+    canvas.style.imageRendering = 'pixelated';
+    // A checkerboard, so transparent pixels show.
+    canvas.style.background = 'repeating-conic-gradient(#ddd 0% 25%, #fff 0% 50%) 0 0 / 8px 8px';
+    figure.appendChild(caption);
+    figure.appendChild(canvas);
+    return figure;
+  }
+
+  jasmineReporter = {
+    jasmineStarted : function () {
+      reporterActive = typeof document !== UNDEFINED;
+    },
+    specStarted : function () {
+      pendingFailures = [];
+    },
+    specDone : collectImageFailures,
+    suiteDone : collectImageFailures,
+    jasmineDone : function () {
+      collectImageFailures();
+      reporterActive = false;
     }
   };
 
@@ -361,6 +497,7 @@
     },
 
     jasmine : jasmine,
+    jasmineReporter : jasmineReporter,
 
     // Compatibility
     noConflict : function () {
