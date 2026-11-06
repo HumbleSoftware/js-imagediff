@@ -15,7 +15,7 @@ test('the HTML report shows images for failed image matchers', async function ({
   });
   // The reporter draws after Jasmine's report updates.
   await page.waitForFunction(function () {
-    return document.querySelectorAll('.imagediff-failure').length === 4;
+    return document.querySelectorAll('.imagediff-failure').length === 7;
   });
 
   var report = await page.evaluate(function () {
@@ -91,6 +91,39 @@ test('the HTML report shows images for failed image matchers', async function ({
           ]
         }
       ]
+    },
+    {
+      spec: 'imagediff reporter fixture with hooks > differs between hooks',
+      messages: [{
+        text: 'Expected to be equal.',
+        images: [
+          { size: '4x4', pixel: red },
+          { size: '4x4', pixel: [0, 255, 255, 255] },
+          { size: '4x4', pixel: [255, 255, 255, 255] }
+        ]
+      }]
+    },
+    {
+      // The suite's beforeAll and afterAll failures, each with its own images.
+      spec: 'imagediff reporter fixture with hooks',
+      messages: [
+        {
+          text: 'Expected to be equal.',
+          images: [
+            { size: '4x4', pixel: [0, 255, 0, 255] },
+            { size: '4x4', pixel: blue },
+            { size: '4x4', pixel: [0, 255, 255, 255] }
+          ]
+        },
+        {
+          text: 'Expected to be equal.',
+          images: [
+            { size: '4x4', pixel: [255, 255, 0, 255] },
+            { size: '4x4', pixel: blue },
+            { size: '4x4', pixel: [255, 255, 255, 255] }
+          ]
+        }
+      ]
     }
   ]);
 
@@ -105,7 +138,8 @@ test('the HTML report shows images for failed image matchers', async function ({
     ['Expected not to be equal.'],
     ['with context: Expected to be equal.'],
     ['Expected 1 to be 2.'],
-    ['Expected 1 to be 2.', 'Expected to be equal.']
+    ['Expected 1 to be 2.', 'Expected to be equal.'],
+    ['Expected to be equal.']
   ]);
   expect(errors).toEqual([]);
 });

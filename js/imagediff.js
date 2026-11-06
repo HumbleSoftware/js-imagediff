@@ -336,7 +336,8 @@
   // Jasmine's HTML report.
   var
     reporterActive    = false,
-    pendingFailures   = [],   // snapshots since the last spec or suite ended
+    pendingFailures   = [],   // snapshots since the last spec started or ended
+    suiteFailures     = [],   // per running suite: snapshots from its beforeAll
     reportedFailures  = [],   // { message, images } in report order
     decoratedCount    = 0,
     observer;
@@ -350,13 +351,12 @@
     });
   }
 
-  function collectImageFailures (result) {
+  // Pairs snapshots, in order, with the result's failed image expectations.
+  function collectImageFailures (result, snapshots) {
     var
-      snapshots = pendingFailures,
       expectations = (result && result.failedExpectations) || [],
       i;
 
-    pendingFailures = [];
     for (i = 0; i < expectations.length && snapshots.length; i++) {
       if (expectations[i].matcherName === 'toImageDiffEqual') {
         reportedFailures.push({
@@ -432,17 +432,41 @@
     return figure;
   }
 
+  // Failures in a suite's beforeAll and afterAll are reported on the suite,
+  // and spec failures on the spec. Snapshots taken before a spec starts come
+  // from beforeAll, so they wait in the suite's queue until the suite is done.
+  function takePending () {
+    var snapshots = pendingFailures;
+    pendingFailures = [];
+    return snapshots;
+  }
+
   jasmineReporter = {
     jasmineStarted : function () {
       reporterActive = typeof document !== UNDEFINED;
+      pendingFailures = [];
+      suiteFailures = [[]]; // the top suite
+    },
+    suiteStarted : function () {
+      suiteFailures[suiteFailures.length - 1] =
+        suiteFailures[suiteFailures.length - 1].concat(takePending());
+      suiteFailures.push([]);
     },
     specStarted : function () {
-      pendingFailures = [];
+      suiteFailures[suiteFailures.length - 1] =
+        suiteFailures[suiteFailures.length - 1].concat(takePending());
     },
-    specDone : collectImageFailures,
-    suiteDone : collectImageFailures,
+    specDone : function (result) {
+      collectImageFailures(result, takePending());
+    },
+    suiteDone : function (result) {
+      collectImageFailures(result, (suiteFailures.pop() || []).concat(takePending()));
+    },
     jasmineDone : function () {
-      collectImageFailures();
+      // Top-level beforeAll and afterAll failures appear in the report's
+      // alert bar, not with the other failures, so they get no images.
+      pendingFailures = [];
+      suiteFailures = [];
       reporterActive = false;
     }
   };

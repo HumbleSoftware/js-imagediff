@@ -45,3 +45,29 @@ describe('imagediff reporter fixture', function () {
     expect(filled('#f00', 2, 2)).toImageDiffEqual(filled('#00f', 4, 4));
   });
 });
+
+describe('imagediff reporter fixture with hooks', function () {
+
+  function filled (color) {
+    var canvas = imagediff.createCanvas(4, 4),
+      context = canvas.getContext('2d');
+    context.fillStyle = color;
+    context.fillRect(0, 0, 4, 4);
+    return canvas;
+  }
+
+  // Failures in beforeAll and afterAll are reported on the suite, after its
+  // specs, so each needs its own images.
+  beforeAll(function () {
+    jasmine.addMatchers(imagediff.jasmine);
+    expect(filled('#0f0')).toImageDiffEqual(filled('#00f'));
+  });
+
+  afterAll(function () {
+    expect(filled('#ff0')).toImageDiffEqual(filled('#00f'));
+  });
+
+  it('differs between hooks', function () {
+    expect(filled('#f00')).toImageDiffEqual(filled('#0ff'));
+  });
+});
