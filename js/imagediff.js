@@ -25,7 +25,13 @@
 
     canvas, context,
     previous          = root[name],
-    imagediff, jasmine;
+    imagediff, jasmine, jasmineReporter,
+
+    // Jasmine reporter state
+    report,                 // Jasmine's HTML report, while the reporter runs
+    scopes            = [], // images recorded by the running spec and suites
+    pending           = [], // failures the report hasn't drawn yet
+    observer;
 
   // Creation
   function getCanvas (width, height) {
@@ -300,16 +306,176 @@
       return {
         compare: function (actual, expected, tolerance) {
           var pass = imagediff.equal(actual, expected, tolerance);
+          if (!pass) recordImages(actual, expected);
           return {
             pass: pass,
             message: pass
               ? 'Expected not to be equal.'
               : 'Expected to be equal.'
           };
+        },
+        // With this, compare only runs for expectations without `.not`, so
+        // every recording belongs to a failure.
+        negativeCompare: function (actual, expected, tolerance) {
+          var pass = !imagediff.equal(actual, expected, tolerance);
+          if (!pass) recordImages(actual, expected);
+          return {
+            pass: pass,
+            message: 'Expected not to be equal.'
+          };
         }
       }
     }
   };
+
+
+  // Jasmine Reporter
+  //
+  // A matcher's message is plain text, so the images of a failed
+  // toImageDiffEqual travel separately: the matcher records them, and this
+  // reporter adds them under the failure's message in Jasmine's HTML report.
+  // Without that report (in Node.js, say) nothing is recorded.
+  jasmineReporter = {
+    jasmineStarted : function () {
+      if (observer) observer.disconnect();
+      report = typeof document !== UNDEFINED &&
+        document.querySelector('.jasmine_html-reporter');
+      scopes = [];
+      pending = [];
+      // Jasmine's own reporter may hear of a failure, and draw it, after this
+      // one has.
+      if (report && typeof MutationObserver !== UNDEFINED) {
+        observer = new MutationObserver(showImages);
+        observer.observe(report, { childList: true, subtree: true });
+      }
+    },
+    suiteStarted : startScope,
+    specStarted : startScope,
+    specDone : finishScope,
+    suiteDone : finishScope,
+    jasmineDone : showImages
+  };
+
+  // Called by a failing toImageDiffEqual. Copies the pixels, so the report
+  // shows the images as they were when compared.
+  function recordImages (actual, expected) {
+    var
+      scope = scopes[scopes.length - 1],
+      a, b;
+
+    if (scope) {
+      a = toImageData(actual);
+      b = toImageData(expected);
+      scope.images.push([toCanvas(a), toCanvas(b), toCanvas(diff(a, b))]);
+    }
+  }
+
+  // A scope is a running spec or suite. A suite's scope is the last one
+  // while its beforeAll and afterAll run.
+  function startScope (result) {
+    if (report) scopes.push({ id : result.id, images : [] });
+  }
+  function finishScope (result) {
+    var
+      scope = scopes.pop(),
+      expectations = result.failedExpectations,
+      failure = { name : result.fullName, messages : [], images : [] },
+      count = 0,
+      isImage, i;
+
+    if (!scope) return;
+    if (scope.id !== result.id) {
+      // Not the spec or suite that started last, so don't guess whose
+      // images these are.
+      scopes = [];
+      return;
+    }
+
+    // The report lists failed specs and suites only.
+    if (result.status !== 'failed') return;
+
+    for (i = 0; i < expectations.length; i++) {
+      isImage = expectations[i].matcherName === 'toImageDiffEqual';
+      failure.messages.push(expectations[i].message);
+      failure.images.push(isImage ? scope.images[count++] : null);
+    }
+
+    // Recordings and failures pair up in order, as long as there is one of
+    // each. If not, show no images rather than risk the wrong ones.
+    if (count && count === scope.images.length) {
+      pending.push(failure);
+      showImages();
+    }
+  }
+
+  // Adds the images of the pending failures that the report has drawn.
+  function showImages () {
+    var details;
+
+    if (!pending.length) return;
+    details = report.querySelectorAll('.jasmine-failures .jasmine-spec-detail');
+    pending = pending.filter(function (failure) {
+      var i;
+      for (i = 0; i < details.length; i++) {
+        if (showFailure(details[i], failure)) return false;
+      }
+      return true;
+    });
+  }
+  // Adds a failure's images to one failed spec or suite in the report, if it
+  // is that failure: the same name and messages, and no images yet.
+  function showFailure (detail, failure) {
+    var
+      description = detail.querySelector('.jasmine-description'),
+      messages = detail.querySelectorAll('.jasmine-result-message'),
+      i;
+
+    if (
+      !description ||
+      joinName(description.textContent) !== joinName(failure.name) ||
+      messages.length !== failure.messages.length ||
+      detail.querySelector('.imagediff')
+    ) return false;
+    for (i = 0; i < messages.length; i++) {
+      if (messages[i].textContent !== failure.messages[i]) return false;
+    }
+
+    for (i = 0; i < messages.length; i++) {
+      if (failure.images[i]) {
+        messages[i].parentNode.insertBefore(
+          imagesElement(failure.images[i]),
+          messages[i].nextSibling
+        );
+      }
+    }
+    return true;
+  }
+  // The report joins suite and spec names with ' > ', and a result's full
+  // name joins them with ' '.
+  function joinName (name) {
+    return name.replace(/ > /g, ' ');
+  }
+  function imagesElement (images) {
+    var
+      labels = ['Actual', 'Expected', 'Diff'],
+      element = document.createElement('div'),
+      image, label, i;
+
+    element.className = 'imagediff';
+    // Line up with the message above.
+    element.style.cssText = 'padding: 5px 9px 0;';
+    for (i = 0; i < labels.length; i++) {
+      image = document.createElement('div');
+      image.className = 'imagediff-' + labels[i].toLowerCase();
+      image.style.cssText = 'display: inline-block; margin-right: 10px; vertical-align: top;';
+      label = document.createElement('div');
+      label.appendChild(document.createTextNode(labels[i]));
+      image.appendChild(label);
+      image.appendChild(images[i]);
+      element.appendChild(image);
+    }
+    return element;
+  }
 
 
   // Image Output
@@ -361,6 +527,7 @@
     },
 
     jasmine : jasmine,
+    jasmineReporter : jasmineReporter,
 
     // Compatibility
     noConflict : function () {

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>imagediff reporter fixture</title>
+  <!-- Specs that fail on purpose, to show what imagediff.jasmineReporter adds
+       to Jasmine's HTML report. spec/browser/reporter.spec.js checks it. -->
+  <base href="../../">
+  <link rel="stylesheet" href="node_modules/jasmine-core/lib/jasmine-core/jasmine.css">
+  <script src="node_modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
+  <script src="node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
+  <script src="node_modules/jasmine-core/lib/jasmine-core/boot.js"></script>
+  <script>
+    jasmine.getEnv().configure({ random: false });
+
+    // Collect results, as another reporter sees them, for the Playwright spec.
+    window.specResults = { specs: [], suites: [], done: null };
+    jasmine.getEnv().addReporter({
+      specDone: function (result) { window.specResults.specs.push(result); },
+      suiteDone: function (result) { window.specResults.suites.push(result); },
+      jasmineDone: function (result) { window.specResults.done = result; }
+    });
+  </script>
+  <script>
+    // ?lib= loads a built file instead of the source (see IMAGEDIFF_LIBRARY).
+    var lib = /[?&]lib=([^&]*)/.exec(window.location.search);
+    document.write('<script src="' + (lib ? decodeURIComponent(lib[1]) : 'js/imagediff.js') + '"><\/script>');
+  </script>
+  <script>
+    jasmine.getEnv().addReporter(imagediff.jasmineReporter);
+  </script>
+  <script src="spec/reporter/FailingSpec.js"></script>
+</head>
+<body>
+</body>
+</html>
