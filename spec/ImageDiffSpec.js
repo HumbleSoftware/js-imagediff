@@ -6,6 +6,10 @@ var imagediff = imagediff || require(
   require('path').join(__dirname, '..', process.env.IMAGEDIFF_LIBRARY || 'js/imagediff.js')
 );
 
+// In the browser, shows the images of a failed toImageDiffEqual in the HTML
+// report. In Node.js it has nothing to draw on.
+jasmine.getEnv().addReporter(imagediff.jasmineReporter);
+
 describe('ImageUtils', function() {
 
   var
@@ -407,12 +411,42 @@ describe('ImageUtils', function() {
           expect(result.pass).not.toBeTruthy();
         });
 
+        it('fails when negated and imagediff equal', function () {
+          var result = toImageDiffEqual.negativeCompare(a, b);
+          expect(result.message).toBe('Expected not to be equal.');
+          expect(result.pass).not.toBeTruthy();
+        });
+
+        it('passes when negated and not imagediff equal', function () {
+          var result = toImageDiffEqual.negativeCompare(a, c);
+          expect(result.pass).toBeTruthy();
+        });
+
+        it('gives the same result when called by Jasmine', function () {
+          // Jasmine passes its matcher utilities, and the reporter is added.
+          var result = imagediff.jasmine.toImageDiffEqual({}).compare(a, c);
+          expect(result).toEqual({ pass: false, message: 'Expected to be equal.' });
+        });
+
         it('throws when not image', function () {
           expect(function () {
             toImageDiffEqual.compare(a, {});
           }).toThrow();
         });
       }
+    });
+
+    describe('jasmineReporter', function () {
+
+      it('is a reporter', function () {
+        expect(typeof imagediff.jasmineReporter.jasmineStarted).toBe('function');
+        expect(typeof imagediff.jasmineReporter.specDone).toBe('function');
+      });
+
+      it('is not added as a matcher', function () {
+        expect(Object.keys(imagediff.jasmine).sort())
+          .toEqual(['toBeImageData', 'toImageDiffEqual']);
+      });
     });
   });
 

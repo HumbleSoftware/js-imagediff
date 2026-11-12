@@ -44,7 +44,7 @@ JS ImageDiff opens up the easy testing of Canvas and other image-like objects in
 * `toImageDiffEqual(expected, tolerance)` expect a result to equal another image type.
 * `toBeImageData()` expect a result to be ImageData.
 
-The matchers work with Jasmine 2.0 and later. To see how two images differ, render `imagediff.diff(actual, expected)` to a canvas, or save it with `imagediff.imageDataToPNG()` in Node.js.
+The matchers work with Jasmine 2.0 and later.
 
 To use matchers:
 
@@ -57,6 +57,14 @@ To use matchers:
     expect(canvas).toImageDiffEqual(expectedImage, 2);
   });
 ```
+
+To see the actual, expected and diff images under each failed `toImageDiffEqual` in Jasmine's HTML report, also add the reporter, once, before the specs run:
+
+```javascript
+  jasmine.getEnv().addReporter(imagediff.jasmineReporter);
+```
+
+The reporter needs Jasmine 3.0 or later. Failure messages stay plain text for every reporter. In Node.js, save `imagediff.diff(actual, expected)` with `imagediff.imageDataToPNG()` to see how two images differ.
 
 Demo
 ----
@@ -95,7 +103,7 @@ npm test
 * `npm test` runs the specs in Node.js and then in headless Chromium, and fails if either fails. The specs and the CLI use the source in `js/`, so no build is needed first.
 * `npm run test:node` runs the specs, including a smoke test of the `imagediff` CLI, in Node.js against [node-canvas](https://github.com/Automattic/node-canvas) (the optional `canvas` dependency, which `npm ci` installs from prebuilt binaries on common platforms).
 * `npm run test:browser` runs the specs in headless Chromium with Playwright.
-* `npm run test:serve` serves the specs at http://localhost:8085/spec/ to watch them run in a browser.
+* `npm run test:serve` serves the specs at http://localhost:8085/spec/ to watch them run in a browser. http://localhost:8085/spec/reporter/ runs specs that fail on purpose, to show what `imagediff.jasmineReporter` draws.
 * `IMAGEDIFF_LIBRARY=imagediff.min.js npm test` runs the same specs against a built file (a path from the repository root) instead of the source: through `require` in Node and as a `<script>` global in Chromium. `npm run test:built` does this for `imagediff.js` and then `imagediff.min.js`.
 * `npm run release` builds the release files and then runs `npm run test:built`, leaving them ready to commit. `npm publish` runs `npm run test:built` first (without rebuilding) and refuses to publish if it fails or if the built files differ from what's committed. See [CONTRIBUTING.md](CONTRIBUTING.md#releasing).
 * `npm run build` (or `make imagediff`) writes `imagediff.js` (a license header naming the `package.json` version + `js/imagediff.js`) and `imagediff.min.js`, minified with [terser](https://terser.org/) to ES5 output. Run it only when preparing a release; see [CONTRIBUTING.md](CONTRIBUTING.md#build-outputs).
@@ -108,6 +116,10 @@ The container uses the official Playwright image, whose tag in `.devcontainer/de
 
 Changelog
 ---------
+
+### 2.1.0
+
+* `imagediff.jasmineReporter` shows the actual, expected and diff images of a failed `toImageDiffEqual` in Jasmine's HTML report, as 1.0.8 did. Add it with `jasmine.getEnv().addReporter(imagediff.jasmineReporter)`.
 
 ### 2.0.0
 

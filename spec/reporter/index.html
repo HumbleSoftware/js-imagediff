@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>imagediff reporter fixture</title>
+  <!-- These specs fail on purpose. spec/browser/reporter.spec.js checks what
+       imagediff.jasmineReporter draws into the report. -->
+  <base href="../../">
+  <link rel="stylesheet" href="node_modules/jasmine-core/lib/jasmine-core/jasmine.css">
+  <script src="node_modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
+  <script src="node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
+  <script>
+    // ?lib= loads a built file instead of the source (see IMAGEDIFF_LIBRARY).
+    var lib = /[?&]lib=([^&]*)/.exec(window.location.search);
+    document.write('<script src="' + (lib ? decodeURIComponent(lib[1]) : 'js/imagediff.js') + '"><\/script>');
+  </script>
+  <script>
+    var env = jasmine.getEnv();
+
+    // What any other reporter is told about the failures.
+    window.specResults = { failed: [], done: null };
+    function collect (result) {
+      if (result.status === 'failed') { window.specResults.failed.push(result); }
+    }
+    env.addReporter({
+      specDone: collect,
+      suiteDone: collect,
+      jasmineDone: function (result) { window.specResults.done = result; }
+    });
+
+    // boot.js adds Jasmine's HTML reporter once the page has loaded, so
+    // Jasmine calls a reporter added here before it. ?order=after adds
+    // imagediff's reporter after it instead, as when a test runner sets the
+    // HTML reporter up first.
+    if (/[?&]order=after/.test(window.location.search)) {
+      window.onload = function () {
+        env.addReporter(new jasmine.HtmlReporterV2({
+          env: env,
+          urls: new jasmine.HtmlReporterV2Urls()
+        }));
+        env.addReporter(imagediff.jasmineReporter);
+        env.execute();
+      };
+    } else {
+      env.addReporter(imagediff.jasmineReporter);
+      document.write('<script src="node_modules/jasmine-core/lib/jasmine-core/boot.js"><\/script>');
+    }
+  </script>
+  <script>
+    // The Playwright spec expects the failures in declaration order.
+    jasmine.getEnv().configure({ random: false });
+  </script>
+  <script src="spec/reporter/FailingSpec.js"></script>
+</head>
+<body>
+</body>
+</html>
