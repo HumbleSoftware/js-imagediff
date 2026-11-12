@@ -407,12 +407,53 @@ describe('ImageUtils', function() {
           expect(result.pass).not.toBeTruthy();
         });
 
+        it('fails negated when imagediff equal', function () {
+          var result = toImageDiffEqual.negativeCompare(a, b);
+          expect(result.message).toBe('Expected not to be equal.');
+          expect(result.pass).not.toBeTruthy();
+        });
+
+        it('passes negated when not imagediff equal', function () {
+          var result = toImageDiffEqual.negativeCompare(a, c);
+          expect(result.pass).toBeTruthy();
+        });
+
         it('throws when not image', function () {
           expect(function () {
             toImageDiffEqual.compare(a, {});
           }).toThrow();
         });
       }
+    });
+  });
+
+  // Jasmine Reporter (Node only; spec/browser/reporter.spec.js covers what it
+  // adds to Jasmine's HTML report in the browser)
+  (isNode ? describe : xdescribe)('Jasmine Reporter', function () {
+
+    it('does nothing without an HTML report', function () {
+      var
+        reporter = imagediff.jasmineReporter,
+        toImageDiffEqual = imagediff.jasmine.toImageDiffEqual(),
+        a = imagediff.createImageData(1, 1),
+        b = imagediff.createImageData(2, 2),
+        spec = {
+          id: 'spec1',
+          fullName: 'a failing spec',
+          status: 'failed',
+          failedExpectations: [
+            { matcherName: 'toImageDiffEqual', message: 'Expected to be equal.' }
+          ]
+        };
+
+      reporter.jasmineStarted({});
+      reporter.specStarted(spec);
+      expect(toImageDiffEqual.compare(a, b)).toEqual({
+        pass: false,
+        message: 'Expected to be equal.'
+      });
+      reporter.specDone(spec);
+      reporter.jasmineDone({});
     });
   });
 
