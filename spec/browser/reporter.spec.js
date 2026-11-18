@@ -188,8 +188,12 @@ function readFailures () {
 // part: specs with a failed toImageDiffEqual each, and a report that lists
 // one failure early and the others late, and not all as the reporter was told.
 test('draws only on the failure that the report lists for it', async function ({ page }) {
+  var library = process.env.IMAGEDIFF_LIBRARY || 'js/imagediff.js';
+  await page.addScriptTag({ path: path.join(__dirname, '..', '..', library) });
+  // The Jasmine add-on built next to it (see spec/JasmineSpec.js).
   await page.addScriptTag({
-    path: path.join(__dirname, '..', '..', process.env.IMAGEDIFF_LIBRARY || 'js/imagediff.js')
+    path: path.join(__dirname, '..', '..',
+      library.replace(/imagediff((\.min)?\.js)$/, 'imagediff-jasmine$1'))
   });
 
   var drawn = await page.evaluate(function () {

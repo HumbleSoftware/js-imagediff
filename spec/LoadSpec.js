@@ -51,6 +51,38 @@ describe('loading imagediff', function () {
     });
   });
 
+  it('has no Jasmine reporter without the add-on', function (done) {
+    runWithoutCanvas([
+      'var imagediff = require(LIBRARY);',
+      'result.reporter = typeof imagediff.jasmineReporter;',
+      'result.negativeCompare = typeof imagediff.jasmine.toImageDiffEqual().negativeCompare;'
+    ].join('\n'), function (result) {
+      expect(result.reporter).toBe('undefined');
+      expect(result.negativeCompare).toBe('undefined');
+      expect(result.leaked).toEqual([]);
+      done();
+    });
+  });
+
+  it('loads the Jasmine add-on onto imagediff', function (done) {
+    // The add-on built next to LIBRARY, as spec/JasmineSpec.js finds it.
+    var addon = LIBRARY.replace(/imagediff((\.min)?\.js)$/, 'imagediff-jasmine$1');
+    runWithoutCanvas([
+      'var addon = require(' + JSON.stringify(addon) + ');',
+      'var imagediff = require(require("path").join(require("path").dirname(' +
+        JSON.stringify(addon) + '), "imagediff"));',
+      'result.same = addon === imagediff;',
+      'result.reporter = typeof imagediff.jasmineReporter;',
+      'result.negativeCompare = typeof imagediff.jasmine.toImageDiffEqual().negativeCompare;'
+    ].join('\n'), function (result) {
+      expect(result.same).toBe(true);
+      expect(result.reporter).toBe('object');
+      expect(result.negativeCompare).toBe('function');
+      expect(result.leaked).toEqual([]);
+      done();
+    });
+  });
+
   it('loads in strict mode with an undefined `this`', function (done) {
     // Mimics a bundler wrapping the CommonJS module in strict mode.
     runWithoutCanvas([

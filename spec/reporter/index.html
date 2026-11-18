@@ -12,7 +12,10 @@
   <script>
     // ?lib= loads a built file instead of the source (see IMAGEDIFF_LIBRARY).
     var lib = /[?&]lib=([^&]*)/.exec(window.location.search);
-    document.write('<script src="' + (lib ? decodeURIComponent(lib[1]) : 'js/imagediff.js') + '"><\/script>');
+    lib = lib ? decodeURIComponent(lib[1]) : 'js/imagediff.js';
+    document.write('<script src="' + lib + '"><\/script>');
+    // The Jasmine add-on built next to it (see spec/JasmineSpec.js).
+    document.write('<script src="' + lib.replace(/imagediff((\.min)?\.js)$/, 'imagediff-jasmine$1') + '"><\/script>');
   </script>
   <script>
     var env = jasmine.getEnv();

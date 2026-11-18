@@ -13,7 +13,7 @@
   "license": "MIT",
   "scripts": {
     "build": "node make/build.js",
-    "prepublishOnly": "git diff --exit-code --stat HEAD -- imagediff.js imagediff.min.js && npm run test:built",
+    "prepublishOnly": "git ls-files --error-unmatch imagediff.js imagediff.min.js imagediff-jasmine.js imagediff-jasmine.min.js >/dev/null && git diff --exit-code --stat HEAD -- imagediff.js imagediff.min.js imagediff-jasmine.js imagediff-jasmine.min.js && npm run test:built",
     "release": "npm run build && npm run test:built",
     "test": "npm run test:node && npm run test:browser",
     "test:browser": "playwright test --config=spec/playwright.config.js",
@@ -58,6 +58,9 @@
     "imagediff.js",
     "imagediff.min.js",
     "js/imagediff.js",
+    "imagediff-jasmine.js",
+    "imagediff-jasmine.min.js",
+    "js/imagediff-jasmine.js",
     "bin/",
     "browser/"
   ]

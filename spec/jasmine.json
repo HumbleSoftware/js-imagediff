@@ -1,6 +1,7 @@
 {
   "spec_files": [
     "spec/ImageDiffSpec.js",
+    "spec/JasmineSpec.js",
     "spec/CliSpec.js",
     "spec/LoadSpec.js",
     "spec/VersionSpec.js"

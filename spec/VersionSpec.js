@@ -12,5 +12,11 @@ if (library) {
       var source = fs.readFileSync(path.join(__dirname, '..', library), 'utf8');
       expect(source.split('\n')[0]).toBe('// js-imagediff ' + version);
     });
+
+    it('names the package version in the Jasmine add-on built next to it', function () {
+      var addon = library.replace(/imagediff((\.min)?\.js)$/, 'imagediff-jasmine$1');
+      var source = fs.readFileSync(path.join(__dirname, '..', addon), 'utf8');
+      expect(source.split('\n')[0]).toBe('// js-imagediff-jasmine ' + version);
+    });
   });
 }
