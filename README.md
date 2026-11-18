@@ -73,7 +73,7 @@ Then add its reporter, once, before the specs run:
   jasmine.getEnv().addReporter(imagediff.jasmineReporter);
 ```
 
-With a bundler, `require('imagediff/imagediff-jasmine')` loads the add-on and returns imagediff.
+Load the add-on once, right after imagediff and before any `noConflict()`. With a bundler, `require('imagediff/imagediff-jasmine')` loads it and returns imagediff. With AMD, it asks for the module `imagediff`, so map that id to imagediff (for example with a RequireJS `paths` entry).
 
 The add-on keeps the `imagediff.jasmine` matchers' results and messages, so failure messages stay plain text for every reporter. The reporter needs Jasmine 3.0 or later.
 

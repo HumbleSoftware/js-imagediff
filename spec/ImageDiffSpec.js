@@ -6,6 +6,13 @@ var imagediff = imagediff || require(
   require('path').join(__dirname, '..', process.env.IMAGEDIFF_LIBRARY || 'js/imagediff.js')
 );
 
+// imagediff's own matchers, kept before spec/JasmineSpec.js loads the Jasmine
+// add-on, which replaces toImageDiffEqual.
+var coreMatchers = {
+  toBeImageData: imagediff.jasmine.toBeImageData,
+  toImageDiffEqual: imagediff.jasmine.toImageDiffEqual
+};
+
 describe('ImageUtils', function() {
 
   var
@@ -34,7 +41,11 @@ describe('ImageUtils', function() {
   }
 
   beforeEach(function () {
-    jasmine.addMatchers(imagediff.jasmine);
+    jasmine.addMatchers(coreMatchers);
+  });
+
+  it('tests imagediff\'s own matchers, not the Jasmine add-on\'s', function () {
+    expect(coreMatchers.toImageDiffEqual().negativeCompare).toBeUndefined();
   });
 
   // Creation Testing
@@ -328,7 +339,7 @@ describe('ImageUtils', function() {
 
     describe('toBeImageData', function () {
 
-      var toBeImageData = imagediff.jasmine.toBeImageData();
+      var toBeImageData = coreMatchers.toBeImageData();
 
       it('is image data', function () {
         var result = toBeImageData.compare(imagediff.createImageData(1, 1));
@@ -346,7 +357,7 @@ describe('ImageUtils', function() {
     describe('toImageDiffEqual', function () {
 
       var
-        toImageDiffEqual = imagediff.jasmine.toImageDiffEqual(),
+        toImageDiffEqual = coreMatchers.toImageDiffEqual(),
         imageA = newImage(),
         imageB = newImage(),
         imageC = newImage();
