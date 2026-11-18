@@ -51,33 +51,32 @@ describe('loading imagediff', function () {
     });
   });
 
-  it('has no Jasmine reporter without the add-on', function (done) {
+  it('records no failures unless asked', function (done) {
     runWithoutCanvas([
       'var imagediff = require(LIBRARY);',
-      'result.reporter = typeof imagediff.jasmineReporter;',
-      'result.negativeCompare = typeof imagediff.jasmine.toImageDiffEqual().negativeCompare;'
+      'result.recording = imagediff.recordFailures(false);'
     ].join('\n'), function (result) {
-      expect(result.reporter).toBe('undefined');
-      expect(result.negativeCompare).toBe('undefined');
+      expect(result.recording).toBe(false);
       expect(result.leaked).toEqual([]);
       done();
     });
   });
 
-  it('loads the Jasmine add-on onto imagediff', function (done) {
+  it('loads the Jasmine add-on without changing imagediff', function (done) {
     // The add-on built next to LIBRARY, as spec/JasmineSpec.js finds it.
     var addon = LIBRARY.replace(/imagediff((\.min)?\.js)$/, 'imagediff-jasmine$1');
     runWithoutCanvas([
-      'var addon = require(' + JSON.stringify(addon) + ');',
       'var imagediff = require(require("path").join(require("path").dirname(' +
         JSON.stringify(addon) + '), "imagediff"));',
-      'result.same = addon === imagediff;',
-      'result.reporter = typeof imagediff.jasmineReporter;',
-      'result.negativeCompare = typeof imagediff.jasmine.toImageDiffEqual().negativeCompare;'
+      'var before = Object.keys(imagediff).join();',
+      'var addon = require(' + JSON.stringify(addon) + ');',
+      'result.unchanged = Object.keys(imagediff).join() === before;',
+      'result.reporter = typeof addon.reporter.jasmineStarted;',
+      'result.recording = imagediff.recordFailures(false);'
     ].join('\n'), function (result) {
-      expect(result.same).toBe(true);
-      expect(result.reporter).toBe('object');
-      expect(result.negativeCompare).toBe('function');
+      expect(result.unchanged).toBe(true);
+      expect(result.reporter).toBe('function');
+      expect(result.recording).toBe(false);
       expect(result.leaked).toEqual([]);
       done();
     });

@@ -28,13 +28,10 @@
     var lib = /[?&]lib=([^&]*)/.exec(window.location.search);
     lib = lib ? decodeURIComponent(lib[1]) : 'js/imagediff.js';
     document.write('<script src="' + lib + '"><\/script>');
-  </script>
-  <!-- Before the add-on, so that it keeps imagediff's own matchers. -->
-  <script src="spec/ImageDiffSpec.js"></script>
-  <script>
-    // The Jasmine add-on built next to the library (see spec/JasmineSpec.js).
+    // The Jasmine add-on built next to it (see spec/JasmineSpec.js).
     document.write('<script src="' + lib.replace(/imagediff((\.min)?\.js)$/, 'imagediff-jasmine$1') + '"><\/script>');
   </script>
+  <script src="spec/ImageDiffSpec.js"></script>
   <script src="spec/JasmineSpec.js"></script>
 </head>
 <body>

@@ -17,6 +17,8 @@ API
 * `equal(a, b, tolerance)` tests image type objects for equality; accepts tolerance in pixels.
 * `diff(a, b, options)` performs an image diff on a and b, returning a - b.
   * `options.align` set to `'top'` to top-align the images when diffing different sizes.
+* `recordFailures(record)` starts (`true`) or stops (`false`) recording the images of failed `toImageDiffEqual` expectations, for a test reporter to show. Stopping drops what is recorded. Returns whether it was recording. Off by default.
+* `takeFailures()` returns the failures recorded since the last call, as `{ actual, expected, tolerance }` objects with copies of the images as ImageData, and clears them.
 * `noConflict()` removes imagediff from the global space for compatibility, returning imagediff.
 * `imageDataToPNG(imageData, outputFile, [callback])` (node only) renders the imageData to png in outputFile with optional callback.
 
@@ -70,12 +72,12 @@ To see the actual, expected and diff images under each failed `toImageDiffEqual`
 Then add its reporter, once, before the specs run:
 
 ```javascript
-  jasmine.getEnv().addReporter(imagediff.jasmineReporter);
+  jasmine.getEnv().addReporter(imagediffJasmine.reporter);
 ```
 
-Load the add-on once, right after imagediff and before any `noConflict()`. With a bundler, `require('imagediff/imagediff-jasmine')` loads it and returns imagediff. With AMD, it asks for the module `imagediff`, so map that id to imagediff (for example with a RequireJS `paths` entry).
+The add-on doesn't change imagediff or its matchers. Its reporter turns on imagediff's failure record (`recordFailures`) while a run has an HTML report, and draws what it takes from it. Failure messages stay plain text for every other reporter.
 
-The add-on keeps the `imagediff.jasmine` matchers' results and messages, so failure messages stay plain text for every reporter. The reporter needs Jasmine 3.0 or later.
+With a bundler, `require('imagediff/imagediff-jasmine').reporter` is the reporter. With AMD, the add-on asks for the module `imagediff`, so map that id to imagediff (for example with a RequireJS `paths` entry). The reporter needs Jasmine 3.0 or later.
 
 Demo
 ----
@@ -130,7 +132,9 @@ Changelog
 
 ### 2.1.0
 
-* A Jasmine add-on, `imagediff-jasmine.js`, shows the actual, expected and diff images of a failed `toImageDiffEqual` in Jasmine's HTML report, as 1.0.8 did. Load it after imagediff and add its reporter with `jasmine.getEnv().addReporter(imagediff.jasmineReporter)`. imagediff itself is unchanged.
+* A Jasmine add-on, `imagediff-jasmine.js`, shows the actual, expected and diff images of a failed `toImageDiffEqual` in Jasmine's HTML report, as 1.0.8 did. Load it after imagediff and add its reporter with `jasmine.getEnv().addReporter(imagediffJasmine.reporter)`.
+* `recordFailures()` and `takeFailures()` keep the images of failed `toImageDiffEqual` expectations for a test reporter to show. Recording is off unless a reporter turns it on.
+* `not.toImageDiffEqual` uses its own comparison (`negativeCompare`), so its failures are recorded too. Its results and messages are unchanged.
 
 ### 2.0.0
 

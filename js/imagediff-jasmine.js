@@ -7,16 +7,16 @@
   } else if (typeof define === 'function' && typeof define.amd === 'object') {
     define(['imagediff'], definition);
   } else {
-    definition(root.imagediff);
+    root.imagediffJasmine = definition(root.imagediff);
   }
 })(function (imagediff) {
 
   // Jasmine Reporter
   //
-  // A matcher can only give Jasmine a string, so the images of a failed
-  // toImageDiffEqual can't travel with its message. Instead the matcher keeps
-  // copies of them for the spec or suite that is running, and this reporter
-  // draws them into Jasmine's HTML report, under the message of the failure.
+  // Draws the images of each failed toImageDiffEqual into Jasmine's HTML
+  // report, under the message of the failure. imagediff records the images
+  // (see imagediff.recordFailures). This reporter takes them at each spec and
+  // suite boundary, and so knows which spec or suite they failed in.
 
   var
     UNDEFINED = 'undefined',
@@ -25,17 +25,17 @@
     observer,
     spec,             // id of the running spec
     suites  = [],     // ids of the running suites, innermost last
-    kept    = {},     // images of failed matchers, by spec or suite id
+    kept    = {},     // recorded failures, by spec or suite id
     failed  = [],     // failed specs and suites the report hasn't listed yet
     listed  = 0,      // failures of the report that are dealt with
 
-    jasmineReporter;
+    reporter;
 
-  if (!imagediff) {
-    throw new Error('imagediff-jasmine needs imagediff: load imagediff first.');
+  if (!imagediff || !imagediff.takeFailures) {
+    throw new Error('imagediff-jasmine needs imagediff 2.1 or later: load imagediff first.');
   }
 
-  // Copies an image into a new canvas, so it keeps its pixels as they were.
+  // Copies an image into a new canvas.
   function toCanvas (object) {
     var
       data = imagediff.toImageData(object),
@@ -45,22 +45,23 @@
     return canvas;
   }
 
-  function keepImages (actual, expected) {
-    // Failures outside of every suite aren't listed with the others.
-    var id = report && (spec || suites[suites.length - 1]);
-    if (!id) return;
-    (kept[id] = kept[id] || []).push({
-      actual: toCanvas(actual),
-      expected: toCanvas(expected),
-      diff: toCanvas(imagediff.diff(actual, expected))
-    });
+  // Takes what imagediff recorded since the last boundary, for the spec or
+  // suite that was running.
+  function collect () {
+    var
+      taken = imagediff.takeFailures(),
+      // Failures outside of every suite aren't listed with the others.
+      id = spec || suites[suites.length - 1];
+
+    if (!id || !taken.length) return;
+    kept[id] = (kept[id] || []).concat(taken);
   }
 
   // Lines up the failed expectations of a finished spec or suite with the
-  // images kept while it ran.
+  // failures recorded while it ran.
   function finish (result) {
     var
-      images = kept[result.id] || [],
+      recorded = kept[result.id] || [],
       expectations = result.failedExpectations || [],
       failure = { description: result.description, messages: [], images: [] },
       count = 0,
@@ -72,11 +73,11 @@
     for (i = 0; i < expectations.length; i++) {
       failure.messages.push(expectations[i].message);
       if (expectations[i].matcherName === 'toImageDiffEqual') {
-        failure.images[i] = images[count++];
+        failure.images[i] = recorded[count++];
       }
     }
     // Better no images than the images of another failure.
-    if (count !== images.length) failure.images = [];
+    if (count !== recorded.length) failure.images = [];
 
     failed.push(failure);
     draw(); // the report may list it already
@@ -113,17 +114,17 @@
     }
   }
 
-  function imagesElement (images) {
+  function imagesElement (recorded) {
     var element = document.createElement('div');
     element.className = 'imagediff-images';
     element.style.padding = '5px 9px 0'; // in line with the message
-    element.appendChild(imageElement('Actual', images.actual));
-    element.appendChild(imageElement('Expected', images.expected));
-    element.appendChild(imageElement('Diff', images.diff));
+    element.appendChild(imageElement('Actual', recorded.actual));
+    element.appendChild(imageElement('Expected', recorded.expected));
+    element.appendChild(imageElement('Diff', imagediff.diff(recorded.actual, recorded.expected)));
     return element;
   }
 
-  function imageElement (label, canvas) {
+  function imageElement (label, image) {
     var
       element = document.createElement('div'),
       caption = document.createElement('div');
@@ -134,11 +135,11 @@
     element.style.marginRight = '10px';
     caption.appendChild(document.createTextNode(label + ':'));
     element.appendChild(caption);
-    element.appendChild(canvas);
+    element.appendChild(toCanvas(image));
     return element;
   }
 
-  jasmineReporter = {
+  reporter = {
     jasmineStarted : function () {
       if (observer) observer.disconnect();
       // Without an HTML report, or a way to watch it, there's nothing to do.
@@ -150,6 +151,7 @@
       kept = {};
       failed = [];
       listed = 0;
+      imagediff.recordFailures(!!report);
       // Jasmine may call this reporter before its own, and may list the
       // failures only at the end, so draw whenever the report changes.
       if (report) {
@@ -158,49 +160,27 @@
       }
     },
     suiteStarted : function (result) {
+      collect();
       suites.push(result.id);
     },
     specStarted : function (result) {
+      collect();
       spec = result.id;
     },
     specDone : function (result) {
+      collect();
       spec = null;
       finish(result);
     },
     suiteDone : function (result) {
+      collect();
       suites.pop();
       finish(result);
+    },
+    jasmineDone : function () {
+      imagediff.recordFailures(false);
     }
   };
 
-
-  // Jasmine Matcher
-  //
-  // Takes the place of imagediff's own toImageDiffEqual, with the same
-  // results and messages, and keeps the images of each failure for the
-  // reporter. Jasmine passes its matcher utilities to this factory for each
-  // expectation. A direct call without them keeps no images.
-  imagediff.jasmine.toImageDiffEqual = function (util) {
-    function comparer (not) {
-      return function (actual, expected, tolerance) {
-        var equal = imagediff.equal(actual, expected, tolerance);
-        if (util && equal === not) keepImages(actual, expected);
-        return {
-          pass: equal !== not,
-          message: equal
-            ? 'Expected not to be equal.'
-            : 'Expected to be equal.'
-        };
-      };
-    }
-    return {
-      compare: comparer(false),
-      // Used by .not, so that its failures are known here too.
-      negativeCompare: comparer(true)
-    };
-  };
-
-  imagediff.jasmineReporter = jasmineReporter;
-
-  return imagediff;
+  return { reporter: reporter };
 });

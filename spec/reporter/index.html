@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>imagediff reporter fixture</title>
   <!-- These specs fail on purpose. spec/browser/reporter.spec.js checks what
-       imagediff.jasmineReporter draws into the report. -->
+       imagediffJasmine.reporter draws into the report. -->
   <base href="../../">
   <link rel="stylesheet" href="node_modules/jasmine-core/lib/jasmine-core/jasmine.css">
   <script src="node_modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
@@ -41,11 +41,11 @@
           env: env,
           urls: new jasmine.HtmlReporterV2Urls()
         }));
-        env.addReporter(imagediff.jasmineReporter);
+        env.addReporter(imagediffJasmine.reporter);
         env.execute();
       };
     } else {
-      env.addReporter(imagediff.jasmineReporter);
+      env.addReporter(imagediffJasmine.reporter);
       document.write('<script src="node_modules/jasmine-core/lib/jasmine-core/boot.js"><\/script>');
     }
   </script>

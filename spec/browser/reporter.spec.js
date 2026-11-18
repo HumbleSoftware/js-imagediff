@@ -1,5 +1,5 @@
 // Runs the failing specs in spec/reporter/ and checks what
-// imagediff.jasmineReporter draws into Jasmine's HTML report.
+// imagediffJasmine.reporter draws into Jasmine's HTML report.
 // IMAGEDIFF_LIBRARY (a path from the repository root) loads a built file
 // instead of the source.
 var path = require('path');
@@ -198,7 +198,7 @@ test('draws only on the failure that the report lists for it', async function ({
 
   var drawn = await page.evaluate(function () {
     var
-      reporter = imagediff.jasmineReporter,
+      reporter = imagediffJasmine.reporter,
       report = document.createElement('div'),
       failures = document.createElement('div');
 
