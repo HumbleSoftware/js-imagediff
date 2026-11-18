@@ -18,7 +18,7 @@ API
 * `diff(a, b, options)` performs an image diff on a and b, returning a - b.
   * `options.align` set to `'top'` to top-align the images when diffing different sizes.
 * `recordFailures(record)` starts (`true`) or stops (`false`) recording the images of failed `toImageDiffEqual` expectations, for a test reporter to show. Stopping drops what is recorded. Returns whether it was recording. Off by default.
-* `takeFailures()` returns the failures recorded since the last call, as `{ actual, expected, tolerance }` objects with copies of the images as ImageData, and clears them.
+* `takeFailures()` returns the failures recorded since the last call, as `{ actual, expected, tolerance }` objects with copies of the images as ImageData, and clears them. One reporter at a time should take the record.
 * `noConflict()` removes imagediff from the global space for compatibility, returning imagediff.
 * `imageDataToPNG(imageData, outputFile, [callback])` (node only) renders the imageData to png in outputFile with optional callback.
 

@@ -28,6 +28,7 @@
     kept    = {},     // recorded failures, by spec or suite id
     failed  = [],     // failed specs and suites the report hasn't listed yet
     listed  = 0,      // failures of the report that are dealt with
+    restore = null,   // recording setting to put back at the end of a run
 
     reporter;
 
@@ -48,11 +49,13 @@
   // Takes what imagediff recorded since the last boundary, for the spec or
   // suite that was running.
   function collect () {
-    var
-      taken = imagediff.takeFailures(),
-      // Failures outside of every suite aren't listed with the others.
-      id = spec || suites[suites.length - 1];
+    var taken, id;
 
+    // Without a report, leave the record to whoever else may be reading it.
+    if (!report) return;
+    taken = imagediff.takeFailures();
+    // Failures outside of every suite aren't listed with the others.
+    id = spec || suites[suites.length - 1];
     if (!id || !taken.length) return;
     kept[id] = (kept[id] || []).concat(taken);
   }
@@ -151,10 +154,10 @@
       kept = {};
       failed = [];
       listed = 0;
-      imagediff.recordFailures(!!report);
       // Jasmine may call this reporter before its own, and may list the
       // failures only at the end, so draw whenever the report changes.
       if (report) {
+        if (restore === null) restore = imagediff.recordFailures(true);
         observer = new MutationObserver(draw);
         observer.observe(report, { childList: true, subtree: true });
       }
@@ -178,7 +181,8 @@
       finish(result);
     },
     jasmineDone : function () {
-      imagediff.recordFailures(false);
+      if (restore !== null) imagediff.recordFailures(restore);
+      restore = null;
     }
   };
 

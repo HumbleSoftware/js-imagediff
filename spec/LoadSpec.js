@@ -82,6 +82,58 @@ describe('loading imagediff', function () {
     });
   });
 
+  // Loads the add-on as a script tag would, into a context whose globals are
+  // `context`, and returns the add-on's reporter.
+  var loadAddonAsScript = [
+    'var vm = require("vm");',
+    'var ADDON = ' + JSON.stringify(LIBRARY.replace(/imagediff((\.min)?\.js)$/, 'imagediff-jasmine$1')) + ';',
+    'function loadAddonAsScript (context) {',
+    '  vm.runInNewContext(require("fs").readFileSync(ADDON, "utf8"), context);',
+    '  return context.imagediffJasmine.reporter;',
+    '}'
+  ].join('\n');
+
+  it('refuses to load the Jasmine add-on without imagediff 2.1', function (done) {
+    runWithoutCanvas([
+      loadAddonAsScript,
+      'try {',
+      '  loadAddonAsScript({ imagediff: { jasmine: {} } });',  // as 2.0.0
+      '} catch (e) {',
+      '  result.error = e.message;',
+      '}'
+    ].join('\n'), function (result) {
+      expect(result.error)
+        .toBe('imagediff-jasmine needs imagediff 2.1 or later: load imagediff first.');
+      done();
+    });
+  });
+
+  it('puts back the recording setting after a run with a report', function (done) {
+    runWithoutCanvas([
+      loadAddonAsScript,
+      'var imagediff = require(LIBRARY);',
+      'var reporter = loadAddonAsScript({',
+      '  imagediff: imagediff,',
+      '  document: { querySelector: function () { return {}; } },',
+      '  MutationObserver: function () { this.observe = this.disconnect = function () {}; }',
+      '});',
+      'imagediff.recordFailures(true);',
+      'reporter.jasmineStarted({});',
+      'reporter.jasmineDone({});',
+      'result.wasOn = imagediff.recordFailures(false);',
+      'reporter.jasmineStarted({});',
+      'result.duringRun = imagediff.recordFailures(true);',
+      'imagediff.recordFailures(false);',
+      'reporter.jasmineDone({});',
+      'result.afterRun = imagediff.recordFailures(false);'
+    ].join('\n'), function (result) {
+      expect(result.wasOn).toBe(true);
+      expect(result.duringRun).toBe(true);
+      expect(result.afterRun).toBe(false);
+      done();
+    });
+  });
+
   it('loads in strict mode with an undefined `this`', function (done) {
     // Mimics a bundler wrapping the CommonJS module in strict mode.
     runWithoutCanvas([
