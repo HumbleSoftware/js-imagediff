@@ -1,4 +1,5 @@
-// Builds imagediff.js (license header + source) and imagediff.min.js.
+// Builds imagediff.js and imagediff-jasmine.js (license header + source),
+// and a minified copy of each.
 // No bundling or transpiling: the source ships as written.
 
 var fs = require('fs');
@@ -18,19 +19,26 @@ function write (file, contents) {
 
 // The header names the package version, so it can't drift from it.
 var version = require('../package.json').version;
-var license = '// js-imagediff ' + version + '\n' + read('js/license.js');
-var source = license + '\n' + read('js/imagediff.js');
 
-write('imagediff.js', source);
+function build (name) {
+  var license = '// js-' + name + ' ' + version + '\n' + read('js/license.js');
+  var source = license + '\n' + read('js/' + name + '.js');
 
-terser.minify(source, {
-  // The library targets ES5 (IE9). Keep the minifier from emitting
-  // anything newer than that.
-  ecma: 5,
-  compress: { ecma: 5 },
-  format: { ecma: 5, comments: false, preamble: license.trim() }
-}).then(function (result) {
-  write('imagediff.min.js', result.code + '\n');
+  write(name + '.js', source);
+
+  return terser.minify(source, {
+    // The library targets ES5 (IE9). Keep the minifier from emitting
+    // anything newer than that.
+    ecma: 5,
+    compress: { ecma: 5 },
+    format: { ecma: 5, comments: false, preamble: license.trim() }
+  }).then(function (result) {
+    write(name + '.min.js', result.code + '\n');
+  });
+}
+
+build('imagediff').then(function () {
+  return build('imagediff-jasmine');
 }).catch(function (error) {
   console.error(error);
   process.exitCode = 1;

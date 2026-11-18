@@ -25,6 +25,8 @@
 
     canvas, context,
     previous          = root[name],
+    recording         = false,  // see recordFailures
+    failures          = [],
     imagediff, jasmine;
 
   // Creation
@@ -282,6 +284,33 @@
   }
 
 
+  // Failure Record
+  //
+  // A matcher can only give a test framework a message, so the images of a
+  // failure can't travel with it. While recording, toImageDiffEqual keeps
+  // copies of them here, for a reporter (such as imagediff-jasmine.js) to take.
+  // Returns whether it was recording, so a caller can put that back.
+  function recordFailures (record) {
+    var was = recording;
+    recording = !!record;
+    if (!recording) failures = [];
+    return was;
+  }
+  function takeFailures () {
+    var taken = failures;
+    failures = [];
+    return taken;
+  }
+  function recordFailure (actual, expected, tolerance) {
+    if (!recording) return;
+    failures.push({
+      actual: imagediff.toImageData(actual),     // copies, so the images
+      expected: imagediff.toImageData(expected), // stay as they were
+      tolerance: tolerance
+    });
+  }
+
+
   // Jasmine Matchers
   jasmine = {
     toBeImageData : function () {
@@ -296,18 +325,28 @@
       }
     },
 
-    toImageDiffEqual : function () {
-      return {
-        compare: function (actual, expected, tolerance) {
-          var pass = imagediff.equal(actual, expected, tolerance);
+    // Jasmine passes its matcher utilities to this factory. Only those
+    // expectations are recorded, not direct calls to compare.
+    toImageDiffEqual : function (util) {
+      function comparer (not) {
+        return function (actual, expected, tolerance) {
+          var
+            equal = imagediff.equal(actual, expected, tolerance),
+            pass = equal !== not;
+          if (!pass && util) recordFailure(actual, expected, tolerance);
           return {
             pass: pass,
-            message: pass
+            message: equal
               ? 'Expected not to be equal.'
               : 'Expected to be equal.'
           };
-        }
+        };
       }
+      return {
+        compare: comparer(false),
+        // Used by .not, so that its failures are recorded too.
+        negativeCompare: comparer(true)
+      };
     }
   };
 
@@ -361,6 +400,8 @@
     },
 
     jasmine : jasmine,
+    recordFailures : recordFailures,
+    takeFailures : takeFailures,
 
     // Compatibility
     noConflict : function () {

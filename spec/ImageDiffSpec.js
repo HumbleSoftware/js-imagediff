@@ -412,7 +412,85 @@ describe('ImageUtils', function() {
             toImageDiffEqual.compare(a, {});
           }).toThrow();
         });
+
+        it('fails when negated and imagediff equal', function () {
+          expect(toImageDiffEqual.negativeCompare(a, b))
+            .toEqual({ pass: false, message: 'Expected not to be equal.' });
+        });
+
+        it('passes when negated and not imagediff equal', function () {
+          expect(toImageDiffEqual.negativeCompare(a, c))
+            .toEqual({ pass: true, message: 'Expected to be equal.' });
+        });
       }
+    });
+
+    describe('failure record', function () {
+
+      var a, b, c, wasRecording;
+
+      // Called with Jasmine's matcher utilities, as through expect.
+      function fromJasmine () {
+        return imagediff.jasmine.toImageDiffEqual({});
+      }
+
+      beforeEach(function () {
+        a = imagediff.createImageData(1, 1);
+        b = imagediff.createImageData(1, 1);
+        c = imagediff.createImageData(1, 1);
+        c.data[0] = 255;
+        c.data[3] = 255;
+        // imagediff-jasmine's reporter may be recording in this run.
+        wasRecording = imagediff.recordFailures(true);
+        imagediff.takeFailures();
+      });
+
+      afterEach(function () {
+        imagediff.recordFailures(wasRecording);
+      });
+
+      it('records failed expectations', function () {
+        fromJasmine().compare(a, c, 3);
+        fromJasmine().negativeCompare(a, b);
+        var failures = imagediff.takeFailures();
+        expect(failures.length).toBe(2);
+        expect(failures[0].actual).toImageDiffEqual(a);
+        expect(failures[0].expected).toImageDiffEqual(c);
+        expect(failures[0].tolerance).toBe(3);
+        expect(failures[1].actual).toImageDiffEqual(a);
+        expect(failures[1].expected).toImageDiffEqual(b);
+      });
+
+      it('records copies of the images', function () {
+        fromJasmine().compare(a, c);
+        c.data[1] = 255;
+        expect(imagediff.takeFailures()[0].expected.data[1]).toBe(0);
+      });
+
+      it('takes each failure once', function () {
+        fromJasmine().compare(a, c);
+        expect(imagediff.takeFailures().length).toBe(1);
+        expect(imagediff.takeFailures()).toEqual([]);
+      });
+
+      it('records nothing for passing expectations', function () {
+        fromJasmine().compare(a, b);
+        fromJasmine().negativeCompare(a, c);
+        expect(imagediff.takeFailures()).toEqual([]);
+      });
+
+      it('records nothing for direct calls', function () {
+        imagediff.jasmine.toImageDiffEqual().compare(a, c);
+        expect(imagediff.takeFailures()).toEqual([]);
+      });
+
+      it('records nothing, and drops what it has, when stopped', function () {
+        fromJasmine().compare(a, c);
+        expect(imagediff.recordFailures(false)).toBe(true);
+        expect(imagediff.takeFailures()).toEqual([]);
+        fromJasmine().compare(a, c);
+        expect(imagediff.takeFailures()).toEqual([]);
+      });
     });
   });
 
