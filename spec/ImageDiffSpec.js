@@ -6,10 +6,6 @@ var imagediff = imagediff || require(
   require('path').join(__dirname, '..', process.env.IMAGEDIFF_LIBRARY || 'js/imagediff.js')
 );
 
-// In the browser, shows the images of a failed toImageDiffEqual in the HTML
-// report. In Node.js it has nothing to draw on.
-jasmine.getEnv().addReporter(imagediff.jasmineReporter);
-
 describe('ImageUtils', function() {
 
   var
@@ -411,41 +407,89 @@ describe('ImageUtils', function() {
           expect(result.pass).not.toBeTruthy();
         });
 
-        it('fails when negated and imagediff equal', function () {
-          var result = toImageDiffEqual.negativeCompare(a, b);
-          expect(result.message).toBe('Expected not to be equal.');
-          expect(result.pass).not.toBeTruthy();
-        });
-
-        it('passes when negated and not imagediff equal', function () {
-          var result = toImageDiffEqual.negativeCompare(a, c);
-          expect(result.pass).toBeTruthy();
-        });
-
-        it('gives the same result when called by Jasmine', function () {
-          // Jasmine passes its matcher utilities, and the reporter is added.
-          var result = imagediff.jasmine.toImageDiffEqual({}).compare(a, c);
-          expect(result).toEqual({ pass: false, message: 'Expected to be equal.' });
-        });
-
         it('throws when not image', function () {
           expect(function () {
             toImageDiffEqual.compare(a, {});
           }).toThrow();
         });
+
+        it('fails when negated and imagediff equal', function () {
+          expect(toImageDiffEqual.negativeCompare(a, b))
+            .toEqual({ pass: false, message: 'Expected not to be equal.' });
+        });
+
+        it('passes when negated and not imagediff equal', function () {
+          expect(toImageDiffEqual.negativeCompare(a, c))
+            .toEqual({ pass: true, message: 'Expected to be equal.' });
+        });
       }
     });
 
-    describe('jasmineReporter', function () {
+    describe('failure record', function () {
 
-      it('is a reporter', function () {
-        expect(typeof imagediff.jasmineReporter.jasmineStarted).toBe('function');
-        expect(typeof imagediff.jasmineReporter.specDone).toBe('function');
+      var a, b, c, wasRecording;
+
+      // Called with Jasmine's matcher utilities, as through expect.
+      function fromJasmine () {
+        return imagediff.jasmine.toImageDiffEqual({});
+      }
+
+      beforeEach(function () {
+        a = imagediff.createImageData(1, 1);
+        b = imagediff.createImageData(1, 1);
+        c = imagediff.createImageData(1, 1);
+        c.data[0] = 255;
+        c.data[3] = 255;
+        // imagediff-jasmine's reporter may be recording in this run.
+        wasRecording = imagediff.recordFailures(true);
+        imagediff.takeFailures();
       });
 
-      it('is not added as a matcher', function () {
-        expect(Object.keys(imagediff.jasmine).sort())
-          .toEqual(['toBeImageData', 'toImageDiffEqual']);
+      afterEach(function () {
+        imagediff.recordFailures(wasRecording);
+      });
+
+      it('records failed expectations', function () {
+        fromJasmine().compare(a, c, 3);
+        fromJasmine().negativeCompare(a, b);
+        var failures = imagediff.takeFailures();
+        expect(failures.length).toBe(2);
+        expect(failures[0].actual).toImageDiffEqual(a);
+        expect(failures[0].expected).toImageDiffEqual(c);
+        expect(failures[0].tolerance).toBe(3);
+        expect(failures[1].actual).toImageDiffEqual(a);
+        expect(failures[1].expected).toImageDiffEqual(b);
+      });
+
+      it('records copies of the images', function () {
+        fromJasmine().compare(a, c);
+        c.data[1] = 255;
+        expect(imagediff.takeFailures()[0].expected.data[1]).toBe(0);
+      });
+
+      it('takes each failure once', function () {
+        fromJasmine().compare(a, c);
+        expect(imagediff.takeFailures().length).toBe(1);
+        expect(imagediff.takeFailures()).toEqual([]);
+      });
+
+      it('records nothing for passing expectations', function () {
+        fromJasmine().compare(a, b);
+        fromJasmine().negativeCompare(a, c);
+        expect(imagediff.takeFailures()).toEqual([]);
+      });
+
+      it('records nothing for direct calls', function () {
+        imagediff.jasmine.toImageDiffEqual().compare(a, c);
+        expect(imagediff.takeFailures()).toEqual([]);
+      });
+
+      it('records nothing, and drops what it has, when stopped', function () {
+        fromJasmine().compare(a, c);
+        expect(imagediff.recordFailures(false)).toBe(true);
+        expect(imagediff.takeFailures()).toEqual([]);
+        fromJasmine().compare(a, c);
+        expect(imagediff.takeFailures()).toEqual([]);
       });
     });
   });

@@ -17,6 +17,8 @@ API
 * `equal(a, b, tolerance)` tests image type objects for equality; accepts tolerance in pixels.
 * `diff(a, b, options)` performs an image diff on a and b, returning a - b.
   * `options.align` set to `'top'` to top-align the images when diffing different sizes.
+* `recordFailures(record)` starts (`true`) or stops (`false`) recording the images of failed `toImageDiffEqual` expectations, for a test reporter to show. Stopping drops what is recorded. Returns whether it was recording. Off by default.
+* `takeFailures()` returns the failures recorded since the last call, as `{ actual, expected, tolerance }` objects with copies of the images as ImageData, and clears them. One reporter at a time should take the record.
 * `noConflict()` removes imagediff from the global space for compatibility, returning imagediff.
 * `imageDataToPNG(imageData, outputFile, [callback])` (node only) renders the imageData to png in outputFile with optional callback.
 
@@ -44,7 +46,7 @@ JS ImageDiff opens up the easy testing of Canvas and other image-like objects in
 * `toImageDiffEqual(expected, tolerance)` expect a result to equal another image type.
 * `toBeImageData()` expect a result to be ImageData.
 
-The matchers work with Jasmine 2.0 and later.
+The matchers work with Jasmine 2.0 and later. To see how two images differ, render `imagediff.diff(actual, expected)` to a canvas, or save it with `imagediff.imageDataToPNG()` in Node.js.
 
 To use matchers:
 
@@ -58,13 +60,24 @@ To use matchers:
   });
 ```
 
-To see the actual, expected and diff images under each failed `toImageDiffEqual` in Jasmine's HTML report, also add the reporter, once, before the specs run:
+### Jasmine reporter
 
-```javascript
-  jasmine.getEnv().addReporter(imagediff.jasmineReporter);
+To see the actual, expected and diff images under each failed `toImageDiffEqual` in Jasmine's HTML report, load the Jasmine add-on, `imagediff-jasmine.js` (or `imagediff-jasmine.min.js`), after imagediff itself:
+
+```html
+  <script src="imagediff.js"></script>
+  <script src="imagediff-jasmine.js"></script>
 ```
 
-The reporter needs Jasmine 3.0 or later. Failure messages stay plain text for every reporter. In Node.js, save `imagediff.diff(actual, expected)` with `imagediff.imageDataToPNG()` to see how two images differ.
+Then add its reporter, once, before the specs run:
+
+```javascript
+  jasmine.getEnv().addReporter(imagediffJasmine.reporter);
+```
+
+The add-on doesn't change imagediff or its matchers. Its reporter turns on imagediff's failure record (`recordFailures`) while a run has an HTML report, and draws what it takes from it. Failure messages stay plain text for every other reporter.
+
+With a bundler, `require('imagediff/imagediff-jasmine').reporter` is the reporter. With AMD, the add-on asks for the module `imagediff`, so map that id to imagediff (for example with a RequireJS `paths` entry). The reporter needs Jasmine 3.0 or later.
 
 Demo
 ----
@@ -103,10 +116,10 @@ npm test
 * `npm test` runs the specs in Node.js and then in headless Chromium, and fails if either fails. The specs and the CLI use the source in `js/`, so no build is needed first.
 * `npm run test:node` runs the specs, including a smoke test of the `imagediff` CLI, in Node.js against [node-canvas](https://github.com/Automattic/node-canvas) (the optional `canvas` dependency, which `npm ci` installs from prebuilt binaries on common platforms).
 * `npm run test:browser` runs the specs in headless Chromium with Playwright.
-* `npm run test:serve` serves the specs at http://localhost:8085/spec/ to watch them run in a browser. http://localhost:8085/spec/reporter/ runs specs that fail on purpose, to show what `imagediff.jasmineReporter` draws.
-* `IMAGEDIFF_LIBRARY=imagediff.min.js npm test` runs the same specs against a built file (a path from the repository root) instead of the source: through `require` in Node and as a `<script>` global in Chromium. `npm run test:built` does this for `imagediff.js` and then `imagediff.min.js`.
+* `npm run test:serve` serves the specs at http://localhost:8085/spec/ to watch them run in a browser. http://localhost:8085/spec/reporter/ runs specs that fail on purpose, to show what the Jasmine add-on's reporter draws.
+* `IMAGEDIFF_LIBRARY=imagediff.min.js npm test` runs the same specs against a built file (a path from the repository root) instead of the source: through `require` in Node and as a `<script>` global in Chromium. The add-on specs load the add-on built next to it (`imagediff-jasmine.min.js` with `imagediff.min.js`). `npm run test:built` does this for `imagediff.js` and then `imagediff.min.js`.
 * `npm run release` builds the release files and then runs `npm run test:built`, leaving them ready to commit. `npm publish` runs `npm run test:built` first (without rebuilding) and refuses to publish if it fails or if the built files differ from what's committed. See [CONTRIBUTING.md](CONTRIBUTING.md#releasing).
-* `npm run build` (or `make imagediff`) writes `imagediff.js` (a license header naming the `package.json` version + `js/imagediff.js`) and `imagediff.min.js`, minified with [terser](https://terser.org/) to ES5 output. Run it only when preparing a release; see [CONTRIBUTING.md](CONTRIBUTING.md#build-outputs).
+* `npm run build` (or `make imagediff`) writes `imagediff.js` (a license header naming the `package.json` version + `js/imagediff.js`) and `imagediff.min.js`, and the same for the Jasmine add-on (`imagediff-jasmine.js` and `imagediff-jasmine.min.js`, from `js/imagediff-jasmine.js`), minified with [terser](https://terser.org/) to ES5 output. Run it only when preparing a release; see [CONTRIBUTING.md](CONTRIBUTING.md#build-outputs).
 
 ### Dev container
 
@@ -119,7 +132,9 @@ Changelog
 
 ### 2.1.0
 
-* `imagediff.jasmineReporter` shows the actual, expected and diff images of a failed `toImageDiffEqual` in Jasmine's HTML report, as 1.0.8 did. Add it with `jasmine.getEnv().addReporter(imagediff.jasmineReporter)`.
+* A Jasmine add-on, `imagediff-jasmine.js`, shows the actual, expected and diff images of a failed `toImageDiffEqual` in Jasmine's HTML report, as 1.0.8 did. Load it after imagediff and add its reporter with `jasmine.getEnv().addReporter(imagediffJasmine.reporter)`.
+* `recordFailures()` and `takeFailures()` keep the images of failed `toImageDiffEqual` expectations for a test reporter to show. Recording is off unless a reporter turns it on.
+* `not.toImageDiffEqual` uses its own comparison (`negativeCompare`), so its failures are recorded too. Its results and messages are unchanged.
 
 ### 2.0.0
 

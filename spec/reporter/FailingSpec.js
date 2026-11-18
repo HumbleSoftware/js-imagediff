@@ -45,7 +45,7 @@ describe('reporter fixture', function () {
   it('fails several ways', function () {
     expect(true).toBe(false);
     expect(solid(RED)).toImageDiffEqual(solid(RED));
-    // A direct call isn't an expectation, and keeps no images.
+    // A direct call isn't an expectation, and isn't recorded.
     imagediff.jasmine.toImageDiffEqual().compare(solid(RED), solid(WHITE));
     expect(solid(RED, 40, 20)).toImageDiffEqual(solid(BLUE, 20, 40));
     expect(imagediff.toImageData(solid(GREEN))).toImageDiffEqual(solid(RED).getContext('2d'));
@@ -58,7 +58,7 @@ describe('reporter fixture', function () {
   });
 
   it('fails with images that do not line up', function () {
-    // Images kept for a failure that Jasmine never reports.
+    // Recorded as a failure, but Jasmine never reports it.
     imagediff.jasmine.toImageDiffEqual({}).compare(solid(WHITE), solid(RED));
     expect(solid(GREEN)).toImageDiffEqual(solid(BLUE));
   });
