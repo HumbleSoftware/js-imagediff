@@ -14,7 +14,13 @@ API
 * `isImageData(object)` tests for ImageData object.
 * `isImageType(object)` tests for any of the above.
 * `toImageData(object)` converts image type object to a new ImageData object.
-* `equal(a, b, tolerance)` tests image type objects for equality; accepts tolerance in pixels.
+* `equal(a, b, tolerance)` tests image type objects for equality. Without a tolerance the images must match exactly. The tolerance is either:
+  * a number: the largest difference allowed in any channel of any pixel, from 0 to 255;
+  * or an options object, with either or both of these limits, each a fraction (0 to 1) of 255. Only the limits given apply, and with neither the images must match exactly.
+    * `maxPixelDifference`: the largest difference allowed in any channel of any pixel. `{ maxPixelDifference: 10 / 255 }` is the same as `10`.
+    * `maxAverageDifference`: the largest average difference across all channels (RGBA) of all pixels.
+
+  For example, `imagediff.equal(a, b, { maxPixelDifference: 0.05, maxAverageDifference: 0.01 })` allows no channel more than 5% off, and the image no more than 1% off overall.
 * `diff(a, b, options)` performs an image diff on a and b, returning a - b.
   * `options.align` set to `'top'` to top-align the images when diffing different sizes.
 * `recordFailures(record)` starts (`true`) or stops (`false`) recording the images of failed `toImageDiffEqual` expectations, for a test reporter to show. Stopping drops what is recorded. Returns whether it was recording. Off by default.
@@ -43,7 +49,7 @@ Unit Testing Canvas
 
 JS ImageDiff opens up the easy testing of Canvas and other image-like objects in JavaScript.  js-imagediff supplies two Jasmine matchers to make this easier.
 
-* `toImageDiffEqual(expected, tolerance)` expect a result to equal another image type.
+* `toImageDiffEqual(expected, tolerance)` expect a result to equal another image type, with an optional tolerance as for `equal`.
 * `toBeImageData()` expect a result to be ImageData.
 
 The matchers work with Jasmine 2.0 and later. To see how two images differ, render `imagediff.diff(actual, expected)` to a canvas, or save it with `imagediff.imageDataToPNG()` in Node.js.
@@ -135,6 +141,7 @@ Changelog
 * A Jasmine add-on, `imagediff-jasmine.js`, shows the actual, expected and diff images of a failed `toImageDiffEqual` in Jasmine's HTML report, as 1.0.8 did. Load it after imagediff and add its reporter with `jasmine.getEnv().addReporter(imagediffJasmine.reporter)`.
 * `recordFailures()` and `takeFailures()` keep the images of failed `toImageDiffEqual` expectations for a test reporter to show. Recording is off unless a reporter turns it on.
 * `not.toImageDiffEqual` uses its own comparison (`negativeCompare`), so its failures are recorded too. Its results and messages are unchanged.
+* `equal` and `toImageDiffEqual` take an options object as the tolerance, to limit the average difference across the whole image (`maxAverageDifference`), the difference in any channel (`maxPixelDifference`), or both (#126).
 
 ### 2.0.0
 

@@ -211,6 +211,82 @@ describe('ImageUtils', function() {
       b.data[0] = 100;
       expect(imagediff.equal(a, b, 5)).toEqual(false);
     });
+
+    describe('with tolerance options', function () {
+
+      // a is 2x2 and all zero: 16 channels, so one channel off by 255 is an
+      // average difference of 1/16.
+
+      beforeEach(function () {
+        b = context.createImageData(2, 2);
+      });
+
+      it('should match exactly with neither option', function () {
+        expect(imagediff.equal(a, b, {})).toEqual(true);
+        expect(imagediff.equal(a, b, null)).toEqual(true);
+        b.data[0] = 1;
+        expect(imagediff.equal(a, b, {})).toEqual(false);
+        expect(imagediff.equal(a, b, null)).toEqual(false);
+      });
+
+      it('should limit each channel with maxPixelDifference, as a fraction of 255', function () {
+        b.data[0] = 10;
+        expect(imagediff.equal(a, b, { maxPixelDifference: 10 / 255 })).toEqual(true);
+        b.data[0] = 11;
+        expect(imagediff.equal(a, b, { maxPixelDifference: 10 / 255 })).toEqual(false);
+      });
+
+      it('should not limit the average with only maxPixelDifference', function () {
+        var i;
+        for (i = 0; i < b.data.length; i++) b.data[i] = 10;
+        expect(imagediff.equal(a, b, { maxPixelDifference: 10 / 255 })).toEqual(true);
+      });
+
+      it('should limit the average with maxAverageDifference', function () {
+        b.data[0] = 255;
+        expect(imagediff.equal(a, b, { maxAverageDifference: 1 / 16 })).toEqual(true);
+        expect(imagediff.equal(a, b, { maxAverageDifference: 0.06 })).toEqual(false);
+      });
+
+      it('should not limit any one channel with only maxAverageDifference', function () {
+        b.data[0] = 255;
+        expect(imagediff.equal(a, b, { maxAverageDifference: 0.1 })).toEqual(true);
+      });
+
+      it('should count the alpha channel', function () {
+        b.data[3] = 255;
+        expect(imagediff.equal(a, b, { maxAverageDifference: 0.06 })).toEqual(false);
+        expect(imagediff.equal(a, b, { maxPixelDifference: 0.5 })).toEqual(false);
+      });
+
+      it('should apply both limits when both are given', function () {
+        var
+          options = { maxPixelDifference: 0.05, maxAverageDifference: 0.01 },
+          i;
+
+        // 12 is within 5% of 255 (12.75), and 12 / (255 * 16) is within 1%.
+        b.data[0] = 12;
+        expect(imagediff.equal(a, b, options)).toEqual(true);
+        // 13 is past the per-channel limit, though the average is small.
+        b.data[0] = 13;
+        expect(imagediff.equal(a, b, options)).toEqual(false);
+        // 5 in every channel is within each channel's limit, not the average.
+        for (i = 0; i < b.data.length; i++) b.data[i] = 5;
+        expect(imagediff.equal(a, b, options)).toEqual(false);
+      });
+
+      it('should not be equal for different sizes', function () {
+        b = context.createImageData(3, 2);
+        expect(imagediff.equal(a, b, { maxPixelDifference: 1, maxAverageDifference: 1 })).toEqual(false);
+      });
+
+      it('should work with toImageDiffEqual', function () {
+        b.data[0] = 255;
+        expect(a).toImageDiffEqual(b, { maxAverageDifference: 0.1 });
+        expect(a).not.toImageDiffEqual(b, { maxAverageDifference: 0.01 });
+        expect(a).not.toImageDiffEqual(b, {});
+      });
+    });
   });
 
 
