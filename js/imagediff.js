@@ -167,18 +167,44 @@
   function equalDimensions (a, b) {
     return equalHeight(a, b) && equalWidth(a, b);
   }
+  // tolerance is either a number, the largest difference allowed in any
+  // channel (0 to 255), or an options object with either or both of:
+  //   maxPixelDifference   - the same limit, as a fraction of 255
+  //   maxAverageDifference - the largest average difference across all
+  //                          channels of all pixels, as a fraction of 255
+  // With no tolerance, or neither option, the images must match exactly.
   function equal (a, b, tolerance) {
 
     var
       aData     = a.data,
       bData     = b.data,
       length    = aData.length,
+      options   = typeof tolerance === 'object' && tolerance !== null,
+      // A number compares in channel values, as before; options in fractions.
+      scale     = options ? 255 : 1,
+      maxPixel  = options ? tolerance.maxPixelDifference : +(tolerance || 0),
+      maxAverage = options ? tolerance.maxAverageDifference : undefined,
+      // An option that isn't a number, or is NaN, isn't given.
+      hasPixel  = typeof maxPixel === 'number' && (maxPixel === maxPixel || !options),
+      hasAverage = typeof maxAverage === 'number' && maxAverage === maxAverage,
+      total     = 0,
+      difference,
       i;
 
-    tolerance = tolerance || 0;
+    // An option that isn't given doesn't limit anything, unless neither is.
+    if (!hasPixel && !hasAverage) {
+      maxPixel = 0;
+      hasPixel = true;
+    }
 
     if (!equalDimensions(a, b)) return false;
-    for (i = length; i--;) if (aData[i] !== bData[i] && Math.abs(aData[i] - bData[i]) > tolerance) return false;
+    for (i = length; i--;) {
+      difference = Math.abs(aData[i] - bData[i]);
+      // No difference is within any limit, even a negative one.
+      if (difference && hasPixel && difference / scale > maxPixel) return false;
+      total += difference;
+    }
+    if (total && hasAverage && total / (255 * length) > maxAverage) return false;
 
     return true;
   }
