@@ -212,6 +212,12 @@ describe('ImageUtils', function() {
       expect(imagediff.equal(a, b, 5)).toEqual(false);
     });
 
+    it('should be equal for identical images with a negative tolerance, as in 2.0.0', function () {
+      b = context.createImageData(2, 2);
+      expect(imagediff.equal(a, b, -1)).toEqual(true);
+      expect(imagediff.equal(a, b, { maxPixelDifference: -1, maxAverageDifference: -1 })).toEqual(true);
+    });
+
     describe('with tolerance options', function () {
 
       // a is 2x2 and all zero: 16 channels, so one channel off by 255 is an
@@ -251,6 +257,15 @@ describe('ImageUtils', function() {
       it('should not limit any one channel with only maxAverageDifference', function () {
         b.data[0] = 255;
         expect(imagediff.equal(a, b, { maxAverageDifference: 0.1 })).toEqual(true);
+      });
+
+      it('should ignore options that are not numbers, or are NaN', function () {
+        b.data[0] = 1;
+        expect(imagediff.equal(a, b, { maxPixelDifference: NaN })).toEqual(false);
+        expect(imagediff.equal(a, b, { maxAverageDifference: NaN })).toEqual(false);
+        expect(imagediff.equal(a, b, { maxPixelDifference: '0.5' })).toEqual(false);
+        b.data[0] = 255;
+        expect(imagediff.equal(a, b, { maxPixelDifference: 0.5, maxAverageDifference: NaN })).toEqual(false);
       });
 
       it('should count the alpha channel', function () {

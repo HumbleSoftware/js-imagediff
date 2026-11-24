@@ -184,8 +184,9 @@
       scale     = options ? 255 : 1,
       maxPixel  = options ? tolerance.maxPixelDifference : +(tolerance || 0),
       maxAverage = options ? tolerance.maxAverageDifference : undefined,
-      hasPixel  = typeof maxPixel === 'number',
-      hasAverage = typeof maxAverage === 'number',
+      // An option that isn't a number, or is NaN, isn't given.
+      hasPixel  = typeof maxPixel === 'number' && (maxPixel === maxPixel || !options),
+      hasAverage = typeof maxAverage === 'number' && maxAverage === maxAverage,
       total     = 0,
       difference,
       i;
@@ -199,10 +200,11 @@
     if (!equalDimensions(a, b)) return false;
     for (i = length; i--;) {
       difference = Math.abs(aData[i] - bData[i]);
-      if (hasPixel && difference / scale > maxPixel) return false;
+      // No difference is within any limit, even a negative one.
+      if (difference && hasPixel && difference / scale > maxPixel) return false;
       total += difference;
     }
-    if (hasAverage && length && total / (255 * length) > maxAverage) return false;
+    if (total && hasAverage && total / (255 * length) > maxAverage) return false;
 
     return true;
   }

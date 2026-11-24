@@ -16,9 +16,9 @@ API
 * `toImageData(object)` converts image type object to a new ImageData object.
 * `equal(a, b, tolerance)` tests image type objects for equality. Without a tolerance the images must match exactly. The tolerance is either:
   * a number: the largest difference allowed in any channel of any pixel, from 0 to 255;
-  * or an options object, with either or both of these limits, each a fraction (0 to 1) of 255. Only the limits given apply, and with neither the images must match exactly.
+  * or an options object, with either or both of these limits, each a fraction (0 to 1) of 255. Only the limits given apply (an option that isn't a number, or is misspelled, is ignored), and with neither the images must match exactly.
     * `maxPixelDifference`: the largest difference allowed in any channel of any pixel. `{ maxPixelDifference: 10 / 255 }` is the same as `10`.
-    * `maxAverageDifference`: the largest average difference across all channels (RGBA) of all pixels.
+    * `maxAverageDifference`: the largest average difference across all channels of all pixels. Alpha is included, so in opaque images the color channels may average up to a third more.
 
   For example, `imagediff.equal(a, b, { maxPixelDifference: 0.05, maxAverageDifference: 0.01 })` allows no channel more than 5% off, and the image no more than 1% off overall.
 * `diff(a, b, options)` performs an image diff on a and b, returning a - b.
